@@ -7,7 +7,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version 2.0
-$script:ReleaseManagerVersion = "3.1.0"
+$script:ReleaseManagerVersion = "3.1.1"
 
 function Write-Title {
     param([string]$Text)
@@ -501,7 +501,7 @@ function Sync-And-CheckRepository {
         $upstream = Invoke-Native -Command "git" -Arguments @("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}") -Capture -AllowFailure
         if ($upstream.ExitCode -ne 0) {
             Write-Warn "Branch-ul $branch nu are upstream configurat."
-            if (Confirm-Action -Message "Il public acum pe origin/$branch?" -DefaultYes $true) {
+            if (Confirm-Action -Message "Il public acum pe origin/$($branch)?" -DefaultYes $true) {
                 Invoke-Native -Command "git" -Arguments @("push", "-u", "origin", $branch) | Out-Null
                 Write-Ok "Branch publicat pe origin/$branch."
             }
@@ -522,7 +522,7 @@ function Sync-And-CheckRepository {
 
             if ($ahead -gt 0) {
                 Write-Warn "Branch-ul local are $ahead commit(uri) nepublicate."
-                if (Confirm-Action -Message "Le public acum in $upstreamName?" -DefaultYes $true) {
+                if (Confirm-Action -Message "Le public acum in $($upstreamName)?" -DefaultYes $true) {
                     Invoke-Native -Command "git" -Arguments @("push") | Out-Null
                     Write-Ok "Commit-urile au fost publicate."
                 }
@@ -602,7 +602,7 @@ function Create-And-PushCandidateTag {
     }
     Write-Host ""
 
-    if (-not (Confirm-Action -Message "Creez si public tag-ul $tag?" -DefaultYes $false)) {
+    if (-not (Confirm-Action -Message "Creez si public tag-ul $($tag)?" -DefaultYes $false)) {
         Write-Warn "Operatie anulata."
         return
     }
