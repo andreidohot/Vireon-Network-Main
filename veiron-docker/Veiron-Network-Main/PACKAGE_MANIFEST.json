@@ -1,236 +1,58 @@
 {
-  "package": "Veiron Docker Control Plane Stack",
-  "version": "1.0.0-candidate.1",
-  "created_at": "2026-07-20",
-  "target_repository": "andreidohot/Veiron-Network-Main",
-  "base_commit": "53f4b1e8969a5d77b70f0124a1c5450cfe868eba",
+  "name": "Veiron Docker Control Plane v2 — No Auto Update",
+  "version": "2.1.0-no-autoupdate",
   "status": "Mainnet Candidate / Prototype",
-  "file_count": 45,
+  "auto_update": false,
   "files": [
-    {
-      "path": ".github/workflows/docker-control-plane-images.yml",
-      "size_bytes": 3782,
-      "sha256": "90db2bb2d831b50025149b55a0a87dee07f03c45760dadb1d2708de487959d91"
-    },
-    {
-      "path": "APPLY_TO_REPOSITORY.md",
-      "size_bytes": 1215,
-      "sha256": "e0631e14dec62b61c4b27e06bf476c42c2a7a242eddc6fddde742a60be73d889"
-    },
-    {
-      "path": "VALIDATION_REPORT.md",
-      "size_bytes": 1535,
-      "sha256": "db045bb59f04e66f80d33e82e626edc9c41a832327948fe0a92d2115c3ef5cb1"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/.env.example",
-      "size_bytes": 2455,
-      "sha256": "059ca29d2a714c34c8aaa8f47cf515debb01cec387a0d8ee7d3d1e0083c04ca6"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/.gitignore",
-      "size_bytes": 41,
-      "sha256": "511b65904a4af3825e2fa108e807123b4b36a152ada683664f189119fe5b7919"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/DOCKER_DEPLOYMENT.md",
-      "size_bytes": 6656,
-      "sha256": "0138ed00a497e09410a8ee5528b3b7aeb58eac60509d19643d3ae806c45e812b"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/DOCKER_IMPLEMENTATION_STATUS.md",
-      "size_bytes": 1947,
-      "sha256": "2aff07547c722b0bf8ed0daec718e17b2a1a8db19c078641b9e59864e3f862bb"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/compose.yaml",
-      "size_bytes": 14811,
-      "sha256": "7d5551e1238927cfe224d78fc9f264d75d66df6ceca4828bd0cb79401491ae28"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/Dockerfile",
-      "size_bytes": 1932,
-      "sha256": "0a5087af3bf894f8898d9a826361c50b1963a7dd5cea62a78cccba5ba6bfd994"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/Dockerfile.dockerignore",
-      "size_bytes": 97,
-      "sha256": "82e34548f86f339d78978d488bcf3f72af867742d905515cc6a0e47ed672a3f3"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/backup/Dockerfile",
-      "size_bytes": 413,
-      "sha256": "18710a62dff0b55bc3c0a39bcd66149625ac3e21fecd15f28d4ce55b5b4ef4e2"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/backup/Dockerfile.dockerignore",
-      "size_bytes": 41,
-      "sha256": "abdbf92272c474664e0b2ee37865aafc6a865942b06f7719ffe29b0ddc838342"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/backup/backup-loop.sh",
-      "size_bytes": 354,
-      "sha256": "b3818125f9ca86b6b8cdd4fa4d1a565e3806ea5728fe3acfd000544c9ce7d5a1"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/backup/backup-now.sh",
-      "size_bytes": 2721,
-      "sha256": "0fc9af5f1c2f7a395d47bd6c4cbb0a2ba68815b5d87ad34192b40e2eb6a378bc"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/caddy/Caddyfile.template",
-      "size_bytes": 1787,
-      "sha256": "4a6b65b9ce8f83a2b305ff7c2c60e03573c560861d7a9f742b2260ffba588ea3"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/caddy/caddy-entrypoint.sh",
-      "size_bytes": 515,
-      "sha256": "534324d03c10e1156953514685988c8ef2914f3b0d4dda3a7f36aad56f629469"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/entrypoint.sh",
-      "size_bytes": 2766,
-      "sha256": "007e16e992fba34291e902ac595d311216efb1579bf3a50c20bf2b1f820e6a63"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/ops/Dockerfile",
-      "size_bytes": 671,
-      "sha256": "c5cd8980f81231ac90933751c0c1005e3e978bced7217920c87574db674a5bc8"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/ops/Dockerfile.dockerignore",
-      "size_bytes": 41,
-      "sha256": "abdbf92272c474664e0b2ee37865aafc6a865942b06f7719ffe29b0ddc838342"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/ops/app.py",
-      "size_bytes": 25437,
-      "sha256": "ff0351025bf16da53a8d2c6e75d9d2ce4e52859e238b0c8f546e454ec33ddcc1"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/ops/postgres-init.sql",
-      "size_bytes": 548,
-      "sha256": "aac31f3f2cf5b037853bd5b818fff6869d6945c7b9087d2bfe51c8f2379dd3b3"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/ops/templates/index.html",
-      "size_bytes": 11390,
-      "sha256": "73325870eeb822421df4938195c65245f94ed69980081ea74d045127bc3d535b"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/ops/templates/login.html",
-      "size_bytes": 1040,
-      "sha256": "438057af273a14bbca2ed084591627fca8bb2bd3ae15828986d2f623c7dcbaec"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/patches/0001-admin-docker-runtime.patch",
-      "size_bytes": 3665,
-      "sha256": "f54b7c40d1e5dc3d1d18376eddb09a3f5cf55dc3832ef91891314f667d16efc9"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/templates/admin.toml.template",
-      "size_bytes": 434,
-      "sha256": "4482c494e2b6081721efec1402770d81f36ee6965d79991c2dd47995f2e07d93"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/templates/node.toml.template",
-      "size_bytes": 756,
-      "sha256": "825d260fd77406ea73fd77c343ae83062a1ac1a0f41bca90d33c892e58d144b5"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/templates/pool.toml.template",
-      "size_bytes": 994,
-      "sha256": "55daace79283dc8afe64e8967eb2e745e8ccc3fd0beb6668e225a9bb660ab844"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/docker/templates/rpc.toml.template",
-      "size_bytes": 737,
-      "sha256": "f18820f90e80dc77ebc915e7ff757e99978799c3093bea7adb6996d636702461"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/installer.compose.yaml",
-      "size_bytes": 841,
-      "sha256": "3e9a170e4f89f23544179112163249981a2d99a21a3f08566da7ef13eae175ee"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/monitoring/alertmanager/alertmanager.yml",
-      "size_bytes": 300,
-      "sha256": "cdfa4a232a980a4e00f16364b01b282068fef4831ba60792171eddba289df1be"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/monitoring/alloy/config.alloy",
-      "size_bytes": 765,
-      "sha256": "e111765bf67e4166cb5978f5bc96ea50e73389cd51821b5a0f9f8b6affb1d5de"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/monitoring/blackbox/blackbox.yml",
-      "size_bytes": 197,
-      "sha256": "51113915d82a52497b0919d9b898eaaffdc51800be8f71f5c75da8fb470a5916"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/monitoring/grafana/dashboards/veiron-overview.json",
-      "size_bytes": 4474,
-      "sha256": "c026346bb0a29656c3b6d0fcf2536b0eb405e6f6d4c827742b2bab5b6c18f758"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/monitoring/grafana/provisioning/dashboards/dashboard-provider.yml",
-      "size_bytes": 208,
-      "sha256": "fa2a692f505bb508eff6eccdcc2e55be98564fa46abdd02fba1526c49928478d"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/monitoring/grafana/provisioning/datasources/datasources.yml",
-      "size_bytes": 303,
-      "sha256": "d34cc8a435c65f66b94a25b5b40428439e867e649590a99187d3914019860ddc"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/monitoring/loki/loki.yml",
-      "size_bytes": 568,
-      "sha256": "a9ab7f31f83797285eb629742876bab5cae3b0427b16a9cb63731c490b6e8242"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/monitoring/prometheus/alerts.yml",
-      "size_bytes": 2644,
-      "sha256": "eaa3e10888a9b671d34d062c5666cedb94b7534e3dc86d9569991ea079a46732"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/monitoring/prometheus/prometheus.yml",
-      "size_bytes": 1532,
-      "sha256": "06b0f7536ae67fe39300f61c970d852d297eb112f996aa108bd89db8063e5100"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/scripts/cloudflare-bootstrap.sh",
-      "size_bytes": 5620,
-      "sha256": "fd80c6837dd36ce2b747a61ab2b5d8fef9ba43972460da1620f71aa72ea8d8c4"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/scripts/health-check-docker.sh",
-      "size_bytes": 2159,
-      "sha256": "c40c215a71cde5b73ac12cc75ea9f46222e707417c9ee02b89069a2bb6095239"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/scripts/install-docker-stack.sh",
-      "size_bytes": 902,
-      "sha256": "404dd5a4033b5733afe82c10894cb942518bc302e00bfb3638af83e39adca9b1"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/scripts/migrate-systemd-data.sh",
-      "size_bytes": 1053,
-      "sha256": "92f416f95e32a6116ce722759eb005fe005f42286c698a7e3d4e53b936d86864"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/scripts/uninstall-docker-stack.sh",
-      "size_bytes": 925,
-      "sha256": "853aaf44a2b1cafd3062f71b45b635d79faf9aba565eb91e47606dea975548ff"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/scripts/update-stack.sh",
-      "size_bytes": 2366,
-      "sha256": "86028aec73df99daab2cd0be2e543c11a8756aa116b1d83c49125d5d86fb6a54"
-    },
-    {
-      "path": "veiron-release/vps-control-plane/scripts/validate-stack.sh",
-      "size_bytes": 2219,
-      "sha256": "6d1ecb3c614d1e9afa9bea075c1425bf826c60fba968ab2906c6cedaad26db45"
-    }
+    ".github/workflows/docker-control-plane-images.yml",
+    "APPLY_TO_REPOSITORY.md",
+    "VALIDATION_REPORT.md",
+    "veiron-release/vps-control-plane/.env.example",
+    "veiron-release/vps-control-plane/.gitignore",
+    "veiron-release/vps-control-plane/DOCKER_DEPLOYMENT.md",
+    "veiron-release/vps-control-plane/DOCKER_IMPLEMENTATION_STATUS.md",
+    "veiron-release/vps-control-plane/MANUAL_UPGRADE.md",
+    "veiron-release/vps-control-plane/MIGRATION_FROM_V1.md",
+    "veiron-release/vps-control-plane/compose.direct.yaml",
+    "veiron-release/vps-control-plane/compose.yaml",
+    "veiron-release/vps-control-plane/docker/Dockerfile",
+    "veiron-release/vps-control-plane/docker/Dockerfile.dockerignore",
+    "veiron-release/vps-control-plane/docker/backup-scheduler/Dockerfile",
+    "veiron-release/vps-control-plane/docker/backup-scheduler/backup-loop.sh",
+    "veiron-release/vps-control-plane/docker/caddy/Caddyfile.template",
+    "veiron-release/vps-control-plane/docker/caddy/caddy-entrypoint.sh",
+    "veiron-release/vps-control-plane/docker/entrypoint.sh",
+    "veiron-release/vps-control-plane/docker/ops/Dockerfile",
+    "veiron-release/vps-control-plane/docker/ops/Dockerfile.dockerignore",
+    "veiron-release/vps-control-plane/docker/ops/app.py",
+    "veiron-release/vps-control-plane/docker/ops/broker.py",
+    "veiron-release/vps-control-plane/docker/ops/templates/index.html",
+    "veiron-release/vps-control-plane/docker/ops/templates/login.html",
+    "veiron-release/vps-control-plane/docker/patches/apply_admin_docker_patch.py",
+    "veiron-release/vps-control-plane/docker/templates/admin.toml.template",
+    "veiron-release/vps-control-plane/docker/templates/node.toml.template",
+    "veiron-release/vps-control-plane/docker/templates/pool.toml.template",
+    "veiron-release/vps-control-plane/docker/templates/rpc.toml.template",
+    "veiron-release/vps-control-plane/installer.compose.yaml",
+    "veiron-release/vps-control-plane/monitoring/alertmanager/alertmanager.yml",
+    "veiron-release/vps-control-plane/monitoring/alloy/config.alloy",
+    "veiron-release/vps-control-plane/monitoring/blackbox/blackbox.yml",
+    "veiron-release/vps-control-plane/monitoring/grafana/dashboards/veiron-overview.json",
+    "veiron-release/vps-control-plane/monitoring/grafana/provisioning/dashboards/dashboard-provider.yml",
+    "veiron-release/vps-control-plane/monitoring/grafana/provisioning/datasources/datasources.yml",
+    "veiron-release/vps-control-plane/monitoring/loki/loki.yml",
+    "veiron-release/vps-control-plane/monitoring/prometheus/alerts.yml",
+    "veiron-release/vps-control-plane/monitoring/prometheus/prometheus.yml",
+    "veiron-release/vps-control-plane/scripts/backup-now.sh",
+    "veiron-release/vps-control-plane/scripts/cloudflare-bootstrap.sh",
+    "veiron-release/vps-control-plane/scripts/enroll-docker-node.sh",
+    "veiron-release/vps-control-plane/scripts/health-check-docker.sh",
+    "veiron-release/vps-control-plane/scripts/install-docker-stack.sh",
+    "veiron-release/vps-control-plane/scripts/migrate-systemd-data.sh",
+    "veiron-release/vps-control-plane/scripts/repair-existing-installation.sh",
+    "veiron-release/vps-control-plane/scripts/uninstall-docker-stack.sh",
+    "veiron-release/vps-control-plane/scripts/validate-stack.sh",
+    "veiron-release/vps-control-plane/state/config/generated/.gitkeep",
+    "veiron-release/vps-control-plane/state/secrets/.gitkeep"
   ]
 }

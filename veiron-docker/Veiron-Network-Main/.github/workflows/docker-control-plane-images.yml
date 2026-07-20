@@ -1,65 +1,33 @@
-name: Docker Control Plane Images
+name: Docker Control Plane Images (Manual Only)
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    tags:
-      - "v*"
-      - "vps-control-v*"
-    paths:
-      - "Cargo.toml"
-      - "Cargo.lock"
-      - "veiron-core/**"
-      - "veiron-node/**"
-      - "veiron-rpc-gateway/**"
-      - "veiron-indexer/**"
-      - "veiron-mining-pool/**"
-      - "veiron-release/vps-control-plane/**"
-      - ".github/workflows/docker-control-plane-images.yml"
-  pull_request:
-    paths:
-      - "Cargo.toml"
-      - "Cargo.lock"
-      - "veiron-core/**"
-      - "veiron-node/**"
-      - "veiron-rpc-gateway/**"
-      - "veiron-indexer/**"
-      - "veiron-mining-pool/**"
-      - "veiron-release/vps-control-plane/**"
-      - ".github/workflows/docker-control-plane-images.yml"
+    inputs:
+      version:
+        description: "Explicit image tag (latest is forbidden)"
+        required: true
+        type: string
 
 permissions:
   contents: read
   packages: write
 
 concurrency:
-  group: docker-control-plane-${{ github.ref }}
-  cancel-in-progress: true
+  group: docker-control-plane-manual-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   validate:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Create validation secrets
+      - name: Reject mutable tag
+        run: |
+          test "${{ inputs.version }}" != "latest"
+          printf '%s' "${{ inputs.version }}" | grep -Eq '^[A-Za-z0-9._-]{1,64}$'
+      - name: Validate secure stack
         working-directory: veiron-release/vps-control-plane
-        run: |
-          cp .env.example .env
-          mkdir -p state/secrets state/config/generated
-          for name in admin_password postgres_password grafana_password setup_token cloudflare_api_token cloudflare_tunnel_token pool_admin_token backup_passphrase r2_secret_access_key discord_webhook telegram_bot_token database_url postgres_exporter_dsn smtp_password; do
-            printf 'ci-placeholder\n' > "state/secrets/$name"
-          done
-          cp monitoring/alertmanager/alertmanager.yml state/config/generated/alertmanager.yml
-      - name: Validate Compose
-        working-directory: veiron-release/vps-control-plane
-        run: |
-          docker compose --env-file .env -f compose.yaml config >/dev/null
-          docker compose -f installer.compose.yaml config >/dev/null
-      - name: Validate shell syntax
-        run: |
-          find veiron-release/vps-control-plane -type f -name '*.sh' -print0 |
-            xargs -0 -n1 bash -n
+        run: ./scripts/validate-stack.sh --require-docker
 
   build:
     needs: validate
@@ -74,35 +42,25 @@ jobs:
           - image: veiron-ops
             context: veiron-release/vps-control-plane
             dockerfile: veiron-release/vps-control-plane/docker/ops/Dockerfile
-          - image: veiron-backup
+          - image: veiron-backup-scheduler
             context: veiron-release/vps-control-plane
-            dockerfile: veiron-release/vps-control-plane/docker/backup/Dockerfile
+            dockerfile: veiron-release/vps-control-plane/docker/backup-scheduler/Dockerfile
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
-        if: github.event_name != 'pull_request'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
-          tags: |
-            type=ref,event=tag
-            type=sha,prefix=sha-
-            type=raw,value=latest,enable={{is_default_branch}}
       - uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:${{ inputs.version }}
           cache-from: type=gha,scope=${{ matrix.image }}
           cache-to: type=gha,mode=max,scope=${{ matrix.image }}
           provenance: mode=max

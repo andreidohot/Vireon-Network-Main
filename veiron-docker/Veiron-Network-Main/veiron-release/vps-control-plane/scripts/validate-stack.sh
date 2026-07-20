@@ -2,55 +2,57 @@
 set -Eeuo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root"
-
 require_docker=false
-if [[ "${1:-}" == "--require-docker" ]]; then
-  require_docker=true
-fi
-
+[[ "${1:-}" == --require-docker ]] && require_docker=true
 [[ -f .env ]] || cp .env.example .env
 mkdir -p state/secrets state/config/generated
-for secret in admin_password postgres_password grafana_password setup_token cloudflare_api_token cloudflare_tunnel_token pool_admin_token backup_passphrase r2_secret_access_key discord_webhook telegram_bot_token database_url postgres_exporter_dsn smtp_password; do
+for secret in admin_password grafana_password setup_token broker_token cloudflare_api_token cloudflare_tunnel_token pool_admin_token backup_passphrase r2_secret_access_key discord_webhook telegram_bot_token smtp_password; do
   [[ -f "state/secrets/$secret" ]] || printf 'validation-placeholder\n' > "state/secrets/$secret"
 done
 [[ -f state/config/generated/alertmanager.yml ]] || cp monitoring/alertmanager/alertmanager.yml state/config/generated/alertmanager.yml
-
-python3 - <<'PY'
+python3 - <<'PY2'
 import json
 from pathlib import Path
 import yaml
-
-root = Path('.')
-for path in [
-    root / 'compose.yaml',
-    root / 'installer.compose.yaml',
-    root / 'monitoring/prometheus/prometheus.yml',
-    root / 'monitoring/prometheus/alerts.yml',
-    root / 'monitoring/alertmanager/alertmanager.yml',
-    root / 'monitoring/blackbox/blackbox.yml',
-    root / 'monitoring/loki/loki.yml',
-    root / 'monitoring/grafana/provisioning/datasources/datasources.yml',
-    root / 'monitoring/grafana/provisioning/dashboards/dashboard-provider.yml',
-]:
-    with path.open('r', encoding='utf-8') as handle:
-        yaml.safe_load(handle)
-
-with (root / 'monitoring/grafana/dashboards/veiron-overview.json').open('r', encoding='utf-8') as handle:
-    json.load(handle)
-PY
-
-python3 -m py_compile docker/ops/app.py
+root=Path('.')
+yaml_paths=[
+ root/'compose.yaml', root/'compose.direct.yaml', root/'installer.compose.yaml',
+ root/'monitoring/prometheus/prometheus.yml', root/'monitoring/prometheus/alerts.yml',
+ root/'monitoring/alertmanager/alertmanager.yml', root/'monitoring/blackbox/blackbox.yml',
+ root/'monitoring/loki/loki.yml', root/'monitoring/grafana/provisioning/datasources/datasources.yml',
+ root/'monitoring/grafana/provisioning/dashboards/dashboard-provider.yml',
+]
+for path in yaml_paths:
+ yaml.safe_load(path.read_text())
+json.loads((root/'monitoring/grafana/dashboards/veiron-overview.json').read_text())
+operational='\n'.join((root/p).read_text() for p in [
+ 'compose.yaml','installer.compose.yaml','docker/entrypoint.sh','docker/templates/rpc.toml.template',
+ 'docker/ops/app.py','docker/ops/broker.py','docker/ops/templates/index.html',
+ 'monitoring/prometheus/prometheus.yml','monitoring/prometheus/alerts.yml',
+])
+for legacy in ('/data/chain','/data/mempool','/data/indexer','/data/node'):
+ assert legacy not in operational, f'legacy storage path remains: {legacy}'
+for forbidden in ('privileged: true','init: true','DATABASE_URL','postgres-exporter','veiron-postgres','cadvisor:','veiron-cadvisor','watchtower','update-stack.sh','/api/update','/api/rollback',"a=='update'","a=='rollback'","compose('pull'",'DEPLOYMENT_SOURCE'):
+ assert forbidden not in operational, f'forbidden mechanism remains: {forbidden}'
+assert 'value="latest"' not in operational
+assert '${VEIRON_VERSION:-latest}' not in operational
+assert '--no-autoupdate' in (root/'compose.yaml').read_text()
+assert not (root/'scripts/update-stack.sh').exists()
+main=(root/'compose.yaml').read_text(); installer=(root/'installer.compose.yaml').read_text()
+assert main.count('/var/run/docker.sock:/var/run/docker.sock') == 1
+assert installer.count('/var/run/docker.sock:/var/run/docker.sock') == 1
+assert '/data/.veiron-mainnet/chain' in operational
+assert '/data/.veiron-mainnet/mempool' in operational
+PY2
+python3 -m py_compile docker/ops/app.py docker/ops/broker.py docker/patches/apply_admin_docker_patch.py
 find scripts docker -type f -name '*.sh' -print0 | xargs -0 -n1 bash -n
-
-echo "Static YAML, JSON, Python and Bash validation passed."
-
+echo "Static YAML, JSON, Python, Bash, storage, security and no-auto-update validation passed."
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
   docker compose --env-file .env -f compose.yaml config >/dev/null
-  docker compose -f installer.compose.yaml config >/dev/null
+  VEIRON_HOST_WORKSPACE="$root" VEIRON_HOST_REPO="$(cd ../.. && pwd)" docker compose -f installer.compose.yaml config >/dev/null
   echo "Docker Compose rendering passed."
 elif [[ "$require_docker" == true ]]; then
-  echo "Docker Compose v2 is required for full validation." >&2
-  exit 127
+  echo "Docker Compose v2 is required for full validation." >&2; exit 127
 else
-  echo "WARNING: Docker is unavailable; Compose rendering and image builds were not executed." >&2
+  echo "WARNING: Docker unavailable; Compose rendering and image builds were not executed." >&2
 fi

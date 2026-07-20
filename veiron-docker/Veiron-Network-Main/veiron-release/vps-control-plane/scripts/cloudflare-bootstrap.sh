@@ -4,6 +4,7 @@ set -Eeuo pipefail
 workspace="${VEIRON_WORKSPACE:-/workspace}"
 secrets_dir="$workspace/state/secrets"
 api_token_file="/run/secrets/cloudflare_api_token"
+[[ -s "$api_token_file" ]] || api_token_file="$secrets_dir/cloudflare_api_token"
 api="https://api.cloudflare.com/client/v4"
 
 mode="${CLOUDFLARE_MODE:-disabled}"

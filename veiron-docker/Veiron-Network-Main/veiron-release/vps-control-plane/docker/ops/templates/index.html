@@ -29,8 +29,8 @@
 <main>
   <section>
     <h1>Docker stack setup</h1>
-    <p>Configurează controllerul, node-ul, RPC-ul, Cloudflare, monitorizarea și backup-ul. După validare, stack-ul este pornit automat.</p>
-    <div class="note">Panoul are acces direct la Docker socket. Asta îi oferă drepturi echivalente cu root pe host. Nu expune setup-ul public după instalare.</div>
+    <p>Configurează controllerul, node-ul, RPC-ul, pool-ul, Cloudflare, monitorizarea și backup-ul. PostgreSQL nu este pornit până când indexerul îl folosește în mod real.</p>
+    <div class="note">Panoul web nu are acces direct la Docker socket. Operațiile sunt transmise unui broker intern cu acțiuni fixe. Actualizările automate sunt dezactivate complet. Panoul nu conține mecanisme de actualizare sau revenire automată.</div>
 
     <form id="setup">
       <h2>Identitate și rol</h2>
@@ -42,20 +42,17 @@
         <label>Rol
           <select name="control_role"><option value="controller">Controller central</option><option value="standalone">Standalone</option><option value="agent">Node enrolat</option></select>
         </label>
-        <label>Sursă imagini
-          <select name="deployment_source"><option value="build">Build local din repo</option><option value="ghcr">GHCR versionat</option></select>
-        </label>
-        <label>Versiune Veiron<input name="veiron_version" value="latest"></label>
+        <label>Versiune locală fixă<input name="veiron_version" value="2.1.0-no-autoupdate" readonly></label>
         <label>Controller URL<input name="controller_url" placeholder="https://control.example.com"></label>
         <label class="full">Enrollment token<input name="enrollment_token" type="password"></label>
         <label class="full">P2P seed-uri (câte unul pe linie sau separate prin virgulă)<input name="seed_nodes" placeholder="/dns4/node.example.com/tcp/20787"></label>
+        <label class="full">URL arhivă Docker pentru enrollment<input name="release_bundle_url" placeholder="https://download.example.com/veiron-docker-control-plane-2.1.0-no-autoupdate.zip"></label>
       </div>
 
       <h2>Credențiale</h2>
       <div class="grid">
         <label>Parolă control panel<input name="admin_password" type="password" placeholder="se generează dacă rămâne gol"></label>
         <label>Parolă Grafana<input name="grafana_password" type="password" placeholder="se generează dacă rămâne gol"></label>
-        <label>Parolă PostgreSQL<input name="postgres_password" type="password" placeholder="se generează dacă rămâne gol"></label>
         <label>Parolă criptare backup<input name="backup_passphrase" type="password" placeholder="se generează dacă rămâne gol"></label>
       </div>
 
@@ -111,8 +108,6 @@
     <h2 style="margin-top:0">Operațiuni</h2>
     <div class="actions">
       <button class="secondary" id="backup" type="button">Backup acum</button>
-      <button class="secondary" id="update" type="button">Update</button>
-      <button class="danger" id="rollback" type="button">Rollback</button>
     </div>
     <h2>Servicii</h2>
     <div id="services"><p>Nicio stare încă.</p></div>
@@ -161,8 +156,6 @@ document.querySelector('#setup').addEventListener('submit',async e=>{
 });
 document.querySelector('#refresh').onclick=refresh;
 document.querySelector('#backup').onclick=async()=>{try{await call(apiBase+'/api/backup',{method:'POST',body:'{}'});watch()}catch(e){log.textContent=e.message}};
-document.querySelector('#update').onclick=async()=>{const v=prompt('Versiune nouă (ex: 1.2.0). Gol = tagul actual:','');try{await call(apiBase+'/api/update',{method:'POST',body:JSON.stringify({version:v})});watch()}catch(e){log.textContent=e.message}};
-document.querySelector('#rollback').onclick=async()=>{if(!confirm('Revii la ultima configurație salvată?'))return;try{await call(apiBase+'/api/rollback',{method:'POST',body:'{}'});watch()}catch(e){log.textContent=e.message}};
 refresh();
 </script>
 </body>

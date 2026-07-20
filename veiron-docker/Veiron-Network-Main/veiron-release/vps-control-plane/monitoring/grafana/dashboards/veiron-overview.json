@@ -135,7 +135,7 @@
     },
     {
       "type": "timeseries",
-      "title": "CPU by Veiron container",
+      "title": "Host CPU usage %",
       "id": 5,
       "datasource": {
         "type": "prometheus",
@@ -143,7 +143,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (name) (rate(container_cpu_usage_seconds_total{name=~\"veiron-.*\"}[5m]))",
+          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
           "legendFormat": "{{name}}",
           "refId": "A"
         }
@@ -153,11 +153,16 @@
         "w": 12,
         "x": 0,
         "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent"
+        }
       }
     },
     {
       "type": "timeseries",
-      "title": "Memory by Veiron container",
+      "title": "Host memory usage %",
       "id": 6,
       "datasource": {
         "type": "prometheus",
@@ -165,7 +170,7 @@
       },
       "targets": [
         {
-          "expr": "container_memory_working_set_bytes{name=~\"veiron-.*\"}",
+          "expr": "100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))",
           "legendFormat": "{{name}}",
           "refId": "A"
         }
@@ -178,7 +183,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "bytes"
+          "unit": "percent"
         }
       }
     },

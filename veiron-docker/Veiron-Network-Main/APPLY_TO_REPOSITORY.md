@@ -1,35 +1,13 @@
-# Apply this package to Veiron-Network-Main
-
-This archive mirrors repository paths.
-
-Copy its contents into the root of:
-
-```text
-andreidohot/Veiron-Network-Main
-```
-
-Then review and commit:
+# Apply Veiron Docker Control Plane 2.1.0-no-autoupdate
 
 ```bash
-git checkout -b agent/docker-control-plane-stack
-cp -a /path/to/archive/Veiron-Network-Main/. .
-git status
-cd veiron-release/vps-control-plane
-./scripts/validate-stack.sh
-cd ../../..
-git add .github/workflows/docker-control-plane-images.yml \
-  veiron-release/vps-control-plane
-git commit -m "feat(vps): add Docker deployment control plane"
-git push -u origin agent/docker-control-plane-stack
+unzip veiron-docker-control-plane-2.1.0-no-autoupdate.zip -d /tmp/veiron-v2
+cp -a /tmp/veiron-v2/Veiron-Network-Main/. /path/to/Veiron-Network-Main/
+cd /path/to/Veiron-Network-Main/veiron-release/vps-control-plane
+chmod +x scripts/*.sh docker/*.sh docker/caddy/*.sh docker/backup-scheduler/*.sh
+./scripts/repair-existing-installation.sh
 ```
 
-Open a draft pull request into `main`.
+For a fresh VPS, run `./scripts/install-docker-stack.sh` instead of the repair script. Preserve the existing `.env` and `state/` directory during an upgrade. This archive intentionally does not include `.env` or secret values.
 
-The package is additive: it does not delete the existing Ubuntu/systemd installer. Keep the legacy path until Docker migration and restore testing are complete.
-
-
-## Important review points
-
-- The runtime Dockerfile applies a narrow Docker compatibility patch to the existing Rust admin service.
-- The existing fleet invitation generator still emits the legacy Ubuntu command; use the Docker web installer in `agent` role until that Rust/UI migration is completed.
-- Do not remove the legacy systemd installer until a real host migration, restore test and rollback drill pass.
+Automatic updates are absent. Do not add Watchtower, unattended `docker compose pull`, or a scheduled updater. Do not run `docker compose down -v`.

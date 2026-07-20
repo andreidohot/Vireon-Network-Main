@@ -1,37 +1,5 @@
-discovery.docker "veiron" {
-  host = "unix:///var/run/docker.sock"
-  refresh_interval = "10s"
+local.file_match "docker_logs" {
+  path_targets = [{ __path__ = "/var/lib/docker/containers/*/*-json.log", job = "docker-containers" }]
 }
-
-discovery.relabel "veiron" {
-  targets = discovery.docker.veiron.targets
-
-  rule {
-    source_labels = ["__meta_docker_container_name"]
-    regex = "/(.*)"
-    target_label = "container"
-  }
-
-  rule {
-    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
-    target_label = "service"
-  }
-
-  rule {
-    target_label = "project"
-    replacement = "veiron-network"
-  }
-}
-
-loki.source.docker "veiron" {
-  host = "unix:///var/run/docker.sock"
-  targets = discovery.relabel.veiron.output
-  forward_to = [loki.write.local.receiver]
-  refresh_interval = "10s"
-}
-
-loki.write "local" {
-  endpoint {
-    url = "http://loki:3100/loki/api/v1/push"
-  }
-}
+loki.source.file "docker_logs" { targets = local.file_match.docker_logs.targets forward_to = [loki.write.local.receiver] }
+loki.write "local" { endpoint { url = "http://loki:3100/loki/api/v1/push" } }

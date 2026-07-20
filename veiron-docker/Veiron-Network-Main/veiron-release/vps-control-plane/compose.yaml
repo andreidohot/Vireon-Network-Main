@@ -1,43 +1,32 @@
 name: ${COMPOSE_PROJECT_NAME:-veiron-control-plane}
 
 x-runtime-image: &runtime-image
-  image: ${VEIRON_RUNTIME_IMAGE:-ghcr.io/andreidohot/veiron-runtime}:${VEIRON_VERSION:-latest}
+  image: ${VEIRON_RUNTIME_IMAGE:-ghcr.io/andreidohot/veiron-runtime}:${VEIRON_VERSION:-2.1.0-no-autoupdate}
   build:
-    context: ../..
+    context: ${VEIRON_HOST_REPO:-../..}
     dockerfile: veiron-release/vps-control-plane/docker/Dockerfile
   restart: unless-stopped
-  init: true
-  networks:
-    - veiron-internal
-  security_opt:
-    - no-new-privileges:true
-  cap_drop:
-    - ALL
+  networks: [veiron-internal]
+  security_opt: [no-new-privileges:true]
+  cap_drop: [ALL]
 
 x-runtime-common: &runtime-common
   <<: *runtime-image
-  env_file:
-    - .env
+  env_file: [.env]
   volumes:
     - ./state/config/generated:/config
-    - ./state/data/chain:/data/chain
-    - ./state/data/mempool:/data/mempool
-    - ./state/data/indexer:/data/indexer
-    - ./state/data/node:/data/node
+    - ./state/data:/data/.veiron-mainnet
   read_only: true
-  tmpfs:
-    - /tmp:size=128m,mode=1777
+  tmpfs: [/tmp:size=128m,mode=1777]
 
 services:
   veiron-node:
     <<: *runtime-common
     container_name: veiron-node
-    environment:
-      VEIRON_COMPONENT: node
-    ports:
-      - "${P2P_PORT:-20787}:20787/tcp"
+    environment: {VEIRON_COMPONENT: node}
+    ports: ["${P2P_PORT:-20787}:20787/tcp"]
     healthcheck:
-      test: ["CMD-SHELL", "pgrep -x veiron-node >/dev/null && curl -fsS http://127.0.0.1:10787/health >/dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "pgrep -x veiron-node >/dev/null"]
       interval: 15s
       timeout: 5s
       retries: 12
@@ -48,17 +37,15 @@ services:
   veiron-rpc:
     <<: *runtime-common
     container_name: veiron-rpc
-    environment:
-      VEIRON_COMPONENT: rpc
+    environment: {VEIRON_COMPONENT: rpc}
     depends_on:
-      veiron-node:
-        condition: service_healthy
+      veiron-node: {condition: service_healthy}
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:10787/health"]
       interval: 15s
       timeout: 5s
-      retries: 8
-      start_period: 20s
+      retries: 12
+      start_period: 30s
     mem_limit: ${RPC_MEMORY_LIMIT:-3G}
     cpus: 1.0
 
@@ -68,332 +55,233 @@ services:
     environment:
       VEIRON_COMPONENT: indexer
       INDEXER_INTERVAL_SECONDS: ${INDEXER_INTERVAL_SECONDS:-15}
-      DATABASE_URL_FILE: /run/secrets/database_url
     depends_on:
-      veiron-rpc:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-    secrets:
-      - database_url
+      veiron-rpc: {condition: service_healthy}
     healthcheck:
-      test: ["CMD-SHELL", "test -f /data/indexer/.last-success && find /data/indexer/.last-success -mmin -5 | grep -q ."]
+      test: ["CMD-SHELL", "test -f /data/.veiron-mainnet/indexer/.last-success && find /data/.veiron-mainnet/indexer/.last-success -mmin -5 | grep -q ."]
       interval: 30s
       timeout: 5s
-      retries: 5
-      start_period: 60s
+      retries: 8
+      start_period: 90s
     mem_limit: ${INDEXER_MEMORY_LIMIT:-1G}
     cpus: 0.5
 
   veiron-control:
-    <<: *runtime-common
+    <<: *runtime-image
     container_name: veiron-control
+    env_file: [.env]
     environment:
       VEIRON_COMPONENT: control
       VEIRON_DEPLOYMENT_MODE: docker
-      DATABASE_URL_FILE: /run/secrets/database_url
     volumes:
       - ./state/config/generated:/config
       - ./state/control:/data/control
     depends_on:
-      veiron-rpc:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-    secrets:
-      - database_url
+      veiron-rpc: {condition: service_healthy}
+    read_only: true
+    tmpfs: [/tmp:size=64m,mode=1777]
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:10788/health"]
       interval: 15s
       timeout: 5s
-      retries: 8
-      start_period: 20s
+      retries: 12
+      start_period: 30s
     mem_limit: ${CONTROL_MEMORY_LIMIT:-1G}
     cpus: 0.5
 
-  postgres:
-    image: postgres:16-alpine
-    container_name: veiron-postgres
-    restart: unless-stopped
-    networks:
-      - veiron-internal
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-veiron}
-      POSTGRES_USER: ${POSTGRES_USER:-veiron}
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
-    secrets:
-      - postgres_password
+  veiron-pool:
+    <<: *runtime-image
+    container_name: veiron-pool
+    profiles: [pool]
+    env_file: [.env]
+    environment: {VEIRON_COMPONENT: pool}
     volumes:
-      - ./state/postgres:/var/lib/postgresql/data
-      - ./docker/ops/postgres-init.sql:/docker-entrypoint-initdb.d/10-veiron.sql:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-veiron} -d ${POSTGRES_DB:-veiron}"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    security_opt:
-      - no-new-privileges:true
-    mem_limit: ${POSTGRES_MEMORY_LIMIT:-1G}
-
-  postgres-exporter:
-    image: prometheuscommunity/postgres-exporter:v0.17.1
-    container_name: veiron-postgres-exporter
-    restart: unless-stopped
-    networks:
-      - veiron-internal
-    environment:
-      DATA_SOURCE_URI_FILE: /run/secrets/postgres_exporter_dsn
-    secrets:
-      - postgres_exporter_dsn
+      - ./state/config/generated:/config
+      - ./state/pool:/data/pool
+    secrets: [pool_admin_token]
     depends_on:
-      postgres:
-        condition: service_healthy
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+      veiron-rpc: {condition: service_healthy}
+    read_only: true
+    tmpfs: [/tmp:size=64m,mode=1777]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:30787/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  docker-broker:
+    image: ${VEIRON_OPS_IMAGE:-ghcr.io/andreidohot/veiron-ops}:${VEIRON_VERSION:-2.1.0-no-autoupdate}
+    build:
+      context: ${VEIRON_HOST_WORKSPACE:-.}
+      dockerfile: docker/ops/Dockerfile
+    container_name: veiron-docker-broker
+    restart: unless-stopped
+    working_dir: ${VEIRON_HOST_WORKSPACE}
+    networks: [veiron-internal]
+    env_file: [.env]
+    environment:
+      VEIRON_WORKSPACE: ${VEIRON_HOST_WORKSPACE}
+      VEIRON_COMPOSE_FILE: ${VEIRON_HOST_WORKSPACE}/compose.yaml
+      VEIRON_HOST_WORKSPACE: ${VEIRON_HOST_WORKSPACE}
+      VEIRON_HOST_REPO: ${VEIRON_HOST_REPO}
+      BROKER_TOKEN_FILE: /run/secrets/broker_token
+    command: ["gunicorn", "--bind", "0.0.0.0:8090", "--workers", "1", "--threads", "2", "--timeout", "7200", "broker:app"]
+    volumes:
+      - ${VEIRON_HOST_WORKSPACE}:${VEIRON_HOST_WORKSPACE}
+      - ${VEIRON_HOST_REPO}:${VEIRON_HOST_REPO}:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    secrets: [broker_token, cloudflare_api_token, backup_passphrase, r2_secret_access_key]
+    read_only: true
+    tmpfs: [/tmp:size=256m,mode=1777]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8090/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
 
   veiron-ops:
-    image: ${VEIRON_OPS_IMAGE:-ghcr.io/andreidohot/veiron-ops}:${VEIRON_VERSION:-latest}
+    image: ${VEIRON_OPS_IMAGE:-ghcr.io/andreidohot/veiron-ops}:${VEIRON_VERSION:-2.1.0-no-autoupdate}
     build:
-      context: .
+      context: ${VEIRON_HOST_WORKSPACE:-.}
       dockerfile: docker/ops/Dockerfile
     container_name: veiron-ops
     restart: unless-stopped
-    init: true
-    networks:
-      - veiron-internal
-    env_file:
-      - .env
+    networks: [veiron-internal]
+    env_file: [.env]
     environment:
       VEIRON_WORKSPACE: /workspace
-      VEIRON_COMPOSE_FILE: /workspace/compose.yaml
       SETUP_TOKEN_FILE: /run/secrets/setup_token
+      BROKER_URL: http://docker-broker:8090
+      BROKER_TOKEN_FILE: /run/secrets/broker_token
       DISCORD_WEBHOOK_FILE: /run/secrets/discord_webhook
       TELEGRAM_BOT_TOKEN_FILE: /run/secrets/telegram_bot_token
     volumes:
-      - ./:/workspace
-      - /var/run/docker.sock:/var/run/docker.sock
-    secrets:
-      - setup_token
-      - discord_webhook
-      - telegram_bot_token
+      - ./.env:/workspace/.env
+      - ./state:/workspace/state
+    secrets: [setup_token, broker_token, discord_webhook, telegram_bot_token]
+    depends_on:
+      docker-broker: {condition: service_healthy}
+    read_only: true
+    tmpfs: [/tmp:size=128m,mode=1777]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/health"]
       interval: 15s
       timeout: 5s
-      retries: 5
-    security_opt:
-      - no-new-privileges:true
+      retries: 8
 
   caddy:
     image: caddy:2.9-alpine
     container_name: veiron-caddy
     restart: unless-stopped
-    networks:
-      - veiron-internal
-    env_file:
-      - .env
+    networks: [veiron-internal]
+    env_file: [.env]
     entrypoint: ["/usr/local/bin/veiron-caddy-entrypoint.sh"]
     volumes:
       - ./docker/caddy/caddy-entrypoint.sh:/usr/local/bin/veiron-caddy-entrypoint.sh:ro
       - ./docker/caddy/Caddyfile.template:/etc/caddy/Caddyfile.template:ro
       - ./state/caddy/data:/data
       - ./state/caddy/config:/config
-    secrets:
-      - admin_password
-    ports:
-      - "${HTTP_PORT:-80}:80/tcp"
-      - "${HTTPS_PORT:-443}:443/tcp"
-      - "${HTTPS_PORT:-443}:443/udp"
+    secrets: [admin_password]
     depends_on:
-      veiron-control:
-        condition: service_healthy
-      veiron-rpc:
-        condition: service_healthy
-      veiron-ops:
-        condition: service_healthy
-      grafana:
-        condition: service_healthy
+      veiron-control: {condition: service_healthy}
+      veiron-rpc: {condition: service_healthy}
+      veiron-ops: {condition: service_healthy}
+      grafana: {condition: service_healthy}
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:2019/config/"]
       interval: 20s
       timeout: 5s
-      retries: 5
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    cap_add:
-      - NET_BIND_SERVICE
+      retries: 8
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
 
   cloudflared:
     image: cloudflare/cloudflared:2026.7.2
     container_name: veiron-cloudflared
     restart: unless-stopped
-    profiles: ["cloudflare"]
-    networks:
-      - veiron-internal
-    command:
-      - tunnel
-      - --no-autoupdate
-      - --metrics
-      - 0.0.0.0:20241
-      - run
-      - --token-file
-      - /run/secrets/cloudflare_tunnel_token
-    secrets:
-      - cloudflare_tunnel_token
+    profiles: [cloudflare]
+    networks: [veiron-internal]
+    command: ["tunnel", "--no-autoupdate", "--metrics", "0.0.0.0:20241", "run", "--token-file", "/run/secrets/cloudflare_tunnel_token"]
+    secrets: [cloudflare_tunnel_token]
     depends_on:
-      caddy:
-        condition: service_healthy
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-
-  veiron-pool:
-    <<: *runtime-image
-    container_name: veiron-pool
-    profiles: ["pool"]
-    env_file:
-      - .env
-    environment:
-      VEIRON_COMPONENT: pool
-    volumes:
-      - ./state/config/generated:/config
-      - ./state/pool:/data/pool
-    secrets:
-      - pool_admin_token
-    depends_on:
-      veiron-rpc:
-        condition: service_healthy
-    read_only: true
-    tmpfs:
-      - /tmp:size=64m,mode=1777
-    healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:30787/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 8
-      start_period: 20s
+      caddy: {condition: service_healthy}
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
 
   prometheus:
     image: prom/prometheus:v3.5.0
     container_name: veiron-prometheus
     restart: unless-stopped
-    networks:
-      - veiron-internal
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-      - --storage.tsdb.path=/prometheus
-      - --storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}
-      - --web.enable-lifecycle
+    networks: [veiron-internal]
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}", "--web.enable-lifecycle"]
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
       - ./state/prometheus:/prometheus
     depends_on:
-      alertmanager:
-        condition: service_started
-      blackbox-exporter:
-        condition: service_started
+      alertmanager: {condition: service_started}
+      blackbox-exporter: {condition: service_started}
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:9090/-/healthy"]
       interval: 15s
       timeout: 5s
-      retries: 5
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+      retries: 8
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
 
   alertmanager:
     image: prom/alertmanager:v0.28.1
     container_name: veiron-alertmanager
     restart: unless-stopped
-    networks:
-      - veiron-internal
-    command:
-      - --config.file=/etc/alertmanager/alertmanager.yml
-      - --storage.path=/alertmanager
+    networks: [veiron-internal]
+    command: ["--config.file=/etc/alertmanager/alertmanager.yml", "--storage.path=/alertmanager"]
     volumes:
       - ./state/config/generated/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
       - ./state/alertmanager:/alertmanager
-    secrets:
-      - smtp_password
+    secrets: [smtp_password]
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:9093/-/healthy"]
       interval: 15s
       timeout: 5s
-      retries: 5
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+      retries: 8
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
 
   blackbox-exporter:
     image: prom/blackbox-exporter:v0.27.0
     container_name: veiron-blackbox-exporter
     restart: unless-stopped
-    networks:
-      - veiron-internal
-    command:
-      - --config.file=/etc/blackbox_exporter/config.yml
-    volumes:
-      - ./monitoring/blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+    networks: [veiron-internal]
+    command: ["--config.file=/etc/blackbox_exporter/config.yml"]
+    volumes: ["./monitoring/blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro"]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
 
   node-exporter:
     image: prom/node-exporter:v1.9.1
     container_name: veiron-node-exporter
     restart: unless-stopped
     pid: host
-    networks:
-      - veiron-internal
-    command:
-      - --path.rootfs=/host
-      - --collector.textfile.directory=/textfile
+    networks: [veiron-internal]
+    command: ["--path.rootfs=/host", "--collector.textfile.directory=/textfile"]
     volumes:
       - /:/host:ro,rslave
       - ./state/metrics:/textfile:ro
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
 
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.52.1
-    container_name: veiron-cadvisor
-    restart: unless-stopped
-    privileged: false
-    devices:
-      - /dev/kmsg
-    networks:
-      - veiron-internal
-    cap_add:
-      - SYS_ADMIN
-      - SYSLOG
-    cap_drop:
-      - ALL
-    security_opt:
-      - no-new-privileges:true
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker:/var/lib/docker:ro
-      - /dev/disk:/dev/disk:ro
 
   loki:
     image: grafana/loki:3.5.1
     container_name: veiron-loki
     restart: unless-stopped
-    networks:
-      - veiron-internal
+    networks: [veiron-internal]
     command: ["-config.file=/etc/loki/local-config.yaml"]
     volumes:
       - ./monitoring/loki/loki.yml:/etc/loki/local-config.yaml:ro
@@ -402,131 +290,75 @@ services:
       test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:3100/ready"]
       interval: 15s
       timeout: 5s
-      retries: 5
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+      retries: 8
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
 
   alloy:
     image: grafana/alloy:v1.9.2
     container_name: veiron-alloy
     restart: unless-stopped
-    networks:
-      - veiron-internal
-    command:
-      - run
-      - /etc/alloy/config.alloy
-      - --storage.path=/var/lib/alloy/data
+    user: "0:0"
+    networks: [veiron-internal]
+    command: ["run", "/etc/alloy/config.alloy", "--storage.path=/var/lib/alloy/data"]
     volumes:
       - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
       - ./state/alloy:/var/lib/alloy/data
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
     depends_on:
-      loki:
-        condition: service_healthy
-    security_opt:
-      - no-new-privileges:true
+      loki: {condition: service_healthy}
+    read_only: true
+    tmpfs: [/tmp:size=64m,mode=1777]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
 
   grafana:
     image: grafana/grafana:12.0.2
     container_name: veiron-grafana
     restart: unless-stopped
-    networks:
-      - veiron-internal
+    networks: [veiron-internal]
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_password
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_SERVER_ROOT_URL: https://${GRAFANA_HOST}
       GF_AUTH_ANONYMOUS_ENABLED: "false"
-    secrets:
-      - grafana_password
+    secrets: [grafana_password]
     volumes:
       - ./state/grafana:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
-      prometheus:
-        condition: service_healthy
-      loki:
-        condition: service_healthy
+      prometheus: {condition: service_healthy}
+      loki: {condition: service_healthy}
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:3000/api/health | grep -q 'ok'"]
       interval: 15s
       timeout: 5s
-      retries: 8
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+      retries: 12
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
 
-  backup-agent:
-    image: ${VEIRON_BACKUP_IMAGE:-ghcr.io/andreidohot/veiron-backup}:${VEIRON_VERSION:-latest}
+  backup-scheduler:
     build:
-      context: .
-      dockerfile: docker/backup/Dockerfile
-    container_name: veiron-backup-agent
+      context: ${VEIRON_HOST_WORKSPACE:-.}
+      dockerfile: docker/backup-scheduler/Dockerfile
+    image: ${VEIRON_BACKUP_IMAGE:-ghcr.io/andreidohot/veiron-backup-scheduler}:${VEIRON_VERSION:-2.1.0-no-autoupdate}
+    container_name: veiron-backup-scheduler
     restart: unless-stopped
-    profiles: ["backup"]
-    networks:
-      - veiron-internal
-    env_file:
-      - .env
+    profiles: [backup]
+    networks: [veiron-internal]
     environment:
-      VEIRON_WORKSPACE: /workspace
-      POSTGRES_HOST: postgres
-    volumes:
-      - ./:/workspace
-      # NOTA: backup-agent NU mai are acces la docker.sock.
-      # Backup-ul se face prin pg_dump direct la PostgreSQL.
-    secrets:
-      - postgres_password
-      - backup_passphrase
-      - r2_secret_access_key
+      BROKER_URL: http://docker-broker:8090
+      BROKER_TOKEN_FILE: /run/secrets/broker_token
+      BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-86400}
+    secrets: [broker_token]
     depends_on:
-      postgres:
-        condition: service_healthy
-    security_opt:
-      - no-new-privileges:true
-
-  updater:
-    image: ${VEIRON_OPS_IMAGE:-ghcr.io/andreidohot/veiron-ops}:${VEIRON_VERSION:-latest}
-    build:
-      context: .
-      dockerfile: docker/ops/Dockerfile
-    profiles: ["tools"]
-    networks:
-      - veiron-internal
-    env_file:
-      - .env
-    environment:
-      VEIRON_WORKSPACE: /workspace
-    volumes:
-      - ./:/workspace
-      # NOTA: updater NU mai are acces la docker.sock.
-      # Update-ul se face prin API-ul veiron-ops.
-    entrypoint: ["/workspace/scripts/update-stack.sh"]
-    secrets:
-      - setup_token
-
-  cloudflare-bootstrap:
-    image: ${VEIRON_OPS_IMAGE:-ghcr.io/andreidohot/veiron-ops}:${VEIRON_VERSION:-latest}
-    build:
-      context: .
-      dockerfile: docker/ops/Dockerfile
-    profiles: ["tools"]
-    networks:
-      - veiron-internal
-    env_file:
-      - .env
-    environment:
-      VEIRON_WORKSPACE: /workspace
-    volumes:
-      - ./:/workspace
-    entrypoint: ["/workspace/scripts/cloudflare-bootstrap.sh"]
-    secrets:
-      - cloudflare_api_token
+      docker-broker: {condition: service_healthy}
+    read_only: true
+    tmpfs: [/tmp:size=16m,mode=1777]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
 
 networks:
   veiron-internal:
@@ -534,31 +366,15 @@ networks:
     driver: bridge
 
 secrets:
-  admin_password:
-    file: ./state/secrets/admin_password
-  postgres_password:
-    file: ./state/secrets/postgres_password
-  grafana_password:
-    file: ./state/secrets/grafana_password
-  setup_token:
-    file: ./state/secrets/setup_token
-  cloudflare_api_token:
-    file: ./state/secrets/cloudflare_api_token
-  cloudflare_tunnel_token:
-    file: ./state/secrets/cloudflare_tunnel_token
-  pool_admin_token:
-    file: ./state/secrets/pool_admin_token
-  backup_passphrase:
-    file: ./state/secrets/backup_passphrase
-  r2_secret_access_key:
-    file: ./state/secrets/r2_secret_access_key
-  discord_webhook:
-    file: ./state/secrets/discord_webhook
-  telegram_bot_token:
-    file: ./state/secrets/telegram_bot_token
-  database_url:
-    file: ./state/secrets/database_url
-  postgres_exporter_dsn:
-    file: ./state/secrets/postgres_exporter_dsn
-  smtp_password:
-    file: ./state/secrets/smtp_password
+  admin_password: {file: ./state/secrets/admin_password}
+  grafana_password: {file: ./state/secrets/grafana_password}
+  setup_token: {file: ./state/secrets/setup_token}
+  broker_token: {file: ./state/secrets/broker_token}
+  cloudflare_api_token: {file: ./state/secrets/cloudflare_api_token}
+  cloudflare_tunnel_token: {file: ./state/secrets/cloudflare_tunnel_token}
+  pool_admin_token: {file: ./state/secrets/pool_admin_token}
+  backup_passphrase: {file: ./state/secrets/backup_passphrase}
+  r2_secret_access_key: {file: ./state/secrets/r2_secret_access_key}
+  discord_webhook: {file: ./state/secrets/discord_webhook}
+  telegram_bot_token: {file: ./state/secrets/telegram_bot_token}
+  smtp_password: {file: ./state/secrets/smtp_password}

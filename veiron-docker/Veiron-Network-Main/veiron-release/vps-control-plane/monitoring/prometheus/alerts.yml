@@ -11,25 +11,7 @@ groups:
           summary: "Veiron endpoint is unreachable"
           description: "{{ $labels.instance }} has failed blackbox probes for more than two minutes."
 
-      - alert: VeironContainerMissing
-        expr: count(container_last_seen{name=~"veiron-(node|rpc|control|indexer)"}) < 4
-        for: 2m
-        labels:
-          severity: critical
-          service: docker
-        annotations:
-          summary: "A core Veiron container is missing"
-          description: "cAdvisor cannot see one or more core Veiron containers."
 
-      - alert: VeironContainerRestarting
-        expr: changes(container_start_time_seconds{name=~"veiron-.*"}[15m]) > 2
-        for: 5m
-        labels:
-          severity: warning
-          service: "{{ $labels.name }}"
-        annotations:
-          summary: "Veiron container restart loop"
-          description: "{{ $labels.name }} appears to be restarting repeatedly."
 
       - alert: HostDiskAlmostFull
         expr: |
@@ -56,15 +38,6 @@ groups:
           summary: "Host memory pressure"
           description: "Available memory has remained below 10% for ten minutes."
 
-      - alert: PostgreSQLExporterDown
-        expr: up{job="postgres-exporter"} == 0
-        for: 2m
-        labels:
-          severity: critical
-          service: postgres
-        annotations:
-          summary: "PostgreSQL monitoring is down"
-          description: "The PostgreSQL exporter cannot be scraped."
 
       - alert: VeironBackupStale
         expr: time() - veiron_backup_last_success_unixtime > 129600

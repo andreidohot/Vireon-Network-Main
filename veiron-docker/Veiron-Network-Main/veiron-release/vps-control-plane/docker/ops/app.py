@@ -4,13 +4,10 @@ import json
 import os
 import re
 import secrets
-import shlex
-import subprocess
 import threading
 import time
 from pathlib import Path
 from typing import Any
-from urllib.parse import quote
 
 import requests
 from flask import Flask, Response, jsonify, make_response, redirect, render_template, request, url_for
@@ -19,7 +16,8 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", secrets.token_hex(32))
 
 WORKSPACE = Path(os.environ.get("VEIRON_WORKSPACE", "/workspace")).resolve()
-COMPOSE_FILE = Path(os.environ.get("VEIRON_COMPOSE_FILE", WORKSPACE / "compose.yaml"))
+BROKER_URL = os.environ.get("BROKER_URL", "http://docker-broker:8090").rstrip("/")
+BROKER_TOKEN_FILE = Path(os.environ.get("BROKER_TOKEN_FILE", "/run/secrets/broker_token"))
 STATE_DIR = WORKSPACE / "state"
 SECRETS_DIR = STATE_DIR / "secrets"
 GENERATED_DIR = STATE_DIR / "config" / "generated"
@@ -27,7 +25,7 @@ LOG_DIR = STATE_DIR / "ops"
 SETUP_TOKEN_FILE = Path(os.environ.get("SETUP_TOKEN_FILE", SECRETS_DIR / "setup_token"))
 DOMAIN_RE = re.compile(r"^(?=.{1,253}$)(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[A-Za-z]{2,63}$")
 NAME_RE = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
-MULTIADDR_RE = re.compile(r"^/(?:dns4|dns|ip4|ip6)/[^/]+/tcp/[0-9]{1,5}$")
+MULTIADDR_RE = re.compile(r"^/(?:dns4|ip4|ip6)/[^/]+/tcp/[0-9]{1,5}$")
 
 job_lock = threading.Lock()
 job_state: dict[str, Any] = {
@@ -48,7 +46,6 @@ def ensure_layout() -> None:
         STATE_DIR / "data" / "node",
         STATE_DIR / "control",
         STATE_DIR / "pool",
-        STATE_DIR / "postgres",
         STATE_DIR / "prometheus",
         STATE_DIR / "grafana",
         STATE_DIR / "loki",
@@ -58,14 +55,13 @@ def ensure_layout() -> None:
         STATE_DIR / "caddy" / "config",
         STATE_DIR / "backups",
         STATE_DIR / "metrics",
-        STATE_DIR / "rollback",
     ]
     for directory in directories:
         directory.mkdir(parents=True, exist_ok=True)
         if directory != SECRETS_DIR:
-            # Bind-mounted service data — 755 în loc de 777 pentru securitate.
-            # Containerele rulează cu UID-uri fixe, nu e nevoie de world-writable.
-            os.chmod(directory, 0o755)
+            # Bind-mounted service data must be writable by the fixed UIDs used
+            # by Rust, Grafana, Prometheus, Loki and Alloy containers.
+            os.chmod(directory, 0o777)
     os.chmod(SECRETS_DIR, 0o700)
 
 def read_or_create_secret(path: Path, length: int = 32) -> str:
@@ -112,28 +108,14 @@ def env_quote(value: Any) -> str:
 def bool_text(value: Any) -> str:
     return "true" if value in (True, "true", "1", 1, "yes", "on") else "false"
 
-def run_command(args: list[str], timeout: int = 1800, check: bool = True) -> subprocess.CompletedProcess[str]:
-    env = os.environ.copy()
-    env["COMPOSE_FILE"] = str(COMPOSE_FILE)
-    result = subprocess.run(
-        args,
-        cwd=WORKSPACE,
-        env=env,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        timeout=timeout,
-    )
-    if check and result.returncode != 0:
-        raise RuntimeError(f"command failed ({result.returncode}): {' '.join(map(shlex.quote, args))}\n{result.stdout}")
-    return result
+def broker_token() -> str:
+    return BROKER_TOKEN_FILE.read_text(encoding="utf-8").strip()
 
-def compose_args(*args: str, profiles: list[str] | None = None) -> list[str]:
-    cmd = ["docker", "compose", "--env-file", str(WORKSPACE / ".env"), "-f", str(COMPOSE_FILE)]
-    for profile in profiles or []:
-        cmd.extend(["--profile", profile])
-    cmd.extend(args)
-    return cmd
+def broker_call(action: str, **payload: Any) -> dict[str, Any]:
+    response=requests.post(f"{BROKER_URL}/v1/action",headers={"X-Veiron-Broker-Token":broker_token()},json={"action":action,**payload},timeout=7300)
+    body=response.json() if response.content else {}
+    if not response.ok: raise RuntimeError(body.get("error",f"broker HTTP {response.status_code}"))
+    return body
 
 def validate_payload(data: dict[str, Any]) -> dict[str, Any]:
     base_domain = str(data.get("base_domain", "")).strip().lower()
@@ -156,9 +138,9 @@ def validate_payload(data: dict[str, Any]) -> dict[str, Any]:
     if control_role == "agent" and not str(data.get("controller_url", "")).startswith("https://"):
         raise ValueError("agent role requires an HTTPS controller_url")
 
-    deployment_source = str(data.get("deployment_source", "build"))
-    if deployment_source not in {"build", "ghcr"}:
-        raise ValueError("deployment_source must be build or ghcr")
+    veiron_version = str(data.get("veiron_version", "2.1.0-no-autoupdate")).strip()
+    if not NAME_RE.match(veiron_version) or veiron_version.lower() == "latest":
+        raise ValueError("veiron_version must be an explicit immutable-style tag; latest is forbidden")
 
     enable_pool = bool(data.get("enable_pool"))
     if enable_pool and not str(data.get("pool_address", "")).strip():
@@ -196,7 +178,7 @@ def validate_payload(data: dict[str, Any]) -> dict[str, Any]:
         "admin_email": admin_email,
         "cloudflare_mode": cloudflare_mode,
         "control_role": control_role,
-        "deployment_source": deployment_source,
+        "veiron_version": veiron_version,
         "enable_pool": enable_pool,
         "seed_nodes": seed_nodes,
     }
@@ -296,12 +278,11 @@ def configure(data: dict[str, Any]) -> None:
 
     admin_password = str(data.get("admin_password", "")).strip()
     grafana_password = str(data.get("grafana_password", "")).strip()
-    postgres_password = str(data.get("postgres_password", "")).strip()
 
     write_secret("admin_password", admin_password)
     write_secret("grafana_password", grafana_password)
-    write_secret("postgres_password", postgres_password)
     write_secret("pool_admin_token", str(data.get("pool_admin_token", "")))
+    read_or_create_secret(SECRETS_DIR / "broker_token", 48)
     write_secret("backup_passphrase", str(data.get("backup_passphrase", "")))
     write_secret("cloudflare_api_token", str(data.get("cloudflare_api_token", "")), keep_existing=False)
     write_secret("r2_secret_access_key", str(data.get("r2_secret_access_key", "")), keep_existing=False)
@@ -310,22 +291,16 @@ def configure(data: dict[str, Any]) -> None:
     write_secret("smtp_password", str(data.get("alert_smtp_password", "")), keep_existing=False)
     read_or_create_secret(SECRETS_DIR / "cloudflare_tunnel_token", 48)
 
-    pg_password = (SECRETS_DIR / "postgres_password").read_text(encoding="utf-8").strip()
-    pg_user = str(data.get("postgres_user", "veiron")).strip() or "veiron"
-    pg_db = str(data.get("postgres_db", "veiron")).strip() or "veiron"
-    database_url = f"postgresql://{quote(pg_user, safe='')}:{quote(pg_password, safe='')}@postgres:5432/{quote(pg_db, safe='')}"
-    write_secret("database_url", database_url, keep_existing=False)
-    write_secret("postgres_exporter_dsn", database_url + "?sslmode=disable", keep_existing=False)
-
     env_values = {
         "COMPOSE_PROJECT_NAME": "veiron-control-plane",
-        "STACK_VERSION": "1.0.0",
+        "STACK_VERSION": "2.1.0-no-autoupdate",
+        "VEIRON_HOST_WORKSPACE": os.environ.get("VEIRON_HOST_WORKSPACE", str(WORKSPACE)),
+        "VEIRON_HOST_REPO": os.environ.get("VEIRON_HOST_REPO", str(WORKSPACE)),
         "TZ": data.get("timezone", "Europe/Bucharest"),
-        "DEPLOYMENT_SOURCE": data["deployment_source"],
-        "VEIRON_VERSION": data.get("veiron_version", "latest"),
+        "VEIRON_VERSION": data.get("veiron_version", "2.1.0-no-autoupdate"),
         "VEIRON_RUNTIME_IMAGE": data.get("veiron_runtime_image", "ghcr.io/andreidohot/veiron-runtime"),
         "VEIRON_OPS_IMAGE": data.get("veiron_ops_image", "ghcr.io/andreidohot/veiron-ops"),
-        "VEIRON_BACKUP_IMAGE": data.get("veiron_backup_image", "ghcr.io/andreidohot/veiron-backup"),
+        "VEIRON_BACKUP_IMAGE": data.get("veiron_backup_image", "ghcr.io/andreidohot/veiron-backup-scheduler"),
         "BASE_DOMAIN": base,
         "NODE_NAME": data["node_name"],
         "ADMIN_EMAIL": data["admin_email"],
@@ -350,8 +325,6 @@ def configure(data: dict[str, Any]) -> None:
         "POOL_NAME": data.get("pool_name", "Veiron Reference Pool"),
         "POOL_ADDRESS": data.get("pool_address", ""),
         "INDEXER_INTERVAL_SECONDS": data.get("indexer_interval_seconds", 15),
-        "POSTGRES_DB": pg_db,
-        "POSTGRES_USER": pg_user,
         "PROMETHEUS_RETENTION": data.get("prometheus_retention", "30d"),
         "LOKI_RETENTION_HOURS": data.get("loki_retention_hours", 720),
         "GRAFANA_ADMIN_USER": data.get("grafana_admin_user", "admin"),
@@ -378,7 +351,6 @@ def configure(data: dict[str, Any]) -> None:
         "RPC_MEMORY_LIMIT": data.get("rpc_memory_limit", "3G"),
         "CONTROL_MEMORY_LIMIT": data.get("control_memory_limit", "1G"),
         "INDEXER_MEMORY_LIMIT": data.get("indexer_memory_limit", "1G"),
-        "POSTGRES_MEMORY_LIMIT": data.get("postgres_memory_limit", "1G"),
     }
 
     lines = ["# Generated by Veiron Docker Setup. Do not commit this file."]
@@ -391,34 +363,7 @@ def configure(data: dict[str, Any]) -> None:
 
 def deploy(data: dict[str, Any]) -> str:
     configure(data)
-    output: list[str] = []
-
-    validate = run_command(compose_args("config"), timeout=120)
-    output.append("$ docker compose config\n" + validate.stdout)
-
-    if data["cloudflare_mode"] != "disabled":
-        cf = run_command(compose_args("run", "--rm", "cloudflare-bootstrap", profiles=["tools"]), timeout=300)
-        output.append("$ cloudflare bootstrap\n" + cf.stdout)
-
-    profiles: list[str] = ["backup"]
-    if data["cloudflare_mode"] == "tunnel":
-        profiles.append("cloudflare")
-    if data["enable_pool"]:
-        profiles.append("pool")
-
-    if data["deployment_source"] == "ghcr":
-        pull = run_command(compose_args("pull", profiles=profiles), timeout=1800)
-        output.append("$ docker compose pull\n" + pull.stdout)
-        up_args = ("up", "-d", "--remove-orphans")
-    else:
-        up_args = ("up", "-d", "--build", "--remove-orphans")
-
-    up = run_command(compose_args(*up_args, profiles=profiles), timeout=3600)
-    output.append("$ docker compose up\n" + up.stdout)
-
-    health = run_command(["/workspace/scripts/health-check-docker.sh"], timeout=300)
-    output.append("$ health check\n" + health.stdout)
-    return "\n".join(output)
+    return str(broker_call("deploy").get("output", ""))
 
 def start_job(kind: str, fn, *args) -> bool:
     with job_lock:
@@ -505,53 +450,18 @@ def api_stack() -> Response:
         return denied
     if not (WORKSPACE / ".env").exists():
         return jsonify({"configured": False, "services": []})
-    result = run_command(compose_args("ps", "--format", "json"), timeout=60, check=False)
-    services = []
-    for line in result.stdout.splitlines():
-        try:
-            services.append(json.loads(line))
-        except json.JSONDecodeError:
-            continue
-    return jsonify({"configured": True, "returncode": result.returncode, "services": services})
+    result=broker_call("status")
+    return jsonify({"configured":True,"services":result.get("services",[]),"raw":result.get("raw","")})
 
 @app.post("/api/backup")
 def api_backup() -> Response:
     denied = require_auth()
     if denied:
         return denied
-    if not start_job(
-        "backup",
-        lambda: run_command(
-            compose_args("run", "--rm", "backup-agent", "/opt/veiron-backup/backup-now.sh", profiles=["backup"]),
-            timeout=3600,
-        ).stdout,
-    ):
+    if not start_job("backup", lambda: str(broker_call("backup").get("output", ""))):
         return jsonify({"error": "another operation is already running"}), 409
     return jsonify({"accepted": True})
 
-@app.post("/api/update")
-def api_update() -> Response:
-    denied = require_auth()
-    if denied:
-        return denied
-    payload = request.get_json(silent=True) or {}
-    version = str(payload.get("version", "")).strip()
-    args = compose_args("run", "--rm", "updater", profiles=["tools"])
-    if version:
-        args.extend(["--version", version])
-    if not start_job("update", lambda: run_command(args, timeout=3600).stdout):
-        return jsonify({"error": "another operation is already running"}), 409
-    return jsonify({"accepted": True})
-
-@app.post("/api/rollback")
-def api_rollback() -> Response:
-    denied = require_auth()
-    if denied:
-        return denied
-    args = compose_args("run", "--rm", "updater", "--rollback", profiles=["tools"])
-    if not start_job("rollback", lambda: run_command(args, timeout=1800).stdout):
-        return jsonify({"error": "another operation is already running"}), 409
-    return jsonify({"accepted": True})
 
 @app.post("/api/alerts/discord")
 def alert_fanout() -> Response:
@@ -602,7 +512,6 @@ def alert_fanout() -> Response:
     status = 200 if delivered else 202
     return jsonify({"accepted": bool(delivered), "delivered": delivered, "errors": errors}), status
 
-print(f"Veiron setup token: {setup_token()}", flush=True)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
