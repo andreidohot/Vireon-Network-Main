@@ -105,8 +105,6 @@ Desktop.ini
 /info_and_task/
 .env
 .vireon-local/
-scripts/
-scripts/release/*
 # Misc local outputs
 rpc-gateway.log
 rpc-gateway.err.log
