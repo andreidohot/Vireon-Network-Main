@@ -1,5 +1,6 @@
 package network.vireon.mobile
 
+import android.content.ClipData
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,12 +22,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import kotlinx.coroutines.delay
@@ -376,7 +378,8 @@ private fun MobileDashboard(
     onLock: () -> Unit
 ) {
     var tab by remember { mutableStateOf(MobileTab.Overview) }
-    val clipboard = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
+    val clipboardScope = rememberCoroutineScope()
 
     Column(
         Modifier
@@ -455,7 +458,13 @@ private fun MobileDashboard(
                     )
                     if (wallet != null) {
                         Button(
-                            onClick = { clipboard.setText(AnnotatedString(wallet.address)) },
+                            onClick = {
+                                clipboardScope.launch {
+                                    clipboard.setClipEntry(
+                                        ClipData.newPlainText("Vireon address", wallet.address).toClipEntry()
+                                    )
+                                }
+                            },
                             colors = ButtonDefaults.buttonColors(containerColor = PanelRaised, contentColor = Cyan),
                             modifier = Modifier.fillMaxWidth()
                         ) { Text("Copy address") }
