@@ -69,11 +69,23 @@
   request_body {
     max_size 1MB
   }
-  reverse_proxy vireon-rpc:10787 {
-    transport http {
-      keepalive 60s
-      read_timeout 120s
-      write_timeout 120s
+
+  handle /pool {
+    rewrite * /health
+    reverse_proxy vireon-pool:30787
+  }
+
+  handle_path /pool/* {
+    reverse_proxy vireon-pool:30787
+  }
+
+  handle {
+    reverse_proxy vireon-rpc:10787 {
+      transport http {
+        keepalive 60s
+        read_timeout 120s
+        write_timeout 120s
+      }
     }
   }
 }

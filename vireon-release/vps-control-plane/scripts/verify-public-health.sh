@@ -12,7 +12,7 @@ load_dotenv .env
 }
 
 urls=("https://${RPC_HOST}/health" "https://${FLEET_HOST}/")
-[[ "${ENABLE_POOL:-false}" != true ]] || urls+=("https://${POOL_HOST}/health")
+[[ "${ENABLE_POOL:-false}" != true ]] || urls+=("https://${RPC_HOST}/pool/health" "https://${POOL_HOST}/health")
 
 for url in "${urls[@]}"; do
   ready=false
