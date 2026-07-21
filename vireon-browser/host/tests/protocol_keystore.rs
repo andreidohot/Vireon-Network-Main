@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
 fn host_bin() -> PathBuf {
-    PathBuf::from(env!("CARGO_BIN_EXE_veiron-browser-host"))
+    PathBuf::from(env!("CARGO_BIN_EXE_vireon-browser-host"))
 }
 
 #[test]

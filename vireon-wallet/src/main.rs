@@ -1,8 +1,8 @@
 use clap::{Parser, Subcommand};
 use serde::Serialize;
 use std::path::PathBuf;
-use veiron_core::{MnemonicWordCount, Network, WalletDerivationPath};
-use veiron_wallet::{
+use vireon_core::{MnemonicWordCount, Network, WalletDerivationPath};
+use vireon_wallet::{
     balance, create_wallet, default_chain_data_dir, default_rpc_base_url_for_network,
     default_signed_tx_dir_path, default_wallet_dir_path, export_public_info,
     import_dev_private_key, import_mnemonic_wallet, sign_tx, submit_tx, verify_tx, wallet_address,
@@ -11,18 +11,18 @@ use veiron_wallet::{
 
 const WALLET_EXAMPLES: &str = "\
 Examples:
-  # Mainnet-candidate wallets are AES-256-GCM encrypted; set VEIRON_WALLET_PASSPHRASE first.
-  $env:VEIRON_WALLET_PASSPHRASE='your-strong-passphrase'
-  veiron-wallet --network mainnet-candidate --wallet-dir .veiron-local/wallets create-wallet --word-count 24
-  veiron-wallet --network mainnet-candidate --wallet-dir .veiron-local/wallets import-mnemonic --phrase \"abandon ...\" --account 0 --change 0 --address-index 0
-  veiron-wallet --network mainnet-candidate --wallet-dir .veiron-local/wallets address
-  veiron-wallet --network mainnet-candidate --rpc-base-url http://127.0.0.1:10787 balance vire1...
-  veiron-wallet --network mainnet-candidate --wallet-dir .veiron-local/wallets --signed-tx-dir .veiron-local/wallets/signed-txs --chain-data-dir .veiron-local/chain sign-tx --to vire1... --amount 1.0 --fee 0.01
+  # Mainnet-candidate wallets are AES-256-GCM encrypted; set VIREON_WALLET_PASSPHRASE first.
+  $env:VIREON_WALLET_PASSPHRASE='your-strong-passphrase'
+  vireon-wallet --network mainnet-candidate --wallet-dir .vireon-local/wallets create-wallet --word-count 24
+  vireon-wallet --network mainnet-candidate --wallet-dir .vireon-local/wallets import-mnemonic --phrase \"abandon ...\" --account 0 --change 0 --address-index 0
+  vireon-wallet --network mainnet-candidate --wallet-dir .vireon-local/wallets address
+  vireon-wallet --network mainnet-candidate --rpc-base-url http://127.0.0.1:10787 balance vire1...
+  vireon-wallet --network mainnet-candidate --wallet-dir .vireon-local/wallets --signed-tx-dir .vireon-local/wallets/signed-txs --chain-data-dir .vireon-local/chain sign-tx --to vire1... --amount 1.0 --fee 0.01
 ";
 
 #[derive(Debug, Parser)]
-#[command(name = "veiron-wallet")]
-#[command(about = "Draft / Mainnet Candidate / Prototype wallet CLI for Veiron Network")]
+#[command(name = "vireon-wallet")]
+#[command(about = "Draft / Mainnet Candidate / Prototype wallet CLI for Vireon Network")]
 #[command(after_help = WALLET_EXAMPLES)]
 struct Cli {
     #[arg(long, default_value = "mainnet-candidate")]
@@ -117,7 +117,7 @@ fn main() {
             address_index,
         } => json_output(
             MnemonicWordCount::from_u16(word_count)
-                .map_err(veiron_wallet::WalletError::from)
+                .map_err(vireon_wallet::WalletError::from)
                 .and_then(|count| {
                     create_wallet(
                         &wallet_dir,
@@ -176,16 +176,16 @@ fn main() {
     match result {
         Ok(output) => println!("{output}"),
         Err(error) => {
-            eprintln!("veiron-wallet error: {error}");
+            eprintln!("vireon-wallet error: {error}");
             std::process::exit(1);
         }
     }
 }
 
 fn json_output<T: Serialize>(
-    value: veiron_wallet::WalletResult<T>,
-) -> veiron_wallet::WalletResult<String> {
+    value: vireon_wallet::WalletResult<T>,
+) -> vireon_wallet::WalletResult<String> {
     value.and_then(|inner| {
-        serde_json::to_string_pretty(&inner).map_err(veiron_wallet::WalletError::from)
+        serde_json::to_string_pretty(&inner).map_err(vireon_wallet::WalletError::from)
     })
 }

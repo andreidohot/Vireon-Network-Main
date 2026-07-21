@@ -33,6 +33,6 @@ src-tauri/resources/scripts
 src-tauri/resources/configs
 src-tauri/resources/docs
 src-tauri/resources/explorer
-src-tauri/resources/veiron.ps1
-src-tauri/resources/veiron.cmd
-src-tauri/resources/veiron.sh
+src-tauri/resources/vireon.ps1
+src-tauri/resources/vireon.cmd
+src-tauri/resources/vireon.sh

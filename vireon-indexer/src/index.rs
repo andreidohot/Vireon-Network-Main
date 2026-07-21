@@ -3,10 +3,10 @@ use crate::storage;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
-use veiron_core::{hash_to_hex, Amount, Chain, Network, Transaction, MAX_SUPPLY_ATOMIC};
-use veiron_node::storage as node_storage;
+use vireon_core::{hash_to_hex, Amount, Chain, Network, Transaction, MAX_SUPPLY_ATOMIC};
+use vireon_node::storage as node_storage;
 
-pub const DEFAULT_MAINNET_DATA_DIR: &str = ".veiron-mainnet/chain";
+pub const DEFAULT_MAINNET_DATA_DIR: &str = ".vireon-mainnet/chain";
 pub const DEFAULT_DEVNET_DATA_DIR: &str = DEFAULT_MAINNET_DATA_DIR;
 pub const INDEXER_MODE: &str = "Draft / Local Indexer / Prototype";
 
@@ -156,7 +156,7 @@ pub fn observe_chain_tip(chain_data_dir: &Path) -> IndexerResult<(Option<u64>, O
 pub fn index_chain(chain_data_dir: &Path, index_dir: &Path) -> IndexerResult<IndexData> {
     let blocks = node_storage::load_blocks(chain_data_dir)?;
     let first_block = blocks.first().ok_or_else(|| {
-        veiron_node::NodeError::ChainNotInitialized(node_storage::chain_file_path(chain_data_dir))
+        vireon_node::NodeError::ChainNotInitialized(node_storage::chain_file_path(chain_data_dir))
     })?;
     let network = first_block.network()?;
     let chain = Chain::from_blocks(network, blocks.iter().cloned())?;
@@ -401,7 +401,7 @@ fn try_append_index(
     }
 
     let first_block = chain_blocks.first().ok_or_else(|| {
-        veiron_node::NodeError::ChainNotInitialized(node_storage::chain_file_path(chain_data_dir))
+        vireon_node::NodeError::ChainNotInitialized(node_storage::chain_file_path(chain_data_dir))
     })?;
     let network = first_block.network()?;
     let chain = Chain::from_blocks(network, chain_blocks.iter().cloned())?;
@@ -452,7 +452,7 @@ fn try_append_index(
 
 fn append_block_to_index_maps(
     index: &mut IndexData,
-    block: &veiron_core::Block,
+    block: &vireon_core::Block,
     chain: &Chain,
 ) -> IndexerResult<()> {
     let height = block.header.height;
@@ -635,7 +635,7 @@ pub fn watch_index(
             .unwrap_or(true);
         if rebuilt {
             eprintln!(
-                "veiron-indexer: synced height={:?} tip={}",
+                "vireon-indexer: synced height={:?} tip={}",
                 index.summary.indexed_height,
                 index.summary.tip_hash.as_deref().unwrap_or("-")
             );

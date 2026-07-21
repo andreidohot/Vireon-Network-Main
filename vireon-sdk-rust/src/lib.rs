@@ -1,12 +1,12 @@
-//! # veiron-sdk-rust
+//! # vireon-sdk-rust
 //!
-//! **Standalone** Rust client SDK for **Veiron Network Mainnet Candidate**
+//! **Standalone** Rust client SDK for **Vireon Network Mainnet Candidate**
 //! (prototype — not Mainnet Live).
 //!
 //! Protocol primitives (address, amount, keys, transactions) are **vendored**
-//! inside this crate — there is **no** dependency on `veiron-core`.
+//! inside this crate — there is **no** dependency on `vireon-core`.
 //!
-//! Coexists with the public TypeScript package `@veiron/sdk` at monorepo path `veiron-sdk/`.
+//! Coexists with the public TypeScript package `@vireon/sdk` at monorepo path `vireon-sdk/`.
 //!
 //! ## Essential surface
 //! - [`NetworkConfig`] — network + RPC (+ public pool) base URLs
@@ -55,10 +55,10 @@ pub use rpc::{
 #[cfg(all(feature = "native", feature = "blocking"))]
 pub use rpc::BlockingRpcClient;
 
-// Protocol surface (standalone — not re-exported from veiron-core).
+// Protocol surface (standalone — not re-exported from vireon-core).
 pub use protocol::{
     generate_mnemonic, hash_to_hex, Address, Amount, MnemonicWordCount, Network, PrivateKey,
-    PublicKey, Signature, Transaction, UnsignedTransaction, VeironError, WalletDerivationPath,
+    PublicKey, Signature, Transaction, UnsignedTransaction, VireonError, WalletDerivationPath,
     ATOMIC_UNITS_PER_VIRE, BLOCK_TIME_SECONDS, CURRENT_STATUS, DECIMALS, INITIAL_BASE_FEE_ATOMIC,
     INITIAL_BLOCK_REWARD_ATOMIC, MAX_SUPPLY_ATOMIC, TICKER,
 };

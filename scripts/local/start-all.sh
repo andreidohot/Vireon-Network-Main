@@ -31,7 +31,7 @@ wait_for_http_ready "$RPC_URL/health" 120 1
 refresh_index_snapshot
 
 if [[ -d "$EXPLORER_DIR" && "$skip_explorer" != "true" ]]; then
-  start_background_process "explorer" "$EXPLORER_DIR" "cd \"$EXPLORER_DIR\" && if [[ ! -d node_modules ]]; then npm install; fi && env VITE_VEIRON_RPC_URL=\"$RPC_URL\" npm run dev -- --host 127.0.0.1 --port 4173"
+  start_background_process "explorer" "$EXPLORER_DIR" "cd \"$EXPLORER_DIR\" && if [[ ! -d node_modules ]]; then npm install; fi && env VITE_VIREON_RPC_URL=\"$RPC_URL\" npm run dev -- --host 127.0.0.1 --port 4173"
   echo "Explorer dev server requested at $EXPLORER_URL"
 fi
 

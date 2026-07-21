@@ -9,7 +9,7 @@ This runbook is for local operator use only. It is not a VPS deployment guide an
 The local operator workflow uses one safe workspace-local root:
 
 ```text
-.veiron-local/
+.vireon-local/
   chain/
   mempool/
   indexer/
@@ -21,10 +21,10 @@ The local operator workflow uses one safe workspace-local root:
 ```
 
 Notes:
-- wallet private keys stay under `.veiron-local/wallets/`;
-- signed transaction files stay under `.veiron-local/wallets/signed-txs/`;
-- logs stay under `.veiron-local/logs/`;
-- local Cargo build artifacts are redirected into `.veiron-local/build/` so normal repo-hygiene gates are not polluted.
+- wallet private keys stay under `.vireon-local/wallets/`;
+- signed transaction files stay under `.vireon-local/wallets/signed-txs/`;
+- logs stay under `.vireon-local/logs/`;
+- local Cargo build artifacts are redirected into `.vireon-local/build/` so normal repo-hygiene gates are not polluted.
 
 ## Prerequisites
 
@@ -50,10 +50,10 @@ bash scripts/local/start-all.sh
 ```
 
 What starts:
-- `veiron-node` in local mainnet-candidate mode
-- `veiron-rpc-gateway` bound to `127.0.0.1:10787`
-- a one-shot `veiron-indexer` refresh
-- `veiron-explorer` dev server if the app exists
+- `vireon-node` in local mainnet-candidate mode
+- `vireon-rpc-gateway` bound to `127.0.0.1:10787`
+- a one-shot `vireon-indexer` refresh
+- `vireon-explorer` dev server if the app exists
 
 ## Health Checks
 
@@ -94,25 +94,25 @@ This mines one block using the local operator chain and refreshes the index snap
 Create a local wallet:
 
 ```powershell
-cargo run -p veiron-wallet -- --network mainnet-candidate --wallet-dir .veiron-local/wallets --signed-tx-dir .veiron-local/wallets/signed-txs create-wallet
+cargo run -p vireon-wallet -- --network mainnet-candidate --wallet-dir .vireon-local/wallets --signed-tx-dir .vireon-local/wallets/signed-txs create-wallet
 ```
 
 Show the local address:
 
 ```powershell
-cargo run -p veiron-wallet -- --network mainnet-candidate --wallet-dir .veiron-local/wallets address
+cargo run -p vireon-wallet -- --network mainnet-candidate --wallet-dir .vireon-local/wallets address
 ```
 
 Check a balance through local RPC:
 
 ```powershell
-cargo run -p veiron-wallet -- --network mainnet-candidate --wallet-dir .veiron-local/wallets --rpc-base-url http://127.0.0.1:10787 balance <address>
+cargo run -p vireon-wallet -- --network mainnet-candidate --wallet-dir .vireon-local/wallets --rpc-base-url http://127.0.0.1:10787 balance <address>
 ```
 
 Submit a signed transaction if supported:
 
 ```powershell
-cargo run -p veiron-wallet -- --network mainnet-candidate --wallet-dir .veiron-local/wallets --signed-tx-dir .veiron-local/wallets/signed-txs --rpc-base-url http://127.0.0.1:10787 submit-tx --tx-file .veiron-local/wallets/signed-txs/<tx-hash>.json
+cargo run -p vireon-wallet -- --network mainnet-candidate --wallet-dir .vireon-local/wallets --signed-tx-dir .vireon-local/wallets/signed-txs --rpc-base-url http://127.0.0.1:10787 submit-tx --tx-file .vireon-local/wallets/signed-txs/<tx-hash>.json
 ```
 
 ## Explorer
@@ -128,9 +128,9 @@ Start through the local wrapper:
 Or manually:
 
 ```powershell
-cd veiron-explorer
+cd vireon-explorer
 npm install
-$env:VITE_VEIRON_RPC_URL = "http://127.0.0.1:10787"
+$env:VITE_VIREON_RPC_URL = "http://127.0.0.1:10787"
 npm run dev -- --host 127.0.0.1 --port 4173
 ```
 
@@ -139,7 +139,7 @@ npm run dev -- --host 127.0.0.1 --port 4173
 Local log files are written to:
 
 ```text
-.veiron-local/logs/
+.vireon-local/logs/
 ```
 
 Expected files:

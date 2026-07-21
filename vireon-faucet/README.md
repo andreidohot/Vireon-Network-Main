@@ -1,4 +1,4 @@
-# veiron-faucet
+# vireon-faucet
 
 Reserved for future devnet or testnet faucet services.
 

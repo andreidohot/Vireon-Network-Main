@@ -15,7 +15,7 @@ from flask import Flask, Response, jsonify, make_response, redirect, render_temp
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", secrets.token_hex(32))
 
-WORKSPACE = Path(os.environ.get("VEIRON_WORKSPACE", "/workspace")).resolve()
+WORKSPACE = Path(os.environ.get("VIREON_WORKSPACE", "/workspace")).resolve()
 BROKER_URL = os.environ.get("BROKER_URL", "http://docker-broker:8090").rstrip("/")
 BROKER_TOKEN_FILE = Path(os.environ.get("BROKER_TOKEN_FILE", "/run/secrets/broker_token"))
 STATE_DIR = WORKSPACE / "state"
@@ -38,31 +38,33 @@ job_state: dict[str, Any] = {
 }
 
 def ensure_layout() -> None:
-    directories = [
-        SECRETS_DIR, GENERATED_DIR, LOG_DIR,
-        STATE_DIR / "data" / "chain",
-        STATE_DIR / "data" / "mempool",
-        STATE_DIR / "data" / "indexer",
-        STATE_DIR / "data" / "node",
-        STATE_DIR / "control",
-        STATE_DIR / "pool",
-        STATE_DIR / "prometheus",
-        STATE_DIR / "grafana",
-        STATE_DIR / "loki",
-        STATE_DIR / "alloy",
-        STATE_DIR / "alertmanager",
-        STATE_DIR / "caddy" / "data",
-        STATE_DIR / "caddy" / "config",
-        STATE_DIR / "backups",
-        STATE_DIR / "metrics",
-    ]
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        if directory != SECRETS_DIR:
-            # Bind-mounted service data must be writable by the fixed UIDs used
-            # by Rust, Grafana, Prometheus, Loki and Alloy containers.
-            os.chmod(directory, 0o777)
+    # Bind mounts use the fixed, non-root UIDs of their corresponding images.
+    # Keep host state private instead of making every directory world-writable.
+    directories = {
+        GENERATED_DIR: (10001, 10001),
+        LOG_DIR: (0, 0),
+        STATE_DIR / "data" / "chain": (10001, 10001),
+        STATE_DIR / "data" / "mempool": (10001, 10001),
+        STATE_DIR / "data" / "indexer": (10001, 10001),
+        STATE_DIR / "data" / "node": (10001, 10001),
+        STATE_DIR / "control": (10001, 10001),
+        STATE_DIR / "pool": (10001, 10001),
+        STATE_DIR / "prometheus": (65534, 65534),
+        STATE_DIR / "grafana": (472, 472),
+        STATE_DIR / "loki": (10001, 10001),
+        STATE_DIR / "alloy": (0, 0),
+        STATE_DIR / "alertmanager": (65534, 65534),
+        STATE_DIR / "caddy" / "data": (1000, 1000),
+        STATE_DIR / "caddy" / "config": (1000, 1000),
+        STATE_DIR / "backups": (0, 0),
+        STATE_DIR / "metrics": (0, 0),
+    }
+    SECRETS_DIR.mkdir(parents=True, exist_ok=True)
     os.chmod(SECRETS_DIR, 0o700)
+    for directory, (uid, gid) in directories.items():
+        directory.mkdir(parents=True, exist_ok=True)
+        os.chown(directory, uid, gid)
+        os.chmod(directory, 0o750)
 
 def read_or_create_secret(path: Path, length: int = 32) -> str:
     if path.exists() and path.stat().st_size:
@@ -80,8 +82,8 @@ def authorized() -> bool:
     expected = setup_token()
     supplied = (
         request.args.get("token")
-        or request.headers.get("X-Veiron-Setup-Token")
-        or request.cookies.get("veiron_setup_token")
+        or request.headers.get("X-Vireon-Setup-Token")
+        or request.cookies.get("vireon_setup_token")
     )
     return bool(supplied and secrets.compare_digest(supplied, expected))
 
@@ -103,7 +105,7 @@ def env_quote(value: Any) -> str:
     text = str(value)
     if "\n" in text or "\r" in text:
         raise ValueError("environment values may not contain newlines")
-    return "'" + text.replace("'", "'\"'\"'") + "'"
+    return json.dumps(text, ensure_ascii=False)
 
 def bool_text(value: Any) -> str:
     return "true" if value in (True, "true", "1", 1, "yes", "on") else "false"
@@ -112,7 +114,7 @@ def broker_token() -> str:
     return BROKER_TOKEN_FILE.read_text(encoding="utf-8").strip()
 
 def broker_call(action: str, **payload: Any) -> dict[str, Any]:
-    response=requests.post(f"{BROKER_URL}/v1/action",headers={"X-Veiron-Broker-Token":broker_token()},json={"action":action,**payload},timeout=7300)
+    response=requests.post(f"{BROKER_URL}/v1/action",headers={"X-Vireon-Broker-Token":broker_token()},json={"action":action,**payload},timeout=7300)
     body=response.json() if response.content else {}
     if not response.ok: raise RuntimeError(body.get("error",f"broker HTTP {response.status_code}"))
     return body
@@ -138,9 +140,9 @@ def validate_payload(data: dict[str, Any]) -> dict[str, Any]:
     if control_role == "agent" and not str(data.get("controller_url", "")).startswith("https://"):
         raise ValueError("agent role requires an HTTPS controller_url")
 
-    veiron_version = str(data.get("veiron_version", "2.1.0-no-autoupdate")).strip()
-    if not NAME_RE.match(veiron_version) or veiron_version.lower() == "latest":
-        raise ValueError("veiron_version must be an explicit immutable-style tag; latest is forbidden")
+    vireon_version = str(data.get("vireon_version", "2.1.0-no-autoupdate")).strip()
+    if not NAME_RE.match(vireon_version) or vireon_version.lower() == "latest":
+        raise ValueError("vireon_version must be an explicit immutable-style tag; latest is forbidden")
 
     enable_pool = bool(data.get("enable_pool"))
     if enable_pool and not str(data.get("pool_address", "")).strip():
@@ -178,7 +180,7 @@ def validate_payload(data: dict[str, Any]) -> dict[str, Any]:
         "admin_email": admin_email,
         "cloudflare_mode": cloudflare_mode,
         "control_role": control_role,
-        "veiron_version": veiron_version,
+        "vireon_version": vireon_version,
         "enable_pool": enable_pool,
         "seed_nodes": seed_nodes,
     }
@@ -197,14 +199,14 @@ def write_alertmanager_config(data: dict[str, Any]) -> None:
 
     receivers = [
         {
-            "name": "veiron-webhook",
+            "name": "vireon-webhook",
             "webhook_configs": [{
-                "url": "http://veiron-ops:8080/api/alerts/discord",
+                "url": "http://vireon-ops:8080/api/alerts/discord",
                 "send_resolved": True,
             }],
         }
     ]
-    receiver_name = "veiron-webhook"
+    receiver_name = "vireon-webhook"
 
     config_lines = [
         "global:",
@@ -218,11 +220,11 @@ def write_alertmanager_config(data: dict[str, Any]) -> None:
             "  smtp_auth_password_file: /run/secrets/smtp_password",
             f"  smtp_require_tls: {str(bool(data.get('alert_smtp_starttls', True))).lower()}",
         ]
-        receiver_name = "veiron-combined"
+        receiver_name = "vireon-combined"
         receivers.append({
             "name": receiver_name,
             "webhook_configs": [{
-                "url": "http://veiron-ops:8080/api/alerts/discord",
+                "url": "http://vireon-ops:8080/api/alerts/discord",
                 "send_resolved": True,
             }],
             "email_configs": [{
@@ -292,19 +294,19 @@ def configure(data: dict[str, Any]) -> None:
     read_or_create_secret(SECRETS_DIR / "cloudflare_tunnel_token", 48)
 
     env_values = {
-        "COMPOSE_PROJECT_NAME": "veiron-control-plane",
+        "COMPOSE_PROJECT_NAME": "vireon-control-plane",
         "STACK_VERSION": "2.1.0-no-autoupdate",
-        "VEIRON_HOST_WORKSPACE": os.environ.get("VEIRON_HOST_WORKSPACE", str(WORKSPACE)),
-        "VEIRON_HOST_REPO": os.environ.get("VEIRON_HOST_REPO", str(WORKSPACE)),
+        "VIREON_HOST_WORKSPACE": os.environ.get("VIREON_HOST_WORKSPACE", str(WORKSPACE)),
+        "VIREON_HOST_REPO": os.environ.get("VIREON_HOST_REPO", str(WORKSPACE)),
         "TZ": data.get("timezone", "Europe/Bucharest"),
-        "VEIRON_VERSION": data.get("veiron_version", "2.1.0-no-autoupdate"),
-        "VEIRON_RUNTIME_IMAGE": data.get("veiron_runtime_image", "ghcr.io/andreidohot/veiron-runtime"),
-        "VEIRON_OPS_IMAGE": data.get("veiron_ops_image", "ghcr.io/andreidohot/veiron-ops"),
-        "VEIRON_BACKUP_IMAGE": data.get("veiron_backup_image", "ghcr.io/andreidohot/veiron-backup-scheduler"),
+        "VIREON_VERSION": data.get("vireon_version", "2.1.0-no-autoupdate"),
+        "VIREON_RUNTIME_IMAGE": data.get("vireon_runtime_image", "ghcr.io/andreidohot/vireon-runtime"),
+        "VIREON_OPS_IMAGE": data.get("vireon_ops_image", "ghcr.io/andreidohot/vireon-ops"),
+        "VIREON_BACKUP_IMAGE": data.get("vireon_backup_image", "ghcr.io/andreidohot/vireon-backup-scheduler"),
         "BASE_DOMAIN": base,
         "NODE_NAME": data["node_name"],
         "ADMIN_EMAIL": data["admin_email"],
-        "ADMIN_USER": data.get("admin_user", "veiron-admin"),
+        "ADMIN_USER": data.get("admin_user", "vireon-admin"),
         "CONTROL_ROLE": data["control_role"],
         "CONTROLLER_URL": data.get("controller_url", ""),
         "ENROLLMENT_TOKEN": data.get("enrollment_token", ""),
@@ -318,11 +320,11 @@ def configure(data: dict[str, Any]) -> None:
         "CLOUDFLARE_MODE": data["cloudflare_mode"],
         "CLOUDFLARE_ACCOUNT_ID": data.get("cloudflare_account_id", ""),
         "CLOUDFLARE_ZONE_ID": data.get("cloudflare_zone_id", ""),
-        "CLOUDFLARE_TUNNEL_NAME": data.get("cloudflare_tunnel_name", "veiron-control-plane"),
+        "CLOUDFLARE_TUNNEL_NAME": data.get("cloudflare_tunnel_name", "vireon-control-plane"),
         "PUBLIC_IPV4": data.get("public_ipv4", ""),
         "CLOUDFLARE_PROXY_HTTP": bool_text(data.get("cloudflare_proxy_http", True)),
         "ENABLE_POOL": bool_text(data["enable_pool"]),
-        "POOL_NAME": data.get("pool_name", "Veiron Reference Pool"),
+        "POOL_NAME": data.get("pool_name", "Vireon Reference Pool"),
         "POOL_ADDRESS": data.get("pool_address", ""),
         "INDEXER_INTERVAL_SECONDS": data.get("indexer_interval_seconds", 15),
         "PROMETHEUS_RETENTION": data.get("prometheus_retention", "30d"),
@@ -353,7 +355,7 @@ def configure(data: dict[str, Any]) -> None:
         "INDEXER_MEMORY_LIMIT": data.get("indexer_memory_limit", "1G"),
     }
 
-    lines = ["# Generated by Veiron Docker Setup. Do not commit this file."]
+    lines = ["# Generated by Vireon Docker Setup. Do not commit this file."]
     for key, value in env_values.items():
         lines.append(f"{key}={env_quote(value)}")
     (WORKSPACE / ".env").write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -411,7 +413,7 @@ def index() -> Response:
         response = make_response(render_template("index.html"))
         secure_cookie = request.headers.get("X-Forwarded-Proto", "").lower() == "https"
         response.set_cookie(
-            "veiron_setup_token",
+            "vireon_setup_token",
             token,
             httponly=True,
             samesite="Strict",
@@ -473,14 +475,14 @@ def alert_fanout() -> Response:
         status = str(alert.get("status", "unknown")).upper()
         labels = alert.get("labels", {})
         annotations = alert.get("annotations", {})
-        name = labels.get("alertname", "Veiron alert")
+        name = labels.get("alertname", "Vireon alert")
         service = labels.get("service", labels.get("job", "unknown"))
         summary = annotations.get("summary", annotations.get("description", ""))
-        discord_lines.append(f"**[{status}] {name}** · `{service}`\n{summary}")
-        plain_lines.append(f"[{status}] {name} · {service}\n{summary}")
+        discord_lines.append(f"**[{status}] {name}** - `{service}`\n{summary}")
+        plain_lines.append(f"[{status}] {name} - {service}\n{summary}")
     if not discord_lines:
-        discord_lines = ["Veiron Alertmanager notification received."]
-        plain_lines = ["Veiron Alertmanager notification received."]
+        discord_lines = ["Vireon Alertmanager notification received."]
+        plain_lines = ["Vireon Alertmanager notification received."]
 
     delivered = []
     errors = []

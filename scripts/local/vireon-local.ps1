@@ -16,7 +16,7 @@ $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 function Show-Usage {
-    Write-Host "Usage: scripts/local/veiron-local.ps1 <command> [options]"
+    Write-Host "Usage: scripts/local/vireon-local.ps1 <command> [options]"
     Write-Host ""
     Write-Host "Commands:"
     Write-Host "  start         Start node, RPC and explorer."

@@ -5,7 +5,7 @@ const router = Router()
 router.get('/health', (req, res) => {
   res.json({
     status: 'ok',
-    service: 'veiron-network-server',
+    service: 'vireon-network-server',
     mode: 'cms_and_mainnet_candidate_rpc_adapter',
   })
 })

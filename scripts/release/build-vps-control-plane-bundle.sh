@@ -1,23 +1,39 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 
 workspace="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-target="${CARGO_TARGET_DIR:-$workspace/target}"
-stage="$workspace/release-artifacts/vps-control-stage/veiron-vps-control"
-output="$workspace/release-artifacts/veiron-vps-control-linux-x86_64.tar.gz"
+output_dir="$workspace/release-artifacts"
+output="$output_dir/vireon-docker-control-plane.tar.gz"
 
 cd "$workspace"
-cargo build --locked --release -p veiron-node -p veiron-rpc-gateway -p veiron-indexer -p veiron-vps-admin -p veiron-mining-pool
-rm -rf "$(dirname "$stage")"
-mkdir -p "$stage/bin" "$stage/configs" "$stage/docs/release"
-for binary in veiron-node veiron-rpc-gateway veiron-indexer veiron-vps-admin veiron-mining-pool; do
-  install -m 0755 "$target/release/$binary" "$stage/bin/$binary"
-done
-install -m 0644 configs/genesis.mainnet-candidate.toml "$stage/configs/"
-install -m 0644 docs/release/GENESIS_APPROVAL.mainnet-candidate.json "$stage/docs/release/"
-cp -a veiron-release/vps-control-plane "$stage/vps-control-plane"
-find "$stage/vps-control-plane" -type f -name '*.sh' -exec chmod 0755 {} +
-rm -rf "$stage/vps-control-plane/admin-server"
-tar --create --gzip --file "$output" --directory "$(dirname "$stage")" "$(basename "$stage")"
-(cd "$(dirname "$output")" && sha256sum "$(basename "$output")" > "$(basename "$output").sha256")
+git diff --quiet && git diff --cached --quiet || {
+  echo "Refusing to build a release archive from a dirty working tree." >&2
+  exit 73
+}
+
+# The Dockerfile builds the selected VPS binaries from the workspace. Include
+# every Cargo member so workspace discovery remains valid, but no frontend,
+# runtime state, local environment, build output or secret file.
+paths=(
+  .dockerignore .gitattributes Cargo.toml Cargo.lock VERSION clippy.toml
+  configs docs/release shared
+  vireon-core vireon-node vireon-rpc-gateway vireon-wallet vireon-sdk-rust
+  vireon-browser/host vireon-indexer vireon-miner vireon-mining-pool
+  vireon-desktop vireon-mobile-core
+  vireon-release/vps-control-plane
+)
+
+mkdir -p "$output_dir"
+git archive --format=tar HEAD -- "${paths[@]}" | gzip -9 > "$output"
+(cd "$output_dir" && sha256sum "$(basename "$output")" > "$(basename "$output").sha256")
+
+tar -tzf "$output" | grep -Fxq 'vireon-release/vps-control-plane/compose.yaml'
+tar -tzf "$output" | grep -Fxq 'vireon-release/vps-control-plane/scripts/install-docker-stack.sh'
+tar -tzf "$output" | grep -Fxq 'vireon-release/vps-control-plane/docker/Dockerfile'
+
+if tar -tzf "$output" | grep -Eq '(^|/)(\.env|state/[^.].*|target/|node_modules/|\.artifacts/)'; then
+  echo "Forbidden runtime or generated file entered the Docker release archive." >&2
+  exit 1
+fi
+
 echo "$output"

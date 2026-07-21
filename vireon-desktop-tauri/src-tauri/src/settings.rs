@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::sync::OnceLock;
 
-pub const DEFAULT_RPC_URL: &str = veiron_sdk_rust::DEFAULT_MAINNET_CANDIDATE_RPC;
+pub const DEFAULT_RPC_URL: &str = vireon_sdk_rust::DEFAULT_MAINNET_CANDIDATE_RPC;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
@@ -67,7 +67,7 @@ impl Default for AppSettings {
             theme: "dark".into(),
             density: "comfortable".into(),
             accent: "cyan".into(),
-            // VPS-friendly default (vps-fix.md): avoid hammering public RPC every few seconds.
+            // VPS-friendly default: avoid hammering public RPC every few seconds.
             refresh_interval_ms: 12_000,
             live_log_interval_ms: 5_000,
             reduce_motion: false,
@@ -89,8 +89,8 @@ impl Default for AppSettings {
             default_miner_backend: "cuda".into(),
             default_gpu_intensity: 90,
             default_gpu_devices: Vec::new(),
-            default_pool_url: veiron_sdk_rust::DEFAULT_MAINNET_CANDIDATE_POOL.to_owned(),
-            pool_urls: vec![veiron_sdk_rust::DEFAULT_MAINNET_CANDIDATE_POOL.to_owned()],
+            default_pool_url: vireon_sdk_rust::DEFAULT_MAINNET_CANDIDATE_POOL.to_owned(),
+            pool_urls: vec![vireon_sdk_rust::DEFAULT_MAINNET_CANDIDATE_POOL.to_owned()],
             default_worker_name: "desktop-01".into(),
             default_page: "overview".into(),
             open_external_explorer: true,
@@ -240,7 +240,7 @@ pub fn set_rpc_url(raw: &str) -> AppResult<String> {
 pub fn normalize_rpc_url(raw: &str) -> AppResult<String> {
     let trimmed = raw.trim().trim_end_matches('/').to_string();
     if trimmed.is_empty() {
-        return Err(AppError::msg("Enter a Veiron RPC endpoint URL."));
+        return Err(AppError::msg("Enter a Vireon RPC endpoint URL."));
     }
     // Static patterns: compile once; fall back to literal checks if regex build fails.
     let local_host = match regex::Regex::new(r"^(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$") {
@@ -269,7 +269,7 @@ pub fn normalize_rpc_url(raw: &str) -> AppResult<String> {
     }
     if url.port() == Some(20787) {
         return Err(AppError::msg(
-            "Port 20787 is Veiron P2P, not HTTP RPC. Use the HTTPS RPC gateway.",
+            "Port 20787 is Vireon P2P, not HTTP RPC. Use the HTTPS RPC gateway.",
         ));
     }
     if url.path() != "/" && !url.path().is_empty() {

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Register veiron-browser-host for Chromium-based browsers on Linux.
+# Register vireon-browser-host for Chromium-based browsers on Linux.
 # Usage:
 #   ./scripts/browser/register-native-host.sh --extension-id <id>
 #   ./scripts/browser/register-native-host.sh --extension-id <id> --build --browser chrome
@@ -15,8 +15,8 @@ HOST_BINARY=""
 BUILD=0
 REQUIRE_OS_CONFIRM=0
 LOCAL_RPC=0
-INSTALL_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/veiron/browser-host"
-HOST_NAME="com.veiron.browser_host"
+INSTALL_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/vireon/browser-host"
+HOST_NAME="com.vireon.browser_host"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -41,8 +41,8 @@ if [[ -z "$EXTENSION_ID" ]]; then
 fi
 
 if [[ $BUILD -eq 1 || -z "$HOST_BINARY" ]]; then
-  cargo build -p veiron-browser-host --release
-  HOST_BINARY="$REPO_ROOT/target/release/veiron-browser-host"
+  cargo build -p vireon-browser-host --release
+  HOST_BINARY="$REPO_ROOT/target/release/vireon-browser-host"
 fi
 
 HOST_BINARY="$(readlink -f "$HOST_BINARY")"
@@ -52,11 +52,11 @@ if [[ ! -x "$HOST_BINARY" && ! -f "$HOST_BINARY" ]]; then
 fi
 
 mkdir -p "$INSTALL_DIR"
-INSTALLED_BINARY="$INSTALL_DIR/veiron-browser-host"
+INSTALLED_BINARY="$INSTALL_DIR/vireon-browser-host"
 cp -f "$HOST_BINARY" "$INSTALLED_BINARY"
 chmod +x "$INSTALLED_BINARY"
 
-LAUNCHER="$INSTALL_DIR/veiron-browser-host-launcher.sh"
+LAUNCHER="$INSTALL_DIR/vireon-browser-host-launcher.sh"
 {
   echo "#!/usr/bin/env bash"
   echo "set -euo pipefail"
@@ -74,7 +74,7 @@ ORIGIN="chrome-extension://${EXTENSION_ID}/"
 cat > "$MANIFEST" <<EOF
 {
   "name": "$HOST_NAME",
-  "description": "Veiron Network browser native messaging host (Mainnet Candidate)",
+  "description": "Vireon Network browser native messaging host (Mainnet Candidate)",
   "path": "$LAUNCHER",
   "type": "stdio",
   "allowed_origins": [

@@ -1,7 +1,7 @@
 network = "mainnet-candidate"
-network_name = "veiron-mainnet"
+network_name = "vireon-mainnet"
 network_id = "veiron-mainnet-candidate"
-human_name = "Veiron Mainnet Candidate"
+human_name = "Vireon Mainnet Candidate"
 status_label = "Planned / Mainnet Candidate"
 block_time_seconds = 60
 difficulty_leading_zero_bits = 16
@@ -20,6 +20,6 @@ genesis_config_path = "configs/genesis.mainnet-candidate.toml"
 genesis_approval_path = "docs/release/GENESIS_APPROVAL.mainnet-candidate.json"
 chain_magic_hex = "564d4e43"
 allow_mainnet_candidate = true
-# Operators should list every public bootstrap multiaddr. Empty arrays are
-# rewritten by install.sh to the local /dns4/$domain/tcp/20787 advertise path.
+# Operators should list every public bootstrap multiaddress. Docker setup
+# renders the configured seeds into the generated runtime configuration.
 seed_nodes = [__SEED_NODES__]

@@ -1,4 +1,4 @@
-# Veiron Tokenomics Overview
+# Vireon Tokenomics Overview
 
 Status: Implemented candidate economics / allocation policy incomplete
 

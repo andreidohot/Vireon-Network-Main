@@ -2,9 +2,9 @@
 
 Status: Implemented / Mainnet Candidate / public prototype exposure
 
-`veiron-rpc-gateway` serves canonical node, chain, account, mempool, indexer,
+`vireon-rpc-gateway` serves canonical node, chain, account, mempool, indexer,
 P2P-summary, transaction-submission, and mining-template APIs. It reads and
-validates through current Veiron libraries; it does not define consensus.
+validates through current Vireon libraries; it does not define consensus.
 
 ## Exposure profiles
 

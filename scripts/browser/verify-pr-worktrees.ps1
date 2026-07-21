@@ -18,40 +18,40 @@ $Parent = Split-Path (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path -Pare
 
 $suite = [ordered]@{
     A = @{
-        Path = Join-Path $Parent "veiron-pr-a"
+        Path = Join-Path $Parent "vireon-pr-a"
         Commands = @(
-            "cargo test -p veiron-sdk-rust --all-features"
+            "cargo test -p vireon-sdk-rust --all-features"
         )
     }
     B = @{
-        Path = Join-Path $Parent "veiron-pr-b"
+        Path = Join-Path $Parent "vireon-pr-b"
         Commands = @(
-            "cargo test -p veiron-sdk-rust --all-features"
-            "cargo test -p veiron-wallet --tests"
+            "cargo test -p vireon-sdk-rust --all-features"
+            "cargo test -p vireon-wallet --tests"
         )
     }
     C = @{
-        Path = Join-Path $Parent "veiron-pr-c"
+        Path = Join-Path $Parent "vireon-pr-c"
         Commands = @(
-            "cargo test -p veiron-sdk-rust --all-features"
-            "cargo test -p veiron-browser-host"
+            "cargo test -p vireon-sdk-rust --all-features"
+            "cargo test -p vireon-browser-host"
         )
     }
     D = @{
-        Path = Join-Path $Parent "veiron-pr-d"
+        Path = Join-Path $Parent "vireon-pr-d"
         Commands = @(
-            "cargo test -p veiron-sdk-rust --all-features"
-            "cargo test -p veiron-browser-host"
-            "cargo run -p veiron-browser-host -- --check-health --require-indexer-sync --json"
+            "cargo test -p vireon-sdk-rust --all-features"
+            "cargo test -p vireon-browser-host"
+            "cargo run -p vireon-browser-host -- --check-health --require-indexer-sync --json"
         )
     }
     E = @{
-        Path = Join-Path $Parent "veiron-pr-e"
+        Path = Join-Path $Parent "vireon-pr-e"
         Commands = @(
-            "cargo test -p veiron-sdk-rust --all-features"
+            "cargo test -p vireon-sdk-rust --all-features"
             # Tauri conf requires externalBin keystore helper (not committed).
-            "powershell -NoProfile -ExecutionPolicy Bypass -File veiron-desktop-tauri/scripts/prepare-native.ps1"
-            "cargo test --manifest-path veiron-desktop-tauri/src-tauri/Cargo.toml --lib"
+            "powershell -NoProfile -ExecutionPolicy Bypass -File vireon-desktop-tauri/scripts/prepare-native.ps1"
+            "cargo test --manifest-path vireon-desktop-tauri/src-tauri/Cargo.toml --lib"
         )
     }
 }

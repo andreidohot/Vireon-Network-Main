@@ -4,7 +4,7 @@ All agents receive an absolute path to a **clean worktree** (`mirror-main` or PR
 
 ## Shared rules
 
-- Repo: `andreidohot/veiron-network`
+- Repo: `andreidohot/vireon-network`
 - Inspect only the provided worktree or `git show origin/main:path`
 - Ignore `target/`, `node_modules/`, build caches
 - Findings cite: repo, commit SHA, path
@@ -21,10 +21,10 @@ Domains:
 
 | ID | Paths |
 |----|--------|
-| finder-rust-core | veiron-core/, veiron-wallet/, shared/ |
-| finder-node-rpc | veiron-node/, veiron-rpc-gateway/, veiron-indexer/, veiron-miner/, veiron-mining-pool/ |
+| finder-rust-core | vireon-core/, vireon-wallet/, shared/ |
+| finder-node-rpc | vireon-node/, vireon-rpc-gateway/, vireon-indexer/, vireon-miner/, vireon-mining-pool/ |
 | finder-security | configs/, scripts/security/, docs/security/ |
-| finder-desktop | veiron-desktop-electron/, veiron-desktop/, veiron-desktop-tauri/, veiron-explorer/, veiron-website/ |
+| finder-desktop | vireon-desktop-electron/, vireon-desktop/, vireon-desktop-tauri/, vireon-explorer/, vireon-website/ |
 | finder-hygiene | scripts/, docs/, .github/workflows/, README.md |
 
 Cap ~6 findings per domain per wave. No product code edits.
@@ -33,7 +33,7 @@ Issue body must include:
 
 ```markdown
 ## Inspected
-- repo: andreidohot/veiron-network
+- repo: andreidohot/vireon-network
 - ref: main
 - commit: <sha>
 

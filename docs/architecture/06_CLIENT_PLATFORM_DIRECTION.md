@@ -4,7 +4,7 @@ Status: Draft / Planned / Prototype
 
 ## Goal
 
-Veiron should be designed for a broader client surface than one Windows-only product.
+Vireon should be designed for a broader client surface than one Windows-only product.
 
 The long-term direction should cover:
 - Windows desktop;
@@ -15,7 +15,7 @@ The long-term direction should cover:
 
 ## Product Principle
 
-Veiron should expose a unified user experience per platform while keeping core, wallet, node, mining, RPC and indexing responsibilities modular internally.
+Vireon should expose a unified user experience per platform while keeping core, wallet, node, mining, RPC and indexing responsibilities modular internally.
 
 This means:
 - users should not be forced to assemble many disconnected tools for normal workflows;
@@ -99,7 +99,7 @@ Operator direction should still support:
 
 Remote control of nodes or miners from Android or iOS must not be assumed safe by default.
 
-Before mobile remote-control features are implemented, Veiron will still need:
+Before mobile remote-control features are implemented, Vireon will still need:
 - authenticated operator access rules;
 - session and device trust model;
 - clear permission boundaries;

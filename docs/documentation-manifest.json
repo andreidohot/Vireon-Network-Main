@@ -4,8 +4,8 @@
     "README.md",
     "docs/**/*.md",
     "shared/**/*.md",
-    "veiron-*/README.md",
-    "veiron-sdk-rust/docs/**/*.md"
+    "vireon-*/README.md",
+    "vireon-sdk-rust/docs/**/*.md"
   ],
   "internal_prefixes": [
     ".agents/",
@@ -18,10 +18,7 @@
     "TASK_MASTER.md"
   ],
   "historical_prefixes": [
-    "MIGRATION_STATUS.md",
     "RUST_CODE_ANALYSIS_REPORT.md",
-    "audicopilot.md",
-    "docs/release/CANDIDATE_CHAIN_RESET_",
-    "docs/release/PROJECT_AUDIT_"
+    "docs/release/CANDIDATE_CHAIN_RESET_"
   ]
 }

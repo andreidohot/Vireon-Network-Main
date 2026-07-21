@@ -1,12 +1,12 @@
-# Veiron SDK Client (v0)
+# Vireon SDK Client (v0)
 
 Status: Prototype / Mainnet Candidate
 
-Crate: `veiron-sdk-rust`  
-Consumers: Rust apps, `veiron-wallet` (blocking RPC), `veiron-browser-host`, desktop Tauri + keystore-helper.
+Crate: `vireon-sdk-rust`  
+Consumers: Rust apps, `vireon-wallet` (blocking RPC), `vireon-browser-host`, desktop Tauri + keystore-helper.
 
-This is **not** Mainnet Live. Rust crate path: `veiron-sdk-rust/` (import `veiron_sdk_rust`).  
-Public TypeScript read client lives separately at `veiron-sdk/` (`@veiron/sdk`).
+This is **not** Mainnet Live. Rust crate path: `vireon-sdk-rust/` (import `vireon_sdk_rust`).  
+Public TypeScript read client lives separately at `vireon-sdk/` (`@vireon/sdk`).
 
 ## Features
 
@@ -28,14 +28,14 @@ Public TypeScript read client lives separately at `veiron-sdk/` (`@veiron/sdk`).
 | Status label | from `Network::MainnetCandidate` (Planned / Mainnet Candidate) |
 
 ```rust
-use veiron_sdk_rust::NetworkConfig;
+use vireon_sdk_rust::NetworkConfig;
 
 let remote = NetworkConfig::mainnet_candidate();
 let local = NetworkConfig::mainnet_candidate_local();
-let custom = NetworkConfig::with_rpc(veiron_sdk_rust::Network::MainnetCandidate, "https://example");
+let custom = NetworkConfig::with_rpc(vireon_sdk_rust::Network::MainnetCandidate, "https://example");
 ```
 
-## Essential types (re-exported from `veiron-core`)
+## Essential types (re-exported from `vireon-core`)
 
 - `Network`, `Address`, `Amount`, `Transaction`
 - `PrivateKey`, `PublicKey`, `MnemonicWordCount`, `WalletDerivationPath`
@@ -44,7 +44,7 @@ let custom = NetworkConfig::with_rpc(veiron_sdk_rust::Network::MainnetCandidate,
 ## Wallet (in-memory)
 
 ```rust
-use veiron_sdk_rust::{WalletAccount, MnemonicWordCount, Network};
+use vireon_sdk_rust::{WalletAccount, MnemonicWordCount, Network};
 
 let (account, mnemonic) =
     WalletAccount::generate(Network::MainnetCandidate, MnemonicWordCount::Twelve)?;
@@ -55,7 +55,7 @@ let address = account.address_string();
 ## Transfer builder
 
 ```rust
-use veiron_sdk_rust::{TransferBuilder, Amount};
+use vireon_sdk_rust::{TransferBuilder, Amount};
 
 let signed = TransferBuilder::new(network)
     .to(recipient)?
@@ -99,7 +99,7 @@ let signed = TransferBuilder::new(network)
 | `pool_block_maturity` (pure) | same rule as TS / mining-pool |
 
 ```rust
-use veiron_sdk_rust::{NetworkConfig, RpcClient};
+use vireon_sdk_rust::{NetworkConfig, RpcClient};
 
 let client = RpcClient::new(NetworkConfig::mainnet_candidate())?;
 let tip = client.tip().await?;
@@ -109,12 +109,12 @@ let recent = client.recent_blocks(5).await?;
 Blocking (feature `blocking`):
 
 ```rust
-use veiron_sdk_rust::BlockingRpcClient;
+use vireon_sdk_rust::BlockingRpcClient;
 ```
 
 ## WASM (`wasm` feature)
 
-`veiron_sdk_rust::wasm_logic`: parse address, format/parse VIRE, verify transaction.  
+`vireon_sdk_rust::wasm_logic`: parse address, format/parse VIRE, verify transaction.  
 No RPC, no disk keystore. Browser signing uses **native messaging host**.
 
 ## Non-goals (v0)
@@ -130,15 +130,15 @@ No RPC, no disk keystore. Browser signing uses **native messaging host**.
 
 | Consumer | How it uses the SDK |
 |---|---|
-| `veiron-wallet` | `BlockingRpcClient` for balance + submit |
-| `veiron-browser-host` | blocking RPC + wallet + keystore + explore methods |
-| `veiron-desktop-tauri` | async RPC + defaults; snapshot may still mix ad-hoc GETs |
+| `vireon-wallet` | `BlockingRpcClient` for balance + submit |
+| `vireon-browser-host` | blocking RPC + wallet + keystore + explore methods |
+| `vireon-desktop-tauri` | async RPC + defaults; snapshot may still mix ad-hoc GETs |
 | Tauri `keystore-helper` | `BlockingRpcClient::account` for prepare/sign previews |
-| `veiron-examples` (JS) | uses TypeScript `@veiron/sdk` under `veiron-sdk/`, not this crate |
+| `vireon-examples` (JS) | uses TypeScript `@vireon/sdk` under `vireon-sdk/`, not this crate |
 
 ## Related
 
-- Implementation: `veiron-sdk-rust/` (`README.md`, `docs/API.md`, `docs/JS_PARITY.md`)
-- TypeScript client: `veiron-sdk/` (`@veiron/sdk`)
-- Browser host: `veiron-browser/`
+- Implementation: `vireon-sdk-rust/` (`README.md`, `docs/API.md`, `docs/JS_PARITY.md`)
+- TypeScript client: `vireon-sdk/` (`@vireon/sdk`)
+- Browser host: `vireon-browser/`
 - RPC gateway endpoints: `01_RPC_ENDPOINTS_DRAFT.md`

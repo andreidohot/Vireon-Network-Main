@@ -1,9 +1,9 @@
-# Veiron Documentation Policy
+# Vireon Documentation Policy
 
 Status: Accepted workspace policy
 
 This policy prevents historical notes, recommendations, and incomplete product
-ideas from being mistaken for current Veiron behavior.
+ideas from being mistaken for current Vireon behavior.
 
 ## Source-of-truth order
 
@@ -12,7 +12,7 @@ When documents disagree, use this order:
 1. validated implementation and consensus tests for current behavior;
 2. `memory/DECISIONS.md` for explicitly accepted decisions;
 3. `memory/OPEN_QUESTIONS.md` for unresolved decisions;
-4. the canonical `docs/source-info/VEIRON_00` through `VEIRON_05` set;
+4. the canonical `docs/source-info/VIREON_00` through `VIREON_05` set;
 5. current specifications under `docs/` and active component READMEs;
 6. roadmaps and task plans for future work;
 7. historical reports only as evidence of what was known at their stated date.
@@ -73,7 +73,7 @@ Run:
 
 ```bash
 node scripts/docs/audit-docs.mjs --write
-npm --prefix veiron-website run build
+npm --prefix vireon-website run build
 ```
 
 The first command checks all repository Markdown files, validates local links

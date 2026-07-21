@@ -12,20 +12,20 @@ Status: Current API index / Mainnet Candidate (where noted)
 | `01_RPC_ENDPOINTS_DRAFT.md` | HTTP endpoint list |
 | `02_RPC_RESPONSE_MODELS.md` | Response shapes |
 | `03_MINING_POOL_API_DRAFT.md` | Pool HTTP API (prototype) |
-| `04_SDK_CLIENT_V0.md` | **`veiron-sdk-rust` client surface (v0)** |
+| `04_SDK_CLIENT_V0.md` | **`vireon-sdk-rust` client surface (v0)** |
 
 ## Honest scope
 
 - Product network: **Mainnet Candidate** (`veiron-mainnet-candidate`), not Mainnet Live.
 - Public RPC may be deployed operationally; docs still label draft/prototype where models can change.
-- Rust SDK (`veiron-sdk-rust`): L1 wallet/sign/RPC + **public** pool reads + maturity + p2p.
-- TypeScript SDK (`veiron-sdk` / `@veiron/sdk`): read-only RPC + pool for JS examples.
+- Rust SDK (`vireon-sdk-rust`): L1 wallet/sign/RPC + **public** pool reads + maturity + p2p.
+- TypeScript SDK (`vireon-sdk` / `@vireon/sdk`): read-only RPC + pool for JS examples.
 
 ## Implementation map
 
 | Surface | Code |
 |---|---|
-| RPC gateway | `veiron-rpc-gateway/` |
-| Rust client SDK | `veiron-sdk-rust/` |
-| Wallet CLI (uses SDK blocking RPC) | `veiron-wallet/` |
-| Browser native host (uses SDK) | `veiron-browser/host/` |
+| RPC gateway | `vireon-rpc-gateway/` |
+| Rust client SDK | `vireon-sdk-rust/` |
+| Wallet CLI (uses SDK blocking RPC) | `vireon-wallet/` |
+| Browser native host (uses SDK) | `vireon-browser/host/` |

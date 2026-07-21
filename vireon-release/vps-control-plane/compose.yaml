@@ -1,12 +1,12 @@
-name: ${COMPOSE_PROJECT_NAME:-veiron-control-plane}
+name: ${COMPOSE_PROJECT_NAME:-vireon-control-plane}
 
 x-runtime-image: &runtime-image
-  image: ${VEIRON_RUNTIME_IMAGE:-ghcr.io/andreidohot/veiron-runtime}:${VEIRON_VERSION:-2.1.0-no-autoupdate}
+  image: ${VIREON_RUNTIME_IMAGE:-ghcr.io/andreidohot/vireon-runtime}:${VIREON_VERSION:-2.1.0-no-autoupdate}
   build:
-    context: ${VEIRON_HOST_REPO:-../..}
-    dockerfile: veiron-release/vps-control-plane/docker/Dockerfile
+    context: ${VIREON_HOST_REPO:-../..}
+    dockerfile: vireon-release/vps-control-plane/docker/Dockerfile
   restart: unless-stopped
-  networks: [veiron-internal]
+  networks: [vireon-internal]
   security_opt: [no-new-privileges:true]
   cap_drop: [ALL]
 
@@ -15,18 +15,18 @@ x-runtime-common: &runtime-common
   env_file: [.env]
   volumes:
     - ./state/config/generated:/config
-    - ./state/data:/data/.veiron-mainnet
+    - ./state/data:/data/.vireon-mainnet
   read_only: true
   tmpfs: [/tmp:size=128m,mode=1777]
 
 services:
-  veiron-node:
+  vireon-node:
     <<: *runtime-common
-    container_name: veiron-node
-    environment: {VEIRON_COMPONENT: node}
+    container_name: vireon-node
+    environment: {VIREON_COMPONENT: node}
     ports: ["${P2P_PORT:-20787}:20787/tcp"]
     healthcheck:
-      test: ["CMD-SHELL", "pgrep -x veiron-node >/dev/null"]
+      test: ["CMD-SHELL", "pgrep -x vireon-node >/dev/null"]
       interval: 15s
       timeout: 5s
       retries: 12
@@ -34,12 +34,15 @@ services:
     mem_limit: ${NODE_MEMORY_LIMIT:-3G}
     cpus: 2.0
 
-  veiron-rpc:
+  vireon-rpc:
     <<: *runtime-common
-    container_name: veiron-rpc
-    environment: {VEIRON_COMPONENT: rpc}
+    container_name: vireon-rpc
+    environment:
+      VIREON_COMPONENT: rpc
+      RPC_ACCESS_MODE: public-submit
+      RPC_EXPOSE_MINING: "false"
     depends_on:
-      veiron-node: {condition: service_healthy}
+      vireon-node: {condition: service_healthy}
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:10787/health"]
       interval: 15s
@@ -49,16 +52,35 @@ services:
     mem_limit: ${RPC_MEMORY_LIMIT:-3G}
     cpus: 1.0
 
-  veiron-indexer:
+  vireon-mining-rpc:
     <<: *runtime-common
-    container_name: veiron-indexer
+    container_name: vireon-mining-rpc
+    profiles: [pool]
     environment:
-      VEIRON_COMPONENT: indexer
+      VIREON_COMPONENT: mining-rpc
+      RPC_ACCESS_MODE: private-mining
+      RPC_EXPOSE_MINING: "true"
+    depends_on:
+      vireon-node: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:10787/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    mem_limit: ${MINING_RPC_MEMORY_LIMIT:-2G}
+    cpus: 0.75
+
+  vireon-indexer:
+    <<: *runtime-common
+    container_name: vireon-indexer
+    environment:
+      VIREON_COMPONENT: indexer
       INDEXER_INTERVAL_SECONDS: ${INDEXER_INTERVAL_SECONDS:-15}
     depends_on:
-      veiron-rpc: {condition: service_healthy}
+      vireon-rpc: {condition: service_healthy}
     healthcheck:
-      test: ["CMD-SHELL", "test -f /data/.veiron-mainnet/indexer/.last-success && find /data/.veiron-mainnet/indexer/.last-success -mmin -5 | grep -q ."]
+      test: ["CMD-SHELL", "test -f /data/.vireon-mainnet/indexer/.last-success && find /data/.vireon-mainnet/indexer/.last-success -mmin -5 | grep -q ."]
       interval: 30s
       timeout: 5s
       retries: 8
@@ -66,18 +88,18 @@ services:
     mem_limit: ${INDEXER_MEMORY_LIMIT:-1G}
     cpus: 0.5
 
-  veiron-control:
+  vireon-control:
     <<: *runtime-image
-    container_name: veiron-control
+    container_name: vireon-control
     env_file: [.env]
     environment:
-      VEIRON_COMPONENT: control
-      VEIRON_DEPLOYMENT_MODE: docker
+      VIREON_COMPONENT: control
+      VIREON_DEPLOYMENT_MODE: docker
     volumes:
       - ./state/config/generated:/config
       - ./state/control:/data/control
     depends_on:
-      veiron-rpc: {condition: service_healthy}
+      vireon-rpc: {condition: service_healthy}
     read_only: true
     tmpfs: [/tmp:size=64m,mode=1777]
     healthcheck:
@@ -89,18 +111,18 @@ services:
     mem_limit: ${CONTROL_MEMORY_LIMIT:-1G}
     cpus: 0.5
 
-  veiron-pool:
+  vireon-pool:
     <<: *runtime-image
-    container_name: veiron-pool
+    container_name: vireon-pool
     profiles: [pool]
     env_file: [.env]
-    environment: {VEIRON_COMPONENT: pool}
+    environment: {VIREON_COMPONENT: pool}
     volumes:
       - ./state/config/generated:/config
       - ./state/pool:/data/pool
     secrets: [pool_admin_token]
     depends_on:
-      veiron-rpc: {condition: service_healthy}
+      vireon-mining-rpc: {condition: service_healthy}
     read_only: true
     tmpfs: [/tmp:size=64m,mode=1777]
     healthcheck:
@@ -111,25 +133,25 @@ services:
       start_period: 30s
 
   docker-broker:
-    image: ${VEIRON_OPS_IMAGE:-ghcr.io/andreidohot/veiron-ops}:${VEIRON_VERSION:-2.1.0-no-autoupdate}
+    image: ${VIREON_OPS_IMAGE:-ghcr.io/andreidohot/vireon-ops}:${VIREON_VERSION:-2.1.0-no-autoupdate}
     build:
-      context: ${VEIRON_HOST_WORKSPACE:-.}
+      context: ${VIREON_HOST_WORKSPACE:-.}
       dockerfile: docker/ops/Dockerfile
-    container_name: veiron-docker-broker
+    container_name: vireon-docker-broker
     restart: unless-stopped
-    working_dir: ${VEIRON_HOST_WORKSPACE}
-    networks: [veiron-internal]
+    working_dir: ${VIREON_HOST_WORKSPACE}
+    networks: [vireon-internal]
     env_file: [.env]
     environment:
-      VEIRON_WORKSPACE: ${VEIRON_HOST_WORKSPACE}
-      VEIRON_COMPOSE_FILE: ${VEIRON_HOST_WORKSPACE}/compose.yaml
-      VEIRON_HOST_WORKSPACE: ${VEIRON_HOST_WORKSPACE}
-      VEIRON_HOST_REPO: ${VEIRON_HOST_REPO}
+      VIREON_WORKSPACE: ${VIREON_HOST_WORKSPACE}
+      VIREON_COMPOSE_FILE: ${VIREON_HOST_WORKSPACE}/compose.yaml
+      VIREON_HOST_WORKSPACE: ${VIREON_HOST_WORKSPACE}
+      VIREON_HOST_REPO: ${VIREON_HOST_REPO}
       BROKER_TOKEN_FILE: /run/secrets/broker_token
     command: ["gunicorn", "--bind", "0.0.0.0:8090", "--workers", "1", "--threads", "2", "--timeout", "7200", "broker:app"]
     volumes:
-      - ${VEIRON_HOST_WORKSPACE}:${VEIRON_HOST_WORKSPACE}
-      - ${VEIRON_HOST_REPO}:${VEIRON_HOST_REPO}:ro
+      - ${VIREON_HOST_WORKSPACE}:${VIREON_HOST_WORKSPACE}
+      - ${VIREON_HOST_REPO}:${VIREON_HOST_REPO}:ro
       - /var/run/docker.sock:/var/run/docker.sock
     secrets: [broker_token, cloudflare_api_token, backup_passphrase, r2_secret_access_key]
     read_only: true
@@ -142,17 +164,17 @@ services:
       timeout: 5s
       retries: 8
 
-  veiron-ops:
-    image: ${VEIRON_OPS_IMAGE:-ghcr.io/andreidohot/veiron-ops}:${VEIRON_VERSION:-2.1.0-no-autoupdate}
+  vireon-ops:
+    image: ${VIREON_OPS_IMAGE:-ghcr.io/andreidohot/vireon-ops}:${VIREON_VERSION:-2.1.0-no-autoupdate}
     build:
-      context: ${VEIRON_HOST_WORKSPACE:-.}
+      context: ${VIREON_HOST_WORKSPACE:-.}
       dockerfile: docker/ops/Dockerfile
-    container_name: veiron-ops
+    container_name: vireon-ops
     restart: unless-stopped
-    networks: [veiron-internal]
+    networks: [vireon-internal]
     env_file: [.env]
     environment:
-      VEIRON_WORKSPACE: /workspace
+      VIREON_WORKSPACE: /workspace
       SETUP_TOKEN_FILE: /run/secrets/setup_token
       BROKER_URL: http://docker-broker:8090
       BROKER_TOKEN_FILE: /run/secrets/broker_token
@@ -176,21 +198,21 @@ services:
 
   caddy:
     image: caddy:2.9-alpine
-    container_name: veiron-caddy
+    container_name: vireon-caddy
     restart: unless-stopped
-    networks: [veiron-internal]
+    networks: [vireon-internal]
     env_file: [.env]
-    entrypoint: ["/usr/local/bin/veiron-caddy-entrypoint.sh"]
+    entrypoint: ["/usr/local/bin/vireon-caddy-entrypoint.sh"]
     volumes:
-      - ./docker/caddy/caddy-entrypoint.sh:/usr/local/bin/veiron-caddy-entrypoint.sh:ro
+      - ./docker/caddy/caddy-entrypoint.sh:/usr/local/bin/vireon-caddy-entrypoint.sh:ro
       - ./docker/caddy/Caddyfile.template:/etc/caddy/Caddyfile.template:ro
       - ./state/caddy/data:/data
       - ./state/caddy/config:/config
     secrets: [admin_password]
     depends_on:
-      veiron-control: {condition: service_healthy}
-      veiron-rpc: {condition: service_healthy}
-      veiron-ops: {condition: service_healthy}
+      vireon-control: {condition: service_healthy}
+      vireon-rpc: {condition: service_healthy}
+      vireon-ops: {condition: service_healthy}
       grafana: {condition: service_healthy}
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:2019/config/"]
@@ -203,10 +225,10 @@ services:
 
   cloudflared:
     image: cloudflare/cloudflared:2026.7.2
-    container_name: veiron-cloudflared
+    container_name: vireon-cloudflared
     restart: unless-stopped
     profiles: [cloudflare]
-    networks: [veiron-internal]
+    networks: [vireon-internal]
     command: ["tunnel", "--no-autoupdate", "--metrics", "0.0.0.0:20241", "run", "--token-file", "/run/secrets/cloudflare_tunnel_token"]
     secrets: [cloudflare_tunnel_token]
     depends_on:
@@ -216,9 +238,9 @@ services:
 
   prometheus:
     image: prom/prometheus:v3.5.0
-    container_name: veiron-prometheus
+    container_name: vireon-prometheus
     restart: unless-stopped
-    networks: [veiron-internal]
+    networks: [vireon-internal]
     command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}", "--web.enable-lifecycle"]
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
@@ -237,9 +259,9 @@ services:
 
   alertmanager:
     image: prom/alertmanager:v0.28.1
-    container_name: veiron-alertmanager
+    container_name: vireon-alertmanager
     restart: unless-stopped
-    networks: [veiron-internal]
+    networks: [vireon-internal]
     command: ["--config.file=/etc/alertmanager/alertmanager.yml", "--storage.path=/alertmanager"]
     volumes:
       - ./state/config/generated/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
@@ -255,9 +277,9 @@ services:
 
   blackbox-exporter:
     image: prom/blackbox-exporter:v0.27.0
-    container_name: veiron-blackbox-exporter
+    container_name: vireon-blackbox-exporter
     restart: unless-stopped
-    networks: [veiron-internal]
+    networks: [vireon-internal]
     command: ["--config.file=/etc/blackbox_exporter/config.yml"]
     volumes: ["./monitoring/blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro"]
     security_opt: [no-new-privileges:true]
@@ -265,10 +287,10 @@ services:
 
   node-exporter:
     image: prom/node-exporter:v1.9.1
-    container_name: veiron-node-exporter
+    container_name: vireon-node-exporter
     restart: unless-stopped
     pid: host
-    networks: [veiron-internal]
+    networks: [vireon-internal]
     command: ["--path.rootfs=/host", "--collector.textfile.directory=/textfile"]
     volumes:
       - /:/host:ro,rslave
@@ -279,9 +301,9 @@ services:
 
   loki:
     image: grafana/loki:3.5.1
-    container_name: veiron-loki
+    container_name: vireon-loki
     restart: unless-stopped
-    networks: [veiron-internal]
+    networks: [vireon-internal]
     command: ["-config.file=/etc/loki/local-config.yaml"]
     volumes:
       - ./monitoring/loki/loki.yml:/etc/loki/local-config.yaml:ro
@@ -296,10 +318,10 @@ services:
 
   alloy:
     image: grafana/alloy:v1.9.2
-    container_name: veiron-alloy
+    container_name: vireon-alloy
     restart: unless-stopped
     user: "0:0"
-    networks: [veiron-internal]
+    networks: [vireon-internal]
     command: ["run", "/etc/alloy/config.alloy", "--storage.path=/var/lib/alloy/data"]
     volumes:
       - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
@@ -314,9 +336,9 @@ services:
 
   grafana:
     image: grafana/grafana:12.0.2
-    container_name: veiron-grafana
+    container_name: vireon-grafana
     restart: unless-stopped
-    networks: [veiron-internal]
+    networks: [vireon-internal]
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_password
@@ -341,17 +363,18 @@ services:
 
   backup-scheduler:
     build:
-      context: ${VEIRON_HOST_WORKSPACE:-.}
+      context: ${VIREON_HOST_WORKSPACE:-.}
       dockerfile: docker/backup-scheduler/Dockerfile
-    image: ${VEIRON_BACKUP_IMAGE:-ghcr.io/andreidohot/veiron-backup-scheduler}:${VEIRON_VERSION:-2.1.0-no-autoupdate}
-    container_name: veiron-backup-scheduler
+    image: ${VIREON_BACKUP_IMAGE:-ghcr.io/andreidohot/vireon-backup-scheduler}:${VIREON_VERSION:-2.1.0-no-autoupdate}
+    container_name: vireon-backup-scheduler
     restart: unless-stopped
     profiles: [backup]
-    networks: [veiron-internal]
+    networks: [vireon-internal]
     environment:
       BROKER_URL: http://docker-broker:8090
       BROKER_TOKEN_FILE: /run/secrets/broker_token
       BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-86400}
+      BACKUP_INITIAL_DELAY_SECONDS: ${BACKUP_INITIAL_DELAY_SECONDS:-3600}
     secrets: [broker_token]
     depends_on:
       docker-broker: {condition: service_healthy}
@@ -361,8 +384,8 @@ services:
     cap_drop: [ALL]
 
 networks:
-  veiron-internal:
-    name: veiron-internal
+  vireon-internal:
+    name: vireon-internal
     driver: bridge
 
 secrets:

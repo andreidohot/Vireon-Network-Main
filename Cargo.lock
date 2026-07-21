@@ -5448,7 +5448,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "veiron-browser-host"
+name = "version_check"
+version = "0.9.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
+
+[[package]]
+name = "vireon-browser-host"
 version = "1.0.0"
 dependencies = [
  "aes-gcm",
@@ -5459,12 +5465,12 @@ dependencies = [
  "serde",
  "serde_json",
  "tempfile",
- "veiron-sdk-rust",
+ "vireon-sdk-rust",
  "zeroize",
 ]
 
 [[package]]
-name = "veiron-core"
+name = "vireon-core"
 version = "1.0.0"
 dependencies = [
  "bech32",
@@ -5481,7 +5487,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "veiron-desktop"
+name = "vireon-desktop"
 version = "1.0.0"
 dependencies = [
  "dirs 6.0.0",
@@ -5492,14 +5498,14 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.18",
- "veiron-core",
- "veiron-wallet",
+ "vireon-core",
+ "vireon-wallet",
  "webbrowser",
  "zeroize",
 ]
 
 [[package]]
-name = "veiron-indexer"
+name = "vireon-indexer"
 version = "1.0.0"
 dependencies = [
  "atomic-write-file",
@@ -5509,12 +5515,12 @@ dependencies = [
  "serde_json",
  "tempfile",
  "thiserror 1.0.69",
- "veiron-core",
- "veiron-node",
+ "vireon-core",
+ "vireon-node",
 ]
 
 [[package]]
-name = "veiron-miner"
+name = "vireon-miner"
 version = "1.0.0"
 dependencies = [
  "atomic-write-file",
@@ -5525,11 +5531,11 @@ dependencies = [
  "tempfile",
  "thiserror 1.0.69",
  "toml",
- "veiron-core",
+ "vireon-core",
 ]
 
 [[package]]
-name = "veiron-mining-pool"
+name = "vireon-mining-pool"
 version = "1.0.0"
 dependencies = [
  "atomic-write-file",
@@ -5547,23 +5553,23 @@ dependencies = [
  "toml",
  "tower",
  "tower-http",
- "veiron-core",
- "veiron-miner",
+ "vireon-core",
+ "vireon-miner",
 ]
 
 [[package]]
-name = "veiron-mobile-core"
+name = "vireon-mobile-core"
 version = "1.0.0"
 dependencies = [
  "jni",
  "serde",
  "serde_json",
- "veiron-core",
+ "vireon-core",
  "zeroize",
 ]
 
 [[package]]
-name = "veiron-node"
+name = "vireon-node"
 version = "1.0.0"
 dependencies = [
  "atomic-write-file",
@@ -5578,11 +5584,11 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "toml",
- "veiron-core",
+ "vireon-core",
 ]
 
 [[package]]
-name = "veiron-rpc-gateway"
+name = "vireon-rpc-gateway"
 version = "1.0.0"
 dependencies = [
  "axum",
@@ -5598,14 +5604,14 @@ dependencies = [
  "toml",
  "tower",
  "tower-http",
- "veiron-core",
- "veiron-indexer",
- "veiron-miner",
- "veiron-node",
+ "vireon-core",
+ "vireon-indexer",
+ "vireon-miner",
+ "vireon-node",
 ]
 
 [[package]]
-name = "veiron-sdk-rust"
+name = "vireon-sdk-rust"
 version = "1.0.0"
 dependencies = [
  "bech32",
@@ -5624,7 +5630,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "veiron-vps-admin"
+name = "vireon-vps-admin"
 version = "1.0.0"
 dependencies = [
  "axum",
@@ -5643,7 +5649,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "veiron-wallet"
+name = "vireon-wallet"
 version = "1.0.0"
 dependencies = [
  "aes-gcm",
@@ -5657,17 +5663,11 @@ dependencies = [
  "serde_json",
  "tempfile",
  "thiserror 1.0.69",
- "veiron-core",
- "veiron-node",
- "veiron-sdk-rust",
+ "vireon-core",
+ "vireon-node",
+ "vireon-sdk-rust",
  "zeroize",
 ]
-
-[[package]]
-name = "version_check"
-version = "0.9.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "walkdir"

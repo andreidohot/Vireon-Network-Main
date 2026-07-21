@@ -3,14 +3,14 @@ param(
     [switch]$StageOnly
 )
 
-# Builds Veiron Control Center (Tauri 2) for Windows — NSIS/MSI + portable stage.
-# Product path: Tauri only (veiron-desktop-tauri).
+# Builds Vireon Control Center (Tauri 2) for Windows — NSIS/MSI + portable stage.
+# Product path: Tauri only (vireon-desktop-tauri).
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $workspace = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
-$desktop = Join-Path $workspace "veiron-desktop-tauri"
+$desktop = Join-Path $workspace "vireon-desktop-tauri"
 $artifacts = Join-Path $workspace "release-artifacts"
 $tauriConf = Join-Path $desktop "src-tauri\tauri.conf.json"
 $bundleRoot = Join-Path $desktop "src-tauri\target\release\bundle"
@@ -32,7 +32,7 @@ $version = [string]$tauriJson.version
 if ([string]::IsNullOrWhiteSpace($version)) {
     throw "Could not read version from tauri.conf.json"
 }
-Write-Host "Building Veiron Control Center (Tauri) version $version"
+Write-Host "Building Vireon Control Center (Tauri) version $version"
 
 if (-not $SkipChecks) {
     Push-Location $workspace
@@ -50,9 +50,9 @@ if (-not $SkipChecks) {
 
 New-Item -ItemType Directory -Force -Path $artifacts | Out-Null
 Get-ChildItem -LiteralPath $artifacts -File | Where-Object {
-    $_.Name -like "Veiron Control Center_*.msi" -or
-    $_.Name -like "Veiron Control Center_*-setup.exe" -or
-    $_.Name -like "Veiron-Control-Center-*-Windows-x64-Portable.zip" -or
+    $_.Name -like "Vireon Control Center_*.msi" -or
+    $_.Name -like "Vireon Control Center_*-setup.exe" -or
+    $_.Name -like "Vireon-Control-Center-*-Windows-x64-Portable.zip" -or
     $_.Name -eq "README-UPDATES.txt"
 } | Remove-Item -Force
 Get-ChildItem -LiteralPath $artifacts -Directory -Filter ".portable-stage-*" | ForEach-Object {
@@ -74,7 +74,7 @@ if (Test-Path -LiteralPath $bundleRoot) {
 Push-Location $desktop
 try {
     npm ci
-    if ($LASTEXITCODE -ne 0) { throw "npm ci failed in veiron-desktop-tauri" }
+    if ($LASTEXITCODE -ne 0) { throw "npm ci failed in vireon-desktop-tauri" }
 
     # Keystore helper + optional miner/node sidecars for full operator builds
     npm run prepare:native:sidecars
@@ -86,8 +86,8 @@ try {
         npx tauri build --no-bundle
         if ($LASTEXITCODE -ne 0) { throw "tauri build --no-bundle failed" }
         $exeCandidates = @(
-            (Join-Path $desktop "src-tauri\target\release\veiron-desktop-tauri.exe"),
-            (Join-Path $desktop "src-tauri\target\release\Veiron Control Center.exe")
+            (Join-Path $desktop "src-tauri\target\release\vireon-desktop-tauri.exe"),
+            (Join-Path $desktop "src-tauri\target\release\Vireon Control Center.exe")
         ) | Where-Object { Test-Path -LiteralPath $_ }
         if (-not $exeCandidates) {
             throw "StageOnly: release binary not found under src-tauri/target/release"
@@ -95,7 +95,7 @@ try {
         $stage = Join-Path $artifacts "tauri-stage-$version"
         if (Test-Path -LiteralPath $stage) { Remove-Item -LiteralPath $stage -Recurse -Force }
         New-Item -ItemType Directory -Force -Path $stage | Out-Null
-        Copy-Item -LiteralPath $exeCandidates[0] -Destination (Join-Path $stage "Veiron Control Center.exe")
+        Copy-Item -LiteralPath $exeCandidates[0] -Destination (Join-Path $stage "Vireon Control Center.exe")
         Write-Host "StageOnly binary: $stage"
         exit 0
     }
@@ -123,33 +123,33 @@ Get-ChildItem -Path $bundleRoot -Recurse -File | Where-Object {
 
 # Portable zip of the release exe when present
 $releaseExe = Get-ChildItem -Path (Join-Path $desktop "src-tauri\target\release") -File -Filter "*.exe" |
-    Where-Object { $_.Name -match "Veiron|veiron-desktop" } |
+    Where-Object { $_.Name -match "Vireon|vireon-desktop" } |
     Select-Object -First 1
 if ($releaseExe) {
-    $portable = Join-Path $artifacts "Veiron-Control-Center-$version-Windows-x64-Portable.zip"
+    $portable = Join-Path $artifacts "Vireon-Control-Center-$version-Windows-x64-Portable.zip"
     $portableStage = Join-Path $artifacts ".portable-stage-$version"
     if (Test-Path -LiteralPath $portable) { Remove-Item -LiteralPath $portable -Force }
     if (Test-Path -LiteralPath $portableStage) { Remove-Item -LiteralPath $portableStage -Recurse -Force }
     New-Item -ItemType Directory -Force -Path $portableStage | Out-Null
-    Copy-Item -LiteralPath $releaseExe.FullName -Destination (Join-Path $portableStage "Veiron Control Center.exe")
+    Copy-Item -LiteralPath $releaseExe.FullName -Destination (Join-Path $portableStage "Vireon Control Center.exe")
     $releaseResources = Join-Path $desktop "src-tauri\target\release\resources"
     if (-not (Test-Path -LiteralPath $releaseResources)) {
         throw "Portable package resources are missing: $releaseResources"
     }
     Copy-Item -LiteralPath $releaseResources -Destination (Join-Path $portableStage "resources") -Recurse
-    $keystoreHelper = Join-Path $desktop "src-tauri\target\release\veiron-keystore-helper.exe"
+    $keystoreHelper = Join-Path $desktop "src-tauri\target\release\vireon-keystore-helper.exe"
     if (-not (Test-Path -LiteralPath $keystoreHelper)) {
         throw "Portable package keystore helper is missing: $keystoreHelper"
     }
-    Copy-Item -LiteralPath $keystoreHelper -Destination (Join-Path $portableStage "veiron-keystore-helper.exe")
+    Copy-Item -LiteralPath $keystoreHelper -Destination (Join-Path $portableStage "vireon-keystore-helper.exe")
     & tar.exe -a -cf $portable -C $portableStage .
     if ($LASTEXITCODE -ne 0) { throw "Portable zip creation failed" }
     $portableEntries = @(& tar.exe -tf $portable)
     if ($LASTEXITCODE -ne 0) { throw "Portable zip verification failed" }
     foreach ($requiredEntry in @(
-        "./Veiron Control Center.exe",
-        "./resources/bin/veiron-miner.exe",
-        "./veiron-keystore-helper.exe"
+        "./Vireon Control Center.exe",
+        "./resources/bin/vireon-miner.exe",
+        "./vireon-keystore-helper.exe"
     )) {
         if ($portableEntries -notcontains $requiredEntry) {
             throw "Portable zip is incomplete; missing $requiredEntry"
@@ -163,7 +163,7 @@ if ($releaseExe) {
 # Honest updater note (no legacy electron-builder latest.yml)
 $readme = Join-Path $artifacts "README-UPDATES.txt"
 @(
-    "Veiron Control Center Tauri $version",
+    "Vireon Control Center Tauri $version",
     "The app checks GitHub Releases but requires explicit approval before installation.",
     "Each selected asset must match the release SHA256SUMS file before execution.",
     "Packages are not Authenticode-signed yet; verify the publisher and checksum before approval.",

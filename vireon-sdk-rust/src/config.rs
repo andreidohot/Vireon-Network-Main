@@ -8,7 +8,7 @@ pub const DEFAULT_LOCAL_MAINNET_CANDIDATE_RPC: &str = "http://127.0.0.1:10787";
 
 /// Default public Mainnet Candidate mining pool base URL (no trailing slash).
 ///
-/// Aligned with TypeScript `@veiron/sdk` (`VEIRON_DEFAULT_POOL_URL`).
+/// Aligned with TypeScript `@vireon/sdk` (`VIREON_DEFAULT_POOL_URL`).
 pub const DEFAULT_MAINNET_CANDIDATE_POOL: &str = "https://rpcnode.dohotstudio.com/pool";
 
 /// Network + RPC (+ optional pool) endpoint configuration for SDK consumers.

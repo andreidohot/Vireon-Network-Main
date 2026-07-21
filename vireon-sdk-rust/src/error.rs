@@ -1,14 +1,14 @@
-use crate::protocol::VeironError;
+use crate::protocol::VireonError;
 use thiserror::Error;
 
 /// SDK result type.
 pub type Result<T> = std::result::Result<T, SdkError>;
 
-/// Errors returned by the Veiron client SDK.
+/// Errors returned by the Vireon client SDK.
 #[derive(Debug, Error)]
 pub enum SdkError {
     #[error("protocol error: {0}")]
-    Protocol(#[from] VeironError),
+    Protocol(#[from] VireonError),
 
     #[error("invalid input: {0}")]
     Input(String),

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build Veiron Control Center (Tauri) for Linux desktops.
+# Build Vireon Control Center (Tauri) for Linux desktops.
 # Produces: .deb (Ubuntu/Debian), .AppImage (Arch + portable), .rpm (Fedora/openSUSE)
 #
 # Usage:
@@ -8,8 +8,8 @@
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-desktop="$root/veiron-desktop-tauri"
-output="$root/veiron-release/apps/linux"
+desktop="$root/vireon-desktop-tauri"
+output="$root/vireon-release/apps/linux"
 bundles="deb,appimage,rpm"
 
 while (($#)); do
@@ -75,11 +75,11 @@ version="$(
   node -e "const j=require('$desktop/package.json'); process.stdout.write(j.version||'')" 2>/dev/null \
     || sed -n 's/^.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$desktop/package.json" | head -1
 )"
-echo "==> Veiron Control Center Linux build version=${version:-unknown} bundles=$bundles"
+echo "==> Vireon Control Center Linux build version=${version:-unknown} bundles=$bundles"
 
 mkdir -p "$output"
 rm -f "$output"/*.AppImage "$output"/*.deb "$output"/*.rpm "$output"/*.pacman \
-  "$output"/veiron-control-center "$output"/SHA256SUMS 2>/dev/null || true
+  "$output"/vireon-control-center "$output"/SHA256SUMS 2>/dev/null || true
 
 # Brand assets
 if [[ -f "$desktop/logo.png" ]]; then
@@ -89,7 +89,7 @@ if [[ -f "$root/shared/brand/logo-mark.png" ]]; then
   cp -f "$root/shared/brand/logo-mark.png" "$desktop/public/logo-mark.png"
 fi
 
-export VEIRON_REQUIRE_CUDA=1
+export VIREON_REQUIRE_CUDA=1
 
 (
   cd "$desktop"
@@ -124,10 +124,10 @@ fi
 
 if ! find "$output" -maxdepth 1 -type f \
   \( -name '*.AppImage' -o -name '*.deb' -o -name '*.rpm' -o -name '*.pacman' \) | grep -q .; then
-  if [[ -f "$desktop/src-tauri/target/release/veiron-desktop-tauri" ]]; then
-    cp -f "$desktop/src-tauri/target/release/veiron-desktop-tauri" "$output/veiron-control-center"
-    chmod +x "$output/veiron-control-center"
-    echo "NOTE: no deb/AppImage/rpm produced; shipped raw binary -> $output/veiron-control-center"
+  if [[ -f "$desktop/src-tauri/target/release/vireon-desktop-tauri" ]]; then
+    cp -f "$desktop/src-tauri/target/release/vireon-desktop-tauri" "$output/vireon-control-center"
+    chmod +x "$output/vireon-control-center"
+    echo "NOTE: no deb/AppImage/rpm produced; shipped raw binary -> $output/vireon-control-center"
   else
     echo "Linux packaging produced no artifacts" >&2
     exit 1
@@ -136,7 +136,7 @@ fi
 
 # Install hints
 cat > "$output/INSTALL.txt" <<EOF
-Veiron Control Center ${version:-?} — Linux (parity with Windows Tauri shell)
+Vireon Control Center ${version:-?} — Linux (parity with Windows Tauri shell)
 
 Mainnet Candidate / Prototype — not public Mainnet.
 
@@ -146,7 +146,7 @@ Features (same UI as Windows):
   - Node / RPC / indexer sidecars, pool view, explorer, settings, auto-update hooks
 
 Ubuntu / Debian:
-  sudo apt install ./Veiron*.deb
+  sudo apt install ./Vireon*.deb
   # or: sudo dpkg -i ./*.deb && sudo apt-get install -f
 
 Arch Linux:

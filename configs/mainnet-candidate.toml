@@ -1,7 +1,7 @@
 network = "mainnet-candidate"
-network_name = "veiron-mainnet"
+network_name = "vireon-mainnet"
 network_id = "veiron-mainnet-candidate"
-human_name = "Veiron Mainnet Candidate"
+human_name = "Vireon Mainnet Candidate"
 status_label = "Planned / Mainnet Candidate"
 block_time_seconds = 60
 difficulty_leading_zero_bits = 16
@@ -20,9 +20,9 @@ genesis_config_path = "configs/genesis.mainnet-candidate.toml"
 genesis_approval_path = "docs/release/GENESIS_APPROVAL.mainnet-candidate.json"
 chain_magic_hex = "564d4e43"
 allow_mainnet_candidate = true
-data_dir = ".veiron-mainnet/chain"
-mempool_dir = ".veiron-mainnet/mempool"
-indexer_dir = ".veiron-mainnet/indexer"
+data_dir = ".vireon-mainnet/chain"
+mempool_dir = ".vireon-mainnet/mempool"
+indexer_dir = ".vireon-mainnet/indexer"
 # Public bootstrap for external full nodes / additional VPS peers.
 # dimitrius.ombra-net.com is currently protocol-incompatible and must not be
 # used as a seed until it runs the same P2P protocol_version and network_id.

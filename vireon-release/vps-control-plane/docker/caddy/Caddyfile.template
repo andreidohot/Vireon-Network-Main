@@ -1,6 +1,6 @@
 {
   email {$ADMIN_EMAIL}
-  admin 0.0.0.0:2019
+  admin 127.0.0.1:2019
   metrics
   servers {
     trusted_proxies static private_ranges
@@ -26,14 +26,14 @@
     basic_auth {
       {$ADMIN_USER} {$ADMIN_PASSWORD_HASH}
     }
-    reverse_proxy veiron-ops:8080
+    reverse_proxy vireon-ops:8080
   }
 
   handle_path /ops/* {
     basic_auth {
       {$ADMIN_USER} {$ADMIN_PASSWORD_HASH}
     }
-    reverse_proxy veiron-ops:8080
+    reverse_proxy vireon-ops:8080
   }
 
 
@@ -41,8 +41,8 @@
     basic_auth {
       {$ADMIN_USER} {$ADMIN_PASSWORD_HASH}
     }
-    reverse_proxy veiron-control:10788 {
-      header_up X-Veiron-Admin-Authenticated "1"
+    reverse_proxy vireon-control:10788 {
+      header_up X-Vireon-Admin-Authenticated "1"
     }
   }
 }
@@ -52,15 +52,15 @@
 
   handle /fleet/status {
     rewrite * /public/topology
-    reverse_proxy veiron-control:10788
+    reverse_proxy vireon-control:10788
   }
 
   handle /fleet/* {
-    reverse_proxy veiron-control:10788
+    reverse_proxy vireon-control:10788
   }
 
   handle {
-    respond "Veiron fleet endpoint" 200
+    respond "Vireon fleet endpoint" 200
   }
 }
 
@@ -69,7 +69,7 @@
   request_body {
     max_size 1MB
   }
-  reverse_proxy veiron-rpc:10787 {
+  reverse_proxy vireon-rpc:10787 {
     transport http {
       keepalive 60s
       read_timeout 120s
@@ -93,5 +93,5 @@
 
 {$CADDY_SCHEME}://{$POOL_HOST} {
   import common_security
-  reverse_proxy veiron-pool:30787
+  reverse_proxy vireon-pool:30787
 }

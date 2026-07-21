@@ -6,26 +6,29 @@ use std::{
     path::{Path, PathBuf},
 };
 use thiserror::Error;
-use veiron_core::{
+use vireon_core::{
     generate_mnemonic, Address, Amount, MnemonicWordCount, Network, PrivateKey, Transaction,
     WalletDerivationPath,
 };
 use zeroize::Zeroize;
 
-const SERVICE: &str = "Veiron Desktop";
+const SERVICE: &str = "Vireon Desktop";
+const LEGACY_SERVICE: &str = "Veiron Desktop";
 const LEGACY_ACCOUNT: &str = "mainnet-candidate-default-wallet";
+const METADATA_SCHEMA: &str = "vireon-desktop-wallet-metadata-v2";
+const LEGACY_METADATA_SCHEMA: &str = "veiron-desktop-wallet-metadata-v2";
 
 fn rpc_url() -> String {
-    std::env::var("VEIRON_RPC_URL")
+    std::env::var("VIREON_RPC_URL")
         .ok()
         .map(|value| value.trim().trim_end_matches('/').to_owned())
         .filter(|value| !value.is_empty())
-        .unwrap_or_else(|| veiron_sdk_rust::DEFAULT_MAINNET_CANDIDATE_RPC.to_owned())
+        .unwrap_or_else(|| vireon_sdk_rust::DEFAULT_MAINNET_CANDIDATE_RPC.to_owned())
 }
 
-fn rpc_client() -> Result<veiron_sdk_rust::BlockingRpcClient> {
-    veiron_sdk_rust::BlockingRpcClient::new(veiron_sdk_rust::NetworkConfig::with_rpc(
-        veiron_sdk_rust::Network::MainnetCandidate,
+fn rpc_client() -> Result<vireon_sdk_rust::BlockingRpcClient> {
+    vireon_sdk_rust::BlockingRpcClient::new(vireon_sdk_rust::NetworkConfig::with_rpc(
+        vireon_sdk_rust::Network::MainnetCandidate,
         rpc_url(),
     ))
     .map_err(|error| HelperError::Service(error.to_string()))
@@ -63,7 +66,7 @@ struct WalletMetadata {
 #[derive(Deserialize)]
 struct Request {
     command: String,
-    /// Must match VEIRON_KEYSTORE_PARENT_TOKEN from the Control Center parent process.
+    /// Must match VIREON_KEYSTORE_PARENT_TOKEN from the Control Center parent process.
     #[serde(default)]
     parent_token: Option<String>,
     #[serde(default)]
@@ -162,15 +165,15 @@ fn run() -> Result<()> {
 
 fn verify_parent_token(provided: Option<&str>) -> Result<()> {
     // Dev escape hatch for manual smoke tests only.
-    if std::env::var_os("VEIRON_KEYSTORE_ALLOW_UNAUTHENTICATED")
+    if std::env::var_os("VIREON_KEYSTORE_ALLOW_UNAUTHENTICATED")
         .map(|v| v == "1")
         .unwrap_or(false)
     {
         return Ok(());
     }
-    let expected = std::env::var("VEIRON_KEYSTORE_PARENT_TOKEN").map_err(|_| {
+    let expected = std::env::var("VIREON_KEYSTORE_PARENT_TOKEN").map_err(|_| {
         HelperError::Input(
-            "keystore helper requires VEIRON_KEYSTORE_PARENT_TOKEN from Control Center".into(),
+            "keystore helper requires VIREON_KEYSTORE_PARENT_TOKEN from Control Center".into(),
         )
     })?;
     let provided = provided.unwrap_or("");
@@ -236,7 +239,7 @@ fn persist_key(key: &PrivateKey, origin: &str, display_name: String) -> Result<W
     let metadata = WalletMetadata {
         wallet_id,
         display_name,
-        schema: "veiron-desktop-wallet-metadata-v2".into(),
+        schema: METADATA_SCHEMA.into(),
         network_id: "veiron-mainnet-candidate".into(),
         address: address.to_string(),
         public_key_hex: public_key.to_hex(),
@@ -333,7 +336,7 @@ fn fetch_remote_account(address: &str) -> Result<RemoteAccount> {
             tip_hash: account.tip_hash,
             anticipated_base_fee_atomic: account.anticipated_base_fee_atomic,
         }),
-        Err(veiron_sdk_rust::SdkError::RpcHttp { status: 404, .. }) => {
+        Err(vireon_sdk_rust::SdkError::RpcHttp { status: 404, .. }) => {
             // Older gateways without /account - refuse invented nonces.
             fetch_remote_account_compat(address)
         }
@@ -367,9 +370,7 @@ fn sign_and_submit(workspace: PathBuf, prepared: PreparedTransaction) -> Result<
     {
         return Err(HelperError::StalePreview);
     }
-    let mut secret = credential(&wallet.credential_account)?
-        .get_password()
-        .map_err(credential_error)?;
+    let mut secret = load_private_key(&wallet.credential_account)?;
     let result = PrivateKey::from_hex(&secret)
         .map_err(|_| HelperError::Credential("stored key is invalid".into()))
         .and_then(|key| {
@@ -395,7 +396,7 @@ fn sign_and_submit(workspace: PathBuf, prepared: PreparedTransaction) -> Result<
                 None,
             )
             .map_err(service_error)?;
-            let response = veiron_wallet::rpc::submit_transaction(&rpc_url(), &transaction)
+            let response = vireon_wallet::rpc::submit_transaction(&rpc_url(), &transaction)
                 .map_err(service_error)?;
             Ok(SubmissionResult {
                 tx_hash: response.tx_hash,
@@ -408,11 +409,15 @@ fn sign_and_submit(workspace: PathBuf, prepared: PreparedTransaction) -> Result<
 }
 
 fn wallet_root() -> Result<PathBuf> {
-    dirs::data_local_dir()
-        .map(|root| root.join("Veiron").join("Desktop"))
-        .ok_or_else(|| {
-            HelperError::Metadata("local application data directory is unavailable".into())
-        })
+    let root = dirs::data_local_dir().ok_or_else(|| {
+        HelperError::Metadata("local application data directory is unavailable".into())
+    })?;
+    let current = root.join("Vireon").join("Desktop");
+    let legacy = root.join("Veiron").join("Desktop");
+    if legacy.exists() {
+        copy_missing_tree(&legacy, &current)?;
+    }
+    Ok(current)
 }
 
 fn legacy_metadata_path() -> Result<PathBuf> {
@@ -451,7 +456,7 @@ fn migrate_legacy_wallet() -> Result<()> {
     let metadata = WalletMetadata {
         wallet_id: legacy.address.clone(),
         display_name: "Primary wallet".into(),
-        schema: "veiron-desktop-wallet-metadata-v2".into(),
+        schema: METADATA_SCHEMA.into(),
         network_id: legacy.network_id,
         address: legacy.address,
         public_key_hex: legacy.public_key_hex,
@@ -460,8 +465,7 @@ fn migrate_legacy_wallet() -> Result<()> {
         credential_account: LEGACY_ACCOUNT.into(),
     };
     save_wallet(&metadata)?;
-    fs::rename(&legacy_path, legacy_path.with_extension("json.migrated"))
-        .map_err(metadata_error)?;
+    // Keep the legacy metadata in place as a rollback source.
     Ok(())
 }
 
@@ -477,9 +481,13 @@ fn load_wallets() -> Result<Vec<WalletMetadata>> {
         if path.extension().and_then(|value| value.to_str()) != Some("json") {
             continue;
         }
-        let metadata: WalletMetadata =
+        let mut metadata: WalletMetadata =
             serde_json::from_slice(&fs::read(path).map_err(metadata_error)?)
                 .map_err(metadata_error)?;
+        if metadata.schema == LEGACY_METADATA_SCHEMA {
+            metadata.schema = METADATA_SCHEMA.into();
+            save_wallet(&metadata)?;
+        }
         validate_wallet_metadata(&metadata)?;
         wallets.push(metadata);
     }
@@ -526,7 +534,7 @@ fn save_wallet(metadata: &WalletMetadata) -> Result<()> {
 }
 
 fn validate_wallet_metadata(metadata: &WalletMetadata) -> Result<()> {
-    if metadata.schema != "veiron-desktop-wallet-metadata-v2"
+    if !matches!(metadata.schema.as_str(), METADATA_SCHEMA | LEGACY_METADATA_SCHEMA)
         || metadata.network_id != "veiron-mainnet-candidate"
         || metadata.wallet_id != metadata.address
         || metadata.credential_account.trim().is_empty()
@@ -572,10 +580,45 @@ fn remove_wallet() -> Result<()> {
 fn credential(account: &str) -> Result<Entry> {
     Entry::new(SERVICE, account).map_err(credential_error)
 }
+fn legacy_credential(account: &str) -> Result<Entry> {
+    Entry::new(LEGACY_SERVICE, account).map_err(credential_error)
+}
+fn load_private_key(account: &str) -> Result<String> {
+    match credential(account)?.get_password() {
+        Ok(secret) => Ok(secret),
+        Err(current_error) => {
+            let secret = legacy_credential(account)?
+                .get_password()
+                .map_err(|_| credential_error(current_error))?;
+            credential(account)?
+                .set_password(&secret)
+                .map_err(credential_error)?;
+            Ok(secret)
+        }
+    }
+}
 fn remove_private_key(account: &str) {
     if let Ok(entry) = credential(account) {
         let _ = entry.delete_credential();
     }
+}
+
+fn copy_missing_tree(source: &Path, destination: &Path) -> Result<()> {
+    if source.is_file() {
+        if !destination.exists() {
+            if let Some(parent) = destination.parent() {
+                fs::create_dir_all(parent).map_err(metadata_error)?;
+            }
+            fs::copy(source, destination).map_err(metadata_error)?;
+        }
+        return Ok(());
+    }
+    fs::create_dir_all(destination).map_err(metadata_error)?;
+    for entry in fs::read_dir(source).map_err(metadata_error)? {
+        let entry = entry.map_err(metadata_error)?;
+        copy_missing_tree(&entry.path(), &destination.join(entry.file_name()))?;
+    }
+    Ok(())
 }
 
 fn parse_atomic(value: &str) -> Result<u64> {
@@ -586,8 +629,8 @@ fn parse_atomic(value: &str) -> Result<u64> {
 fn format_atomic(value: u64) -> String {
     format!(
         "{}.{:08}",
-        value / veiron_core::ATOMIC_UNITS_PER_VIRE,
-        value % veiron_core::ATOMIC_UNITS_PER_VIRE
+        value / vireon_core::ATOMIC_UNITS_PER_VIRE,
+        value % vireon_core::ATOMIC_UNITS_PER_VIRE
     )
 }
 fn required(value: Option<String>, name: &str) -> Result<String> {
@@ -632,7 +675,7 @@ fn show_recovery_phrase(phrase: &str) -> Result<bool> {
         MessageBoxW, IDOK, MB_ICONWARNING, MB_OKCANCEL, MB_TOPMOST,
     };
     let text = wide(&format!("Write down these 24 words in order. They will not be shown again.\n\n{phrase}\n\nPress OK only after your offline backup is complete."));
-    let title = wide("Veiron recovery phrase - one-time display");
+    let title = wide("Vireon recovery phrase - one-time display");
     let result = unsafe {
         MessageBoxW(
             std::ptr::null_mut(),
@@ -676,7 +719,7 @@ fn prompt_recovery_phrase() -> Result<String> {
         match message {
             WM_CREATE => {
                 let instance = GetModuleHandleW(std::ptr::null());
-                CreateWindowExW(0, wide("STATIC").as_ptr(), wide("Enter the 24-word Veiron recovery phrase. It is passed directly to the Rust keystore and is not exposed to React.").as_ptr(),
+                CreateWindowExW(0, wide("STATIC").as_ptr(), wide("Enter the 24-word Vireon recovery phrase. It is passed directly to the Rust keystore and is not exposed to React.").as_ptr(),
                     WS_CHILD | WS_VISIBLE, 20, 20, 660, 36, window, std::ptr::null_mut(), instance, std::ptr::null());
                 let edit = CreateWindowExW(
                     WS_EX_CLIENTEDGE,
@@ -759,7 +802,7 @@ fn prompt_recovery_phrase() -> Result<String> {
         .map_err(|_| HelperError::Service("recovery dialog lock failed".into()))? = None;
     unsafe {
         let instance = GetModuleHandleW(std::ptr::null());
-        let class_name = wide("VeironRecoveryImportWindow");
+        let class_name = wide("VireonRecoveryImportWindow");
         let class = WNDCLASSW {
             style: CS_HREDRAW | CS_VREDRAW,
             lpfnWndProc: Some(window_proc),
@@ -772,7 +815,7 @@ fn prompt_recovery_phrase() -> Result<String> {
         let window = CreateWindowExW(
             0,
             class_name.as_ptr(),
-            wide("Import Veiron wallet").as_ptr(),
+            wide("Import Vireon wallet").as_ptr(),
             WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
             CW_USEDEFAULT,
             CW_USEDEFAULT,
@@ -810,7 +853,7 @@ fn show_recovery_phrase(phrase: &str) -> Result<bool> {
     let mut child = Command::new("zenity")
         .args([
             "--text-info",
-            "--title=Veiron recovery phrase",
+            "--title=Vireon recovery phrase",
             "--width=720",
             "--height=420",
         ])
@@ -837,7 +880,7 @@ fn prompt_recovery_phrase() -> Result<String> {
         .args([
             "--entry",
             "--hide-text",
-            "--title=Import Veiron wallet",
+            "--title=Import Vireon wallet",
             "--text=Enter the 24-word recovery phrase",
         ])
         .output()

@@ -1,26 +1,26 @@
-# Veiron Cargo workspace â€” intentionally scoped (see docs/engineering/WORKSPACE_AND_LINTS.md).
+# Vireon Cargo workspace -- intentionally scoped (see docs/engineering/WORKSPACE_AND_LINTS.md).
 #
 # Members = Rust crates built/tested together by `cargo test --workspace` and G1 release-gate.
 # NOT members (managed separately on purpose):
-#   - veiron-explorer, veiron-website  â†’ Node/Vite frontends (npm)
-#   - veiron-desktop-tauri             â†’ own [workspace] + Tauri toolchain (Control Center)
-#   - veiron-android                   â†’ Gradle/Kotlin + mobile-core FFI
-#   - veiron-desktop-tauri/native/keystore-helper â†’ sidecar with nested [workspace]
-#   - docs-only / empty product stubs (sdk, contracts, faucet, â€¦)
+#   - vireon-explorer, vireon-website  -> Node/Vite frontends (npm)
+#   - vireon-desktop-tauri             -> own [workspace] + Tauri toolchain (Control Center)
+#   - vireon-android                   -> Gradle/Kotlin + mobile-core FFI
+#   - vireon-desktop-tauri/native/keystore-helper -> sidecar with nested [workspace]
+#   - docs-only / empty product stubs (sdk, contracts, faucet, ...)
 [workspace]
 members = [
-    "veiron-core",
-    "veiron-node",
-    "veiron-rpc-gateway",
-    "veiron-wallet",
-    "veiron-sdk-rust",
-    "veiron-browser/host",
-    "veiron-indexer",
-    "veiron-miner",
-    "veiron-mining-pool",
-    "veiron-desktop",
-    "veiron-mobile-core",
-    "veiron-release/vps-control-plane/admin-server",
+    "vireon-core",
+    "vireon-node",
+    "vireon-rpc-gateway",
+    "vireon-wallet",
+    "vireon-sdk-rust",
+    "vireon-browser/host",
+    "vireon-indexer",
+    "vireon-miner",
+    "vireon-mining-pool",
+    "vireon-desktop",
+    "vireon-mobile-core",
+    "vireon-release/vps-control-plane/admin-server",
 ]
 resolver = "2"
 

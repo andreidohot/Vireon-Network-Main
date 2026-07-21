@@ -4,14 +4,14 @@
 #   .\scripts\browser\register-health-task.ps1
 #   .\scripts\browser\register-health-task.ps1 -IntervalMinutes 15 -Strict
 #   .\scripts\browser\register-health-task.ps1 -MaxIndexerLag 2
-#   .\scripts\browser\register-health-task.ps1 -WebhookUrl $env:VEIRON_HEALTH_WEBHOOK_URL
+#   .\scripts\browser\register-health-task.ps1 -WebhookUrl $env:VIREON_HEALTH_WEBHOOK_URL
 #   .\scripts\browser\register-health-task.ps1 -Unregister
 #
-# Logs: %LOCALAPPDATA%\Veiron\health\
+# Logs: %LOCALAPPDATA%\Vireon\health\
 
 [CmdletBinding()]
 param(
-    [string]$TaskName = "VeironCandidateChainHealth",
+    [string]$TaskName = "VireonCandidateChainHealth",
     [int]$IntervalMinutes = 30,
     [switch]$Strict,
     [Nullable[uint64]]$MaxIndexerLag = $null,
@@ -38,11 +38,11 @@ if ($IntervalMinutes -lt 5) {
     $IntervalMinutes = 5
 }
 
-if ([string]::IsNullOrWhiteSpace($WebhookUrl) -and $env:VEIRON_HEALTH_WEBHOOK_URL) {
-    $WebhookUrl = $env:VEIRON_HEALTH_WEBHOOK_URL
+if ([string]::IsNullOrWhiteSpace($WebhookUrl) -and $env:VIREON_HEALTH_WEBHOOK_URL) {
+    $WebhookUrl = $env:VIREON_HEALTH_WEBHOOK_URL
 }
 
-$LogDir = Join-Path $env:LOCALAPPDATA "Veiron\health"
+$LogDir = Join-Path $env:LOCALAPPDATA "Vireon\health"
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 
 # Persistent wrapper invoked by the task (keeps logs + exit code).

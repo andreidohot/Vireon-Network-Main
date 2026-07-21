@@ -5,7 +5,7 @@ import { FeatureCard, SectionHeader, fadeUp } from '../components/ui/PageShell.j
 import VisualPanel from '../components/ui/VisualPanel.jsx'
 import { useContent } from '../hooks/useContent.js'
 
-const heroPills = ['Ticker VIRE', 'PoW first', 'Veiron Passport', '60 sec blocks']
+const heroPills = ['Ticker VIRE', 'PoW first', 'Vireon Passport', '60 sec blocks']
 
 function Hero() {
   return (
@@ -27,10 +27,10 @@ function Hero() {
         <motion.div initial="hidden" animate="visible" transition={{ staggerChildren: 0.12 }} className="max-w-2xl">
           <motion.div variants={fadeUp} className="mb-5 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.22em] text-ionSoft/80">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-ionHot" />
-            Veiron Network
+            Vireon Network
           </motion.div>
           <motion.h1 variants={fadeUp} className="max-w-3xl text-balance text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-6xl">
-            Veiron <span className="plasma-text">Core</span>
+            Vireon <span className="plasma-text">Core</span>
           </motion.h1>
           <motion.p variants={fadeUp} className="mt-5 max-w-xl text-xl leading-snug text-frost/90 sm:text-2xl">
             A mineable Layer 1 direction for apps, games, software licenses and verifiable digital ownership.
@@ -40,7 +40,7 @@ function Hero() {
           </motion.p>
           <motion.div variants={fadeUp} className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a href="/network" className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-ionHot to-violetCore px-6 py-3 font-bold text-void shadow-ion transition hover:scale-[1.02]">
-              <span className="relative z-10">Enter Veiron</span>
+              <span className="relative z-10">Enter Vireon</span>
               <ArrowRight className="relative z-10" size={18} />
               <span className="absolute inset-0 -translate-x-full skew-x-12 bg-white/25 transition-transform duration-700 ease-out group-hover:translate-x-full" />
             </a>
@@ -70,7 +70,7 @@ function Hero() {
             <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-ionSoft/80">Ecosystem status</p>
             <div className="mt-4 space-y-3">
               {[
-                ['Veiron Core', 'building'],
+                ['Vireon Core', 'building'],
                 ['Wallet layer', 'gated'],
                 ['Passport proofs', 'planned'],
                 ['Explorer data', 'gated'],
@@ -115,7 +115,7 @@ function CinematicStack() {
             Less terminal. More cinematic crypto interface.
           </h2>
           <p className="mt-5 max-w-xl text-lg leading-8 text-frost/65">
-            The palette now uses ion cyan, electric blue and violet plasma over deep graphite, matching the more premium 3D direction from the earlier Veiron website conversations.
+            The palette now uses ion cyan, electric blue and violet plasma over deep graphite, matching the more premium 3D direction from the earlier Vireon website conversations.
           </p>
         </div>
         <div className="relative z-10 grid gap-5 lg:pl-8">
@@ -150,7 +150,7 @@ function ArchitecturePreview({ productLayers }) {
         <SectionHeader
           eyebrow="Architecture"
           title="Three layers, designed for practical products."
-          text="Veiron separates settlement, execution and product UX so the website can explain the real system without mixing protocol code with marketing claims."
+          text="Vireon separates settlement, execution and product UX so the website can explain the real system without mixing protocol code with marketing claims."
         />
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }} transition={{ staggerChildren: 0.12 }} className="grid gap-4 md:grid-cols-3">
           {productLayers.map((layer, index) => (
@@ -172,7 +172,7 @@ function ProtocolMatrix({ onChainItems, offChainItems }) {
             align="left"
             eyebrow="Settlement boundary"
             title="On-chain where trust matters. Off-chain where data gets heavy."
-            text="This gives the website a real technical story: Veiron is not trying to store every file or message directly on-chain."
+            text="This gives the website a real technical story: Vireon is not trying to store every file or message directly on-chain."
           />
           <div className="grid gap-4 md:grid-cols-2">
             {[
@@ -309,7 +309,7 @@ function StandardsPreview({ standards }) {
           <p className="text-sm font-bold uppercase tracking-[0.3em] text-ionSoft/70">VRC Standards</p>
           <h2 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-6xl">A standard system for assets, proofs and access.</h2>
           <p className="mt-5 text-lg leading-8 text-frost/65">
-            Veiron keeps heavy files off-chain and anchors settlement, ownership, permissions, hashes and critical state on-chain.
+            Vireon keeps heavy files off-chain and anchors settlement, ownership, permissions, hashes and critical state on-chain.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -369,7 +369,7 @@ function TrustPanel() {
         <div className="grid gap-4 md:grid-cols-3">
           {[
             ['Honest status', 'Candidate wallet, explorer and pool are labeled separately from public production Mainnet.'],
-            ['Source aligned', 'Content follows Veiron Network / VIRE identity and architecture.'],
+            ['Source aligned', 'Content follows Vireon Network / VIRE identity and architecture.'],
             ['Live candidate data', 'Current pages consume real candidate RPC data and expose offline states honestly.'],
           ].map(([title, text]) => (
             <div key={title} className="rounded-lg border border-line bg-void/45 p-5">

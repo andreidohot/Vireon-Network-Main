@@ -9,7 +9,7 @@ fn main() {
     let pp = native.join("crypto").join("progpow");
 
     println!("cargo:rerun-if-changed=native/crypto/progpow");
-    println!("cargo:rustc-check-cfg=cfg(veiron_firopow_native)");
+    println!("cargo:rustc-check-cfg=cfg(vireon_firopow_native)");
 
     // C sources (must not be compiled as C++ — noexcept mismatch).
     let mut c = cc::Build::new();
@@ -24,7 +24,7 @@ fn main() {
     if env::var("CARGO_CFG_TARGET_ENV").as_deref() != Ok("msvc") {
         c.flag("-O3");
     }
-    c.compile("veiron_firopow_c");
+    c.compile("vireon_firopow_c");
 
     let mut build = cc::Build::new();
     build
@@ -35,7 +35,7 @@ fn main() {
         .include(pp.join("lib"))
         .file(pp.join("lib/ethash/ethash.cpp"))
         .file(pp.join("lib/ethash/progpow.cpp"))
-        .file(pp.join("veiron_firopow_ffi.cpp"))
+        .file(pp.join("vireon_firopow_ffi.cpp"))
         .warnings(false);
 
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
@@ -55,10 +55,10 @@ fn main() {
         }
     }
 
-    build.compile("veiron_firopow");
-    println!("cargo:rustc-cfg=veiron_firopow_native");
-    println!("cargo:rustc-link-lib=static=veiron_firopow");
-    println!("cargo:rustc-link-lib=static=veiron_firopow_c");
+    build.compile("vireon_firopow");
+    println!("cargo:rustc-cfg=vireon_firopow_native");
+    println!("cargo:rustc-link-lib=static=vireon_firopow");
+    println!("cargo:rustc-link-lib=static=vireon_firopow_c");
     if !is_msvc {
         if is_android {
             // NDK C++ runtime (libc++). Bionic has no libpthread / libstdc++.

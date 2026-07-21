@@ -4,8 +4,8 @@ Status: **Implemented / Mainnet Candidate**
 
 ## Fixed direction
 
-- Veiron starts with Proof of Work.
-- VeironPoW version 1 is FiroPoW 0.9.4, based on ProgPoW revision 0.9.4.
+- Vireon starts with Proof of Work.
+- VireonPoW version 1 is FiroPoW 0.9.4, based on ProgPoW revision 0.9.4.
 - The period length is one block.
 - The canonical block identifier is the validated FiroPoW final hash.
 - Product nonce search is NVIDIA CUDA-only.
@@ -29,7 +29,7 @@ A node accepts a mined block only when all of the following hold:
 - previous-hash linkage, transactions, rewards, fees, and ledger transitions
   pass full validation.
 
-The miner is not trusted. CUDA searches candidates, while `veiron-core`
+The miner is not trusted. CUDA searches candidates, while `vireon-core`
 independently validates every solution. CPU validation is not CPU mining: it
 does not scan nonce ranges.
 

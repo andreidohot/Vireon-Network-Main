@@ -59,7 +59,7 @@ export function RecoveryPhraseImportDialog({
       <div className="secret-warning" style={{ marginBottom: 14 }}>
         <ShieldCheck size={18} />
         <span>
-          Recovery words are entered only in the operating-system dialog owned by the Veiron
+          Recovery words are entered only in the operating-system dialog owned by the Vireon
           keystore helper. They never enter React state or the WebView bridge.
         </span>
       </div>

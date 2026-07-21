@@ -5,21 +5,21 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-val veironNativeAbis = listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+val vireonNativeAbis = listOf("arm64-v8a", "armeabi-v7a", "x86_64")
 val workspaceRoot = rootProject.projectDir.parentFile
 val nativeOutputDir = layout.projectDirectory.dir("src/main/jniLibs")
 
-val buildVeironNative by tasks.registering(Exec::class) {
+val buildVireonNative by tasks.registering(Exec::class) {
     group = "build"
-    description = "Builds the Rust Veiron mobile core for every packaged Android ABI."
+    description = "Builds the Rust Vireon mobile core for every packaged Android ABI."
     workingDir = workspaceRoot
     inputs.files(
-        fileTree(workspaceRoot.resolve("veiron-mobile-core/src")),
-        fileTree(workspaceRoot.resolve("veiron-core/src")),
-        fileTree(workspaceRoot.resolve("veiron-core/native")),
-        workspaceRoot.resolve("veiron-core/build.rs"),
-        workspaceRoot.resolve("veiron-mobile-core/Cargo.toml"),
-        workspaceRoot.resolve("veiron-core/Cargo.toml"),
+        fileTree(workspaceRoot.resolve("vireon-mobile-core/src")),
+        fileTree(workspaceRoot.resolve("vireon-core/src")),
+        fileTree(workspaceRoot.resolve("vireon-core/native")),
+        workspaceRoot.resolve("vireon-core/build.rs"),
+        workspaceRoot.resolve("vireon-mobile-core/Cargo.toml"),
+        workspaceRoot.resolve("vireon-core/Cargo.toml"),
         workspaceRoot.resolve("Cargo.lock")
     )
     outputs.dir(nativeOutputDir)
@@ -35,18 +35,18 @@ val buildVeironNative by tasks.registering(Exec::class) {
 }
 
 android {
-    namespace = "network.veiron.mobile"
+    namespace = "network.vireon.mobile"
     compileSdk = 35
     ndkVersion = "29.0.14206865"
     defaultConfig {
-        applicationId = "network.veiron.mobile"
+        applicationId = "network.vireon.mobile"
         // Android 12 (API 31)+ - product floor for modern keystore / privacy APIs.
         minSdk = 31
         targetSdk = 35
         versionCode = 1000000
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        ndk { abiFilters += veironNativeAbis }
+        ndk { abiFilters += vireonNativeAbis }
         buildConfigField("String", "PUBLIC_RPC", "\"https://rpcnode.dohotstudio.com\"")
         buildConfigField("String", "PRODUCT_LINE", "\"1.0.0\"")
     }
@@ -58,11 +58,11 @@ android {
     }
 }
 
-tasks.named("preBuild") { dependsOn(buildVeironNative) }
+tasks.named("preBuild") { dependsOn(buildVireonNative) }
 
 tasks.register("verifyDebugNativeLibraries") {
     group = "verification"
-    description = "Rejects a debug APK that does not contain the Veiron Rust library for every supported ABI."
+    description = "Rejects a debug APK that does not contain the Vireon Rust library for every supported ABI."
     dependsOn("assembleDebug")
     val apk = layout.buildDirectory.file("outputs/apk/debug/app-debug.apk")
     inputs.file(apk)
@@ -70,9 +70,9 @@ tasks.register("verifyDebugNativeLibraries") {
         val apkFile = apk.get().asFile
         check(apkFile.isFile) { "Android APK was not produced: $apkFile" }
         ZipFile(apkFile).use { zip ->
-            veironNativeAbis.forEach { abi ->
+            vireonNativeAbis.forEach { abi ->
                 listOf(
-                    "lib/$abi/libveiron_mobile_core.so",
+                    "lib/$abi/libvireon_mobile_core.so",
                     "lib/$abi/libc++_shared.so",
                 ).forEach { entryName ->
                     val entry = zip.getEntry(entryName)
@@ -87,7 +87,7 @@ tasks.register("verifyDebugNativeLibraries") {
                 }
             }
         }
-        logger.lifecycle("Verified Veiron native libraries in ${apkFile.name}: ${veironNativeAbis.joinToString()}")
+        logger.lifecycle("Verified Vireon native libraries in ${apkFile.name}: ${vireonNativeAbis.joinToString()}")
     }
 }
 

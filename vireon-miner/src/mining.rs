@@ -1,13 +1,13 @@
 //! Canonical validation for CUDA-produced FiroPoW candidates.
 //!
 //! This module deliberately contains no nonce search. Continuous mining in the
-//! product is CUDA-only; CPU FiroPoW remains in `veiron-core` solely for node
+//! product is CUDA-only; CPU FiroPoW remains in `vireon-core` solely for node
 //! consensus validation and tightly scoped genesis/test utilities.
 
 #[cfg(feature = "gpu-cuda")]
 use crate::Result;
 #[cfg(feature = "gpu-cuda")]
-use veiron_core::{firopow, Block, Hash};
+use vireon_core::{firopow, Block, Hash};
 
 #[cfg(feature = "gpu-cuda")]
 pub(crate) fn revalidate_solution(

@@ -1,4 +1,4 @@
-package network.veiron.mobile
+package network.vireon.mobile
 
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
@@ -16,8 +16,8 @@ data class WalletProfile(val id: String, val name: String, val address: String, 
 data class WalletMaterial(val profile: WalletProfile, val mnemonic: String)
 
 class SecureWalletStore(context: Context) {
-    private val preferences = context.getSharedPreferences("veiron_wallets_v1", Context.MODE_PRIVATE)
-    private val keyAlias = "veiron-mobile-wallet-encryption-v1"
+    private val preferences = context.getSharedPreferences("vireon_wallets_v1", Context.MODE_PRIVATE)
+    private val keyAlias = "vireon-mobile-wallet-encryption-v1"
 
     fun wallets(): List<WalletProfile> {
         val array = JSONArray(preferences.getString("profiles", "[]"))

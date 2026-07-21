@@ -1,7 +1,7 @@
 use crate::error::{WalletError, WalletResult};
 use serde::{Deserialize, Serialize};
-use veiron_core::Transaction;
-use veiron_sdk_rust::{BlockingRpcClient, NetworkConfig, SdkError};
+use vireon_core::Transaction;
+use vireon_sdk_rust::{BlockingRpcClient, NetworkConfig, SdkError};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct RpcBalanceResponse {
@@ -42,8 +42,8 @@ pub fn submit_transaction(
 
 fn client_for_url(rpc_base_url: &str) -> WalletResult<BlockingRpcClient> {
     // Wallet CLI may target any network port; Network tag only affects SDK labels on config.
-    // SDK Network is independent of veiron-core (standalone crate); label only.
-    let config = NetworkConfig::with_rpc(veiron_sdk_rust::Network::MainnetCandidate, rpc_base_url);
+    // SDK Network is independent of vireon-core (standalone crate); label only.
+    let config = NetworkConfig::with_rpc(vireon_sdk_rust::Network::MainnetCandidate, rpc_base_url);
     BlockingRpcClient::new(config).map_err(map_sdk_error)
 }
 

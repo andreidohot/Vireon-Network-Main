@@ -5,8 +5,8 @@ const markdownModules = import.meta.glob(
     '../../../README.md',
     '../../../docs/**/*.md',
     '../../../shared/**/*.md',
-    '../../../veiron-*/README.md',
-    '../../../veiron-sdk-rust/docs/**/*.md',
+    '../../../vireon-*/README.md',
+    '../../../vireon-sdk-rust/docs/**/*.md',
   ],
   { eager: true, import: 'default', query: '?raw' },
 )

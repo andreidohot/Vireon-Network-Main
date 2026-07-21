@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Probe Mainnet Candidate chain via veiron-browser-host one-shots.
+# Probe Mainnet Candidate chain via vireon-browser-host one-shots.
 # Usage:
 #   ./scripts/browser/probe-chain.sh
 #   ./scripts/browser/probe-chain.sh --local
@@ -23,7 +23,7 @@ MAX_LAG=""
 WATCH=0
 INTERVAL=15
 MAX_ITER=0
-WEBHOOK="${VEIRON_HEALTH_WEBHOOK_URL:-}"
+WEBHOOK="${VIREON_HEALTH_WEBHOOK_URL:-}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -49,16 +49,16 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ $BUILD -eq 1 ]]; then
-  cargo build -q -p veiron-browser-host
+  cargo build -q -p vireon-browser-host
 fi
 
 HOST_BIN=""
-for c in "$REPO_ROOT/target/debug/veiron-browser-host" "$REPO_ROOT/target/release/veiron-browser-host"; do
+for c in "$REPO_ROOT/target/debug/vireon-browser-host" "$REPO_ROOT/target/release/vireon-browser-host"; do
   if [[ -x "$c" ]]; then HOST_BIN="$c"; break; fi
 done
 if [[ -z "$HOST_BIN" ]]; then
-  cargo build -q -p veiron-browser-host
-  HOST_BIN="$REPO_ROOT/target/debug/veiron-browser-host"
+  cargo build -q -p vireon-browser-host
+  HOST_BIN="$REPO_ROOT/target/debug/vireon-browser-host"
 fi
 
 run_host() {
@@ -81,15 +81,15 @@ notify_webhook() {
   local payload
   if command -v jq >/dev/null 2>&1; then
     payload=$(jq -nc --argjson health "${body:-{}}" --arg code "$code" \
-      '{text:"Veiron Mainnet Candidate health FAILED",code:($code|tonumber),health:$health}')
+      '{text:"Vireon Mainnet Candidate health FAILED",code:($code|tonumber),health:$health}')
   else
-    payload="{\"text\":\"Veiron Mainnet Candidate health FAILED\",\"code\":$code}"
+    payload="{\"text\":\"Vireon Mainnet Candidate health FAILED\",\"code\":$code}"
   fi
   curl -fsS -X POST -H "Content-Type: application/json" -d "$payload" "$WEBHOOK" || true
 }
 
 probe_once() {
-  [[ $QUIET -eq 0 ]] && echo "=== Veiron chain probe $(date -Iseconds) ==="
+  [[ $QUIET -eq 0 ]] && echo "=== Vireon chain probe $(date -Iseconds) ==="
   [[ $QUIET -eq 0 ]] && echo "--check-health"
   local health_args=(--check-health --json)
   [[ $STRICT -eq 1 ]] && health_args+=(--require-indexer-sync)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-shot WSL/Ubuntu setup for building Veiron Control Center Linux packages.
+# One-shot WSL/Ubuntu setup for building Vireon Control Center Linux packages.
 set -euo pipefail
 
 export PATH="${HOME}/.cargo/bin:${PATH}"

@@ -3,7 +3,7 @@ use crate::consensus::{
     block_reward, check_pow, initial_base_fee, next_base_fee, next_difficulty_for_network,
 };
 use crate::crypto::Hash;
-use crate::errors::{Result, VeironError};
+use crate::errors::{Result, VireonError};
 use crate::network::Network;
 use crate::transaction::Transaction;
 
@@ -43,7 +43,7 @@ pub fn genesis_with_timestamp_for_network(
     difficulty_leading_zero_bits: u8,
 ) -> Result<Block> {
     if recipient.trim().is_empty() {
-        return Err(VeironError::InvalidGenesis(
+        return Err(VireonError::InvalidGenesis(
             "recipient cannot be empty".to_owned(),
         ));
     }
@@ -85,7 +85,7 @@ pub fn devnet_child_block_with_difficulty(
     difficulty_leading_zero_bits: u8,
 ) -> Result<Block> {
     if recipient.trim().is_empty() {
-        return Err(VeironError::InvalidGenesis(
+        return Err(VireonError::InvalidGenesis(
             "recipient cannot be empty".to_owned(),
         ));
     }
@@ -129,7 +129,7 @@ pub fn child_block_with_consensus_difficulty(
 ) -> Result<Block> {
     let previous = previous_chain
         .last()
-        .ok_or_else(|| VeironError::InvalidGenesis("previous chain cannot be empty".to_owned()))?;
+        .ok_or_else(|| VireonError::InvalidGenesis("previous chain cannot be empty".to_owned()))?;
     let network = previous.network()?;
     let next_difficulty = next_difficulty_for_network(
         network,
@@ -146,7 +146,7 @@ pub fn child_block_with_consensus_difficulty(
 }
 
 /// Host multi-thread light-context FiroPoW search for genesis/tests/operator one-shot.
-/// **Not** product continuous mining (that is GPU-orchestrated in `veiron-miner`).
+/// **Not** product continuous mining (that is GPU-orchestrated in `vireon-miner`).
 pub fn mine_block(block: &mut Block) {
     use crate::firopow::{mine_firopow_solution, FiroPow};
     let bits = block.header.difficulty_leading_zero_bits;

@@ -21,19 +21,19 @@ param(
 
 $ErrorActionPreference = "Stop"
 $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..\..")
-$ExtensionDir = Join-Path $RepoRoot "veiron-browser\extension"
+$ExtensionDir = Join-Path $RepoRoot "vireon-browser\extension"
 $RegisterScript = Join-Path $PSScriptRoot "register-native-host.ps1"
 
 Set-Location $RepoRoot
 
-Write-Host "=== Veiron browser extension setup (Mainnet Candidate) ===" -ForegroundColor Cyan
+Write-Host "=== Vireon browser extension setup (Mainnet Candidate) ===" -ForegroundColor Cyan
 Write-Host "Extension folder: $ExtensionDir"
 Write-Host ""
 
 if ($Build -or -not [string]::IsNullOrWhiteSpace($ExtensionId)) {
-    Write-Host "Building veiron-browser-host (release)..."
-    cargo build -p veiron-browser-host --release
-    cargo run -q -p veiron-browser-host -- --print-info
+    Write-Host "Building vireon-browser-host (release)..."
+    cargo build -p vireon-browser-host --release
+    cargo run -q -p vireon-browser-host -- --print-info
     Write-Host ""
 }
 
@@ -53,7 +53,7 @@ if ([string]::IsNullOrWhiteSpace($ExtensionId)) {
     Write-Host "Optional flags: -RequireOsConfirm  -LocalRpc  -Browser All"
     Write-Host ""
     Write-Host "Recovery wallet (recommended BEFORE funding):" -ForegroundColor Yellow
-    Write-Host '  cargo run -p veiron-browser-host -- --init-wallet --passphrase "your-long-passphrase"'
+    Write-Host '  cargo run -p vireon-browser-host -- --init-wallet --passphrase "your-long-passphrase"'
     Write-Host "  (write down the recovery phrase printed on stderr)"
     exit 0
 }

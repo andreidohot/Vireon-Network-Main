@@ -1,4 +1,4 @@
-package network.veiron.mobile
+package network.vireon.mobile
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -70,7 +70,7 @@ class SyncClient {
             throw error
         }
         require(response.optString("network_id") == "veiron-mainnet-candidate") {
-            "RPC belongs to a different Veiron network."
+            "RPC belongs to a different Vireon network."
         }
         SyncState(
             mode = response.getString("sync_state"),
@@ -172,9 +172,9 @@ class SyncClient {
     private fun legacySnapshot(endpoint: String): SyncState {
         val status = getJson("$endpoint/status")
         require(status.optString("network_id") == "veiron-mainnet-candidate") {
-            "RPC belongs to a different Veiron network."
+            "RPC belongs to a different Vireon network."
         }
-        require(status.optBoolean("initialized", true)) { "Remote Veiron chain is not initialized." }
+        require(status.optBoolean("initialized", true)) { "Remote Vireon chain is not initialized." }
         val height = status.optNullableLong("height") ?: 0
         return SyncState(
             mode = "connected",
@@ -193,7 +193,7 @@ class SyncClient {
         connection.readTimeout = 12_000
         connection.requestMethod = "GET"
         connection.setRequestProperty("Accept", "application/json")
-        connection.setRequestProperty("User-Agent", "VeironMobile/${BuildConfig.VERSION_NAME}")
+        connection.setRequestProperty("User-Agent", "VireonMobile/${BuildConfig.VERSION_NAME}")
         return try {
             val code = connection.responseCode
             val stream = if (code in 200..299) connection.inputStream else connection.errorStream

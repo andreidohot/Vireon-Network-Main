@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
-use veiron_core::{hash_to_hex, Amount, Block, Chain, Transaction, MAX_SUPPLY_ATOMIC};
-use veiron_indexer::{AddressActivity, IndexSummary, IndexedBlock, IndexedTransaction};
+use vireon_core::{hash_to_hex, Amount, Block, Chain, Transaction, MAX_SUPPLY_ATOMIC};
+use vireon_indexer::{AddressActivity, IndexSummary, IndexedBlock, IndexedTransaction};
 
 #[derive(Debug, Serialize, PartialEq, Eq)]
 pub struct HealthResponse {
@@ -348,7 +348,7 @@ pub fn address_balance_response(chain: &Chain, address: &str) -> AddressBalanceR
         balance_atomic: chain.state().balance_of(address).as_atomic(),
         next_nonce,
         exists: chain.state().balances().contains_key(address)
-            || next_nonce > veiron_core::FIRST_ACCOUNT_NONCE,
+            || next_nonce > vireon_core::FIRST_ACCOUNT_NONCE,
     }
 }
 
@@ -367,7 +367,7 @@ pub fn address_account_response(
     AddressAccountResponse {
         address: address.to_owned(),
         exists: chain.state().balances().contains_key(address)
-            || chain.state().next_nonce_of(address) > veiron_core::FIRST_ACCOUNT_NONCE,
+            || chain.state().next_nonce_of(address) > vireon_core::FIRST_ACCOUNT_NONCE,
         balance_atomic: chain.state().balance_of(address).as_atomic(),
         next_nonce: next,
         tip_hash: chain.tip_hash().map(|hash| hash_to_hex(&hash)),
@@ -503,7 +503,7 @@ pub fn transaction_response(
         } else {
             "unsigned".to_owned()
         },
-        signature_standard_id: veiron_core::launch_signing_standard().standard_id,
-        signatures_status: veiron_core::SIGNATURES_STATUS,
+        signature_standard_id: vireon_core::launch_signing_standard().standard_id,
+        signatures_status: vireon_core::SIGNATURES_STATUS,
     }
 }

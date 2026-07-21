@@ -1,4 +1,4 @@
-use crate::errors::{Result, VeironError};
+use crate::errors::{Result, VireonError};
 use crate::seed::{derive_private_key_from_mnemonic, WalletDerivationPath};
 use crate::standards::{
     launch_key_derivation_policy, launch_signing_standard, launch_wallet_seed_standard,
@@ -23,7 +23,7 @@ impl PublicKey {
 
     pub fn from_bytes(bytes: [u8; Self::SIZE]) -> Result<Self> {
         VerifyingKey::from_bytes(&bytes)
-            .map_err(|error| VeironError::InvalidKey(error.to_string()))?;
+            .map_err(|error| VireonError::InvalidKey(error.to_string()))?;
         Ok(Self(bytes))
     }
 
@@ -41,11 +41,11 @@ impl PublicKey {
 
     pub fn verify(&self, message: &[u8], signature: &Signature) -> Result<()> {
         let verifying_key = VerifyingKey::from_bytes(&self.0)
-            .map_err(|error| VeironError::InvalidKey(error.to_string()))?;
+            .map_err(|error| VireonError::InvalidKey(error.to_string()))?;
         let dalek_signature = signature.to_dalek()?;
         verifying_key
             .verify(message, &dalek_signature)
-            .map_err(|error| VeironError::InvalidSignature(error.to_string()))
+            .map_err(|error| VireonError::InvalidSignature(error.to_string()))
     }
 
     pub const fn standard() -> SigningStandard {
@@ -200,7 +200,7 @@ impl fmt::Debug for PrivateKey {
 fn parse_hex_array<const N: usize>(input: &str) -> Result<[u8; N]> {
     let trimmed = input.trim();
     if trimmed.len() != N * 2 {
-        return Err(VeironError::InvalidHex(format!(
+        return Err(VireonError::InvalidHex(format!(
             "expected {} hex chars, got {}",
             N * 2,
             trimmed.len()
@@ -221,7 +221,7 @@ fn decode_hex_nibble(byte: u8) -> Result<u8> {
         b'0'..=b'9' => Ok(byte - b'0'),
         b'a'..=b'f' => Ok(byte - b'a' + 10),
         b'A'..=b'F' => Ok(byte - b'A' + 10),
-        _ => Err(VeironError::InvalidHex(format!(
+        _ => Err(VireonError::InvalidHex(format!(
             "invalid hex character {}",
             byte as char
         ))),

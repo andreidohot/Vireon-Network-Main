@@ -1,7 +1,7 @@
 //! User-approved updates from GitHub Releases.
 //!
 //! On a packaged (or forced) build the Control Center:
-//! 1. Polls `andreidohot/veiron-network` releases
+//! 1. Polls `andreidohot/vireon-network` releases
 //! 2. Detects newer assets (installer / miner / keystore / node / rpc)
 //! 3. Requires an explicit operator action before download and installation
 //! 4. Verifies every selected asset against the release `SHA256SUMS`
@@ -21,7 +21,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
 use tauri::{AppHandle, Emitter, Manager};
-const GITHUB_REPO: &str = "andreidohot/veiron-network";
+const GITHUB_REPO: &str = "andreidohot/vireon-network";
 const STARTUP_DELAY_SECS: u64 = 8;
 
 #[derive(Debug, Clone, Serialize)]
@@ -246,7 +246,7 @@ impl UpdateService {
 
         let client = reqwest::Client::builder()
             .user_agent(format!(
-                "veiron-control-center-auto-update/{}",
+                "vireon-control-center-auto-update/{}",
                 env!("CARGO_PKG_VERSION")
             ))
             .timeout(Duration::from_secs(600))
@@ -361,7 +361,7 @@ impl UpdateService {
             let _ = app
                 .notification()
                 .builder()
-                .title("Veiron update installed")
+                .title("Vireon update installed")
                 .body(format!("{} verified and installed from GitHub", plan.tag))
                 .show();
         }
@@ -373,7 +373,7 @@ impl UpdateService {
 async fn fetch_latest_update() -> AppResult<Option<PlannedUpdate>> {
     let client = reqwest::Client::builder()
         .user_agent(format!(
-            "veiron-control-center-auto-update/{}",
+            "vireon-control-center-auto-update/{}",
             env!("CARGO_PKG_VERSION")
         ))
         .timeout(Duration::from_secs(30))
@@ -635,12 +635,12 @@ fn plan_assets(assets: &[GhAsset]) -> Vec<PlannedAsset> {
         push("control_center_setup", &|n| {
             let l = n.to_ascii_lowercase();
             (l.contains("control") && l.contains("setup") && l.ends_with(".exe"))
-                || l.contains("veiron-control-center") && l.ends_with(".exe") && l.contains("win")
+                || l.contains("vireon-control-center") && l.ends_with(".exe") && l.contains("win")
         });
         push("miner", &|n| {
             let l = n.to_ascii_lowercase();
-            l.contains("veiron-miner")
-                && (l.contains("windows") || l.contains("msvc") || l.ends_with("veiron-miner.exe"))
+            l.contains("vireon-miner")
+                && (l.contains("windows") || l.contains("msvc") || l.ends_with("vireon-miner.exe"))
         });
         push("keystore", &|n| {
             let l = n.to_ascii_lowercase();
@@ -649,12 +649,12 @@ fn plan_assets(assets: &[GhAsset]) -> Vec<PlannedAsset> {
         });
         push("node", &|n| {
             let l = n.to_ascii_lowercase();
-            l.contains("veiron-node")
-                && (l.contains("windows") || l.contains("msvc") || l.ends_with("veiron-node.exe"))
+            l.contains("vireon-node")
+                && (l.contains("windows") || l.contains("msvc") || l.ends_with("vireon-node.exe"))
         });
         push("rpc", &|n| {
             let l = n.to_ascii_lowercase();
-            (l.contains("rpc-gateway") || l.contains("veiron-rpc"))
+            (l.contains("rpc-gateway") || l.contains("vireon-rpc"))
                 && (l.contains("windows") || l.contains("msvc") || l.ends_with(".exe"))
         });
     }
@@ -670,7 +670,7 @@ fn plan_assets(assets: &[GhAsset]) -> Vec<PlannedAsset> {
         });
         push("miner", &|n| {
             let l = n.to_ascii_lowercase();
-            l.contains("veiron-miner")
+            l.contains("vireon-miner")
                 && (l.contains("linux") || !l.contains("windows"))
                 && !l.ends_with(".exe")
         });
@@ -682,11 +682,11 @@ fn plan_assets(assets: &[GhAsset]) -> Vec<PlannedAsset> {
         });
         push("node", &|n| {
             let l = n.to_ascii_lowercase();
-            l.contains("veiron-node") && !l.ends_with(".exe") && !l.contains("windows")
+            l.contains("vireon-node") && !l.ends_with(".exe") && !l.contains("windows")
         });
         push("rpc", &|n| {
             let l = n.to_ascii_lowercase();
-            (l.contains("rpc-gateway") || l.contains("veiron-rpc"))
+            (l.contains("rpc-gateway") || l.contains("vireon-rpc"))
                 && !l.ends_with(".exe")
                 && !l.contains("windows")
         });
@@ -801,37 +801,37 @@ fn install_sidecar(role: &str, downloaded: &Path) -> AppResult<()> {
     let file_name = match role {
         "miner" => {
             if cfg!(windows) {
-                "veiron-miner.exe"
+                "vireon-miner.exe"
             } else {
-                "veiron-miner"
+                "vireon-miner"
             }
         }
         "keystore" => {
             if cfg!(windows) {
-                "veiron-keystore-helper.exe"
+                "vireon-keystore-helper.exe"
             } else {
-                "veiron-keystore-helper"
+                "vireon-keystore-helper"
             }
         }
         "node" => {
             if cfg!(windows) {
-                "veiron-node.exe"
+                "vireon-node.exe"
             } else {
-                "veiron-node"
+                "vireon-node"
             }
         }
         "rpc" => {
             if cfg!(windows) {
-                "veiron-rpc-gateway.exe"
+                "vireon-rpc-gateway.exe"
             } else {
-                "veiron-rpc-gateway"
+                "vireon-rpc-gateway"
             }
         }
         "indexer" => {
             if cfg!(windows) {
-                "veiron-indexer.exe"
+                "vireon-indexer.exe"
             } else {
-                "veiron-indexer"
+                "vireon-indexer"
             }
         }
         _ => return Ok(()),
@@ -842,9 +842,9 @@ fn install_sidecar(role: &str, downloaded: &Path) -> AppResult<()> {
         targets.push(res.join("bin").join(file_name));
         if role == "keystore" {
             let triple = if cfg!(windows) {
-                "veiron-keystore-helper-x86_64-pc-windows-msvc.exe"
+                "vireon-keystore-helper-x86_64-pc-windows-msvc.exe"
             } else {
-                "veiron-keystore-helper-x86_64-unknown-linux-gnu"
+                "vireon-keystore-helper-x86_64-unknown-linux-gnu"
             };
             let parent = res.parent().unwrap_or(res.as_path());
             targets.push(parent.join("binaries").join(triple));
@@ -853,7 +853,7 @@ fn install_sidecar(role: &str, downloaded: &Path) -> AppResult<()> {
     if let Ok(ws) = find_workspace_root() {
         targets.push(ws.join("target").join("release").join(file_name));
         targets.push(
-            ws.join("veiron-desktop-tauri")
+            ws.join("vireon-desktop-tauri")
                 .join("src-tauri")
                 .join("resources")
                 .join("bin")
@@ -861,13 +861,13 @@ fn install_sidecar(role: &str, downloaded: &Path) -> AppResult<()> {
         );
         if role == "keystore" {
             targets.push(
-                ws.join("veiron-desktop-tauri")
+                ws.join("vireon-desktop-tauri")
                     .join("src-tauri")
                     .join("binaries")
                     .join(if cfg!(windows) {
-                        "veiron-keystore-helper-x86_64-pc-windows-msvc.exe"
+                        "vireon-keystore-helper-x86_64-pc-windows-msvc.exe"
                     } else {
-                        "veiron-keystore-helper-x86_64-unknown-linux-gnu"
+                        "vireon-keystore-helper-x86_64-unknown-linux-gnu"
                     }),
             );
         }
@@ -1035,8 +1035,8 @@ mod tests {
     #[test]
     fn parses_strict_sha256sums() {
         let digest = "a".repeat(64);
-        let sums = parse_sha256sums(&format!("{digest}  veiron-miner.exe\n")).unwrap();
-        assert_eq!(sums.get("veiron-miner.exe"), Some(&digest));
+        let sums = parse_sha256sums(&format!("{digest}  vireon-miner.exe\n")).unwrap();
+        assert_eq!(sums.get("vireon-miner.exe"), Some(&digest));
         assert!(parse_sha256sums(&format!("{digest}  ../escape.exe\n")).is_err());
         assert!(parse_sha256sums("not-a-digest file.exe\n").is_err());
     }

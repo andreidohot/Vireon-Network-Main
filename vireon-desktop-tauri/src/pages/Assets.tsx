@@ -112,7 +112,7 @@ export function Assets() {
               <Coins size={28} />
             </span>
             <div>
-              <strong>Veiron native currency</strong>
+              <strong>Vireon native currency</strong>
               <small>Settlement, fees and PoW rewards</small>
             </div>
             <b>INSPECT</b>
@@ -158,7 +158,7 @@ export function Assets() {
       {showVire ? (
         <DetailDialog title="VIRE native asset" subtitle="Consensus currency" onClose={() => setShowVire(false)}>
           <div className="detail-grid">
-            <KeyValue label="Project">Veiron Network</KeyValue>
+            <KeyValue label="Project">Vireon Network</KeyValue>
             <KeyValue label="Ticker">VIRE</KeyValue>
             <KeyValue label="Decimals">8</KeyValue>
             <KeyValue label="Atomic / VIRE" mono>

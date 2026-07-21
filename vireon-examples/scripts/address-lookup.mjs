@@ -2,7 +2,7 @@
  * Lookup a vire1 address balance/account on the public gateway.
  * Usage: node scripts/address-lookup.mjs vire1...
  */
-import { createVeironClient } from "../../veiron-sdk/dist/index.js";
+import { createVireonClient } from "../../vireon-sdk/dist/index.js";
 
 const address = process.argv[2];
 if (!address || !address.startsWith("vire1")) {
@@ -10,8 +10,8 @@ if (!address || !address.startsWith("vire1")) {
   process.exit(2);
 }
 
-const client = createVeironClient({
-  rpcUrl: process.env.VEIRON_RPC_URL ?? "https://rpcnode.dohotstudio.com"
+const client = createVireonClient({
+  rpcUrl: process.env.VIREON_RPC_URL ?? "https://rpcnode.dohotstudio.com"
 });
 
 const [balance, account] = await Promise.all([

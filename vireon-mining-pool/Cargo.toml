@@ -1,9 +1,9 @@
 [package]
-name = "veiron-mining-pool"
+name = "vireon-mining-pool"
 version = "1.0.0"
 edition = "2021"
 license = "Apache-2.0"
-description = "Veiron Mainnet Candidate pooled mining coordinator and payout accounting prototype"
+description = "Vireon Mainnet Candidate pooled mining coordinator and payout accounting prototype"
 
 [dependencies]
 atomic-write-file = "0.3"
@@ -19,8 +19,8 @@ thiserror = "1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "time"] }
 toml = "0.8"
 tower-http = { version = "0.6", features = ["cors", "limit"] }
-veiron-core = { path = "../veiron-core" }
-veiron-miner = { path = "../veiron-miner" }
+vireon-core = { path = "../vireon-core" }
+vireon-miner = { path = "../vireon-miner" }
 
 [dev-dependencies]
 tempfile = "3"

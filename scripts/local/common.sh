@@ -3,23 +3,30 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKSPACE_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-LOCAL_ROOT="${VEIRON_LOCAL_ROOT:-$WORKSPACE_ROOT/.veiron-local}"
+default_local_root="$WORKSPACE_ROOT/.vireon-local"
+if [[ -z "${VIREON_LOCAL_ROOT:-}" && -d "$WORKSPACE_ROOT/.veiron-local" && ! -e "$default_local_root" ]]; then
+  default_local_root="$WORKSPACE_ROOT/.veiron-local"
+fi
+LOCAL_ROOT="${VIREON_LOCAL_ROOT:-$default_local_root}"
 CHAIN_DIR="$LOCAL_ROOT/chain"
 MEMPOOL_DIR="$LOCAL_ROOT/mempool"
 INDEX_DIR="$LOCAL_ROOT/indexer"
-WALLET_DIR="${HOME}/.veiron-mainnet/wallets"
+WALLET_DIR="${HOME}/.vireon-mainnet/wallets"
+if [[ -d "${HOME}/.veiron-mainnet/wallets" && ! -e "$WALLET_DIR" ]]; then
+  WALLET_DIR="${HOME}/.veiron-mainnet/wallets"
+fi
 SIGNED_TX_DIR="$WALLET_DIR/signed-txs"
 LOG_DIR="$LOCAL_ROOT/logs"
 BACKUP_DIR="$LOCAL_ROOT/backups"
 BUILD_DIR="$LOCAL_ROOT/build/target"
 LOCAL_NODE_CONFIG="$WORKSPACE_ROOT/configs/local.toml"
 LOCAL_RPC_CONFIG="$WORKSPACE_ROOT/configs/rpc.local.toml"
-EXPLORER_DIR="$WORKSPACE_ROOT/veiron-explorer"
+EXPLORER_DIR="$WORKSPACE_ROOT/vireon-explorer"
 RPC_URL="http://127.0.0.1:10787"
 EXPLORER_URL="http://127.0.0.1:4173"
 CARGO_BIN="${CARGO:-cargo}"
 PACKAGED="false"
-if [[ -x "$WORKSPACE_ROOT/bin/veiron-node" ]]; then
+if [[ -x "$WORKSPACE_ROOT/bin/vireon-node" ]]; then
   PACKAGED="true"
 fi
 
@@ -65,37 +72,37 @@ run_in_workspace() {
 
 run_node() {
   if [[ "$PACKAGED" == "true" ]]; then
-    (cd "$WORKSPACE_ROOT" && "$WORKSPACE_ROOT/bin/veiron-node" --config "$LOCAL_NODE_CONFIG" --data-dir "$CHAIN_DIR" --mempool-dir "$MEMPOOL_DIR" "$@")
+    (cd "$WORKSPACE_ROOT" && "$WORKSPACE_ROOT/bin/vireon-node" --config "$LOCAL_NODE_CONFIG" --data-dir "$CHAIN_DIR" --mempool-dir "$MEMPOOL_DIR" "$@")
   else
-    run_in_workspace "$CARGO_BIN" run -p veiron-node -- --config "$LOCAL_NODE_CONFIG" --data-dir "$CHAIN_DIR" --mempool-dir "$MEMPOOL_DIR" "$@"
+    run_in_workspace "$CARGO_BIN" run -p vireon-node -- --config "$LOCAL_NODE_CONFIG" --data-dir "$CHAIN_DIR" --mempool-dir "$MEMPOOL_DIR" "$@"
   fi
 }
 
 run_wallet() {
-  run_in_workspace "$CARGO_BIN" run -p veiron-wallet -- --network mainnet-candidate --wallet-dir "$WALLET_DIR" --signed-tx-dir "$SIGNED_TX_DIR" --rpc-base-url "$RPC_URL" --chain-data-dir "$CHAIN_DIR" "$@"
+  run_in_workspace "$CARGO_BIN" run -p vireon-wallet -- --network mainnet-candidate --wallet-dir "$WALLET_DIR" --signed-tx-dir "$SIGNED_TX_DIR" --rpc-base-url "$RPC_URL" --chain-data-dir "$CHAIN_DIR" "$@"
 }
 
 run_indexer() {
   if [[ "$PACKAGED" == "true" ]]; then
-    (cd "$WORKSPACE_ROOT" && "$WORKSPACE_ROOT/bin/veiron-indexer" --network mainnet-candidate --chain-data-dir "$CHAIN_DIR" --index-dir "$INDEX_DIR" "$@")
+    (cd "$WORKSPACE_ROOT" && "$WORKSPACE_ROOT/bin/vireon-indexer" --network mainnet-candidate --chain-data-dir "$CHAIN_DIR" --index-dir "$INDEX_DIR" "$@")
   else
-    run_in_workspace "$CARGO_BIN" run -p veiron-indexer -- --network mainnet-candidate --chain-data-dir "$CHAIN_DIR" --index-dir "$INDEX_DIR" "$@"
+    run_in_workspace "$CARGO_BIN" run -p vireon-indexer -- --network mainnet-candidate --chain-data-dir "$CHAIN_DIR" --index-dir "$INDEX_DIR" "$@"
   fi
 }
 
 node_start_command() {
   if [[ "$PACKAGED" == "true" ]]; then
-    printf 'cd %q && %q --config %q --data-dir %q --mempool-dir %q start-node' "$WORKSPACE_ROOT" "$WORKSPACE_ROOT/bin/veiron-node" "$LOCAL_NODE_CONFIG" "$CHAIN_DIR" "$MEMPOOL_DIR"
+    printf 'cd %q && %q --config %q --data-dir %q --mempool-dir %q start-node' "$WORKSPACE_ROOT" "$WORKSPACE_ROOT/bin/vireon-node" "$LOCAL_NODE_CONFIG" "$CHAIN_DIR" "$MEMPOOL_DIR"
   else
-    printf 'cd %q && env CARGO_TARGET_DIR=%q %q run -p veiron-node -- --config %q --data-dir %q --mempool-dir %q start-node' "$WORKSPACE_ROOT" "$BUILD_DIR" "$CARGO_BIN" "$LOCAL_NODE_CONFIG" "$CHAIN_DIR" "$MEMPOOL_DIR"
+    printf 'cd %q && env CARGO_TARGET_DIR=%q %q run -p vireon-node -- --config %q --data-dir %q --mempool-dir %q start-node' "$WORKSPACE_ROOT" "$BUILD_DIR" "$CARGO_BIN" "$LOCAL_NODE_CONFIG" "$CHAIN_DIR" "$MEMPOOL_DIR"
   fi
 }
 
 rpc_start_command() {
   if [[ "$PACKAGED" == "true" ]]; then
-    printf 'cd %q && env VEIRON_LOCAL_ROOT=%q %q --config %q' "$WORKSPACE_ROOT" "$LOCAL_ROOT" "$WORKSPACE_ROOT/bin/veiron-rpc-gateway" "$LOCAL_RPC_CONFIG"
+    printf 'cd %q && env VIREON_LOCAL_ROOT=%q %q --config %q' "$WORKSPACE_ROOT" "$LOCAL_ROOT" "$WORKSPACE_ROOT/bin/vireon-rpc-gateway" "$LOCAL_RPC_CONFIG"
   else
-    printf 'cd %q && env VEIRON_LOCAL_ROOT=%q CARGO_TARGET_DIR=%q %q run -p veiron-rpc-gateway -- --config %q' "$WORKSPACE_ROOT" "$LOCAL_ROOT" "$BUILD_DIR" "$CARGO_BIN" "$LOCAL_RPC_CONFIG"
+    printf 'cd %q && env VIREON_LOCAL_ROOT=%q CARGO_TARGET_DIR=%q %q run -p vireon-rpc-gateway -- --config %q' "$WORKSPACE_ROOT" "$LOCAL_ROOT" "$BUILD_DIR" "$CARGO_BIN" "$LOCAL_RPC_CONFIG"
   fi
 }
 

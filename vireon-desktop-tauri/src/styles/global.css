@@ -15,7 +15,7 @@ button { color: inherit; }
   linear-gradient(135deg, var(--bg-deep), var(--bg-base) 48%, var(--panel)); }
 .titlebar { -webkit-app-region: drag; app-region: drag; display: flex; align-items: center; justify-content: space-between; padding: 0 12px 0 14px; border-bottom: 1px solid var(--border); background: var(--surface-titlebar); }
 .titlebar-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.titlebar-brand .veiron-logo-img { flex: 0 0 auto; filter: drop-shadow(0 0 10px rgba(var(--accent-primary-rgb), .35)); }
+.titlebar-brand .vireon-logo-img { flex: 0 0 auto; filter: drop-shadow(0 0 10px rgba(var(--accent-primary-rgb), .35)); }
 .titlebar strong { letter-spacing: .04em; }
 .titlebar small { opacity: .95; }
 .window-actions { -webkit-app-region: no-drag; app-region: no-drag; display: flex; height: 100%; }
@@ -48,7 +48,7 @@ button { color: inherit; }
   border-radius: inherit;
   pointer-events: none;
 }
-.brand-mark .veiron-logo-img {
+.brand-mark .vireon-logo-img {
   position: relative;
   z-index: 1;
   width: 86px;
@@ -56,7 +56,7 @@ button { color: inherit; }
   object-fit: contain;
   filter: drop-shadow(0 0 14px rgba(160, 90, 255, .35));
 }
-.veiron-logo-img { display: block; object-fit: contain; user-select: none; }
+.vireon-logo-img { display: block; object-fit: contain; user-select: none; }
 .brand-name { color: var(--accent-primary); letter-spacing: .24em; font-size: 18px; font-weight: 600; }
 .brand-subtitle { color: var(--text-muted); letter-spacing: .28em; font-size: 9px; }
 .nav { display: grid; gap: 4px; overflow: auto; }
@@ -375,7 +375,7 @@ h2, h3, p { margin-top: 0; }
   pointer-events: none;
   filter: blur(0.2px);
 }
-.hero-brand-watermark .veiron-logo-img {
+.hero-brand-watermark .vireon-logo-img {
   width: 100%;
   height: 100%;
 }
@@ -792,7 +792,7 @@ h2, h3, p { margin-top: 0; }
     rgba(var(--accent-primary-rgb), .06);
   box-shadow: var(--glow), inset 0 0 30px rgba(120, 70, 255, .14);
 }
-.startup-emblem .veiron-logo-img {
+.startup-emblem .vireon-logo-img {
   width: 68px;
   height: 68px;
   object-fit: contain;
@@ -842,7 +842,7 @@ h2, h3, p { margin-top: 0; }
 .update-reactor { position: relative; display: grid; place-items: center; width: 132px; height: 132px; color: var(--accent-primary); }
 .update-reactor span { z-index: 1; display: grid; place-items: center; width: 72px; height: 72px; border: 1px solid currentColor; border-radius: 28%; background: rgba(var(--accent-primary-rgb), .08); box-shadow: 0 0 35px rgba(var(--accent-primary-rgb), .24), inset 0 0 22px rgba(var(--accent-primary-rgb), .12); }
 .update-reactor span.update-reactor-logo { transform: none; padding: 8px; }
-.update-reactor span.update-reactor-logo .veiron-logo-img { width: 52px; height: 52px; }
+.update-reactor span.update-reactor-logo .vireon-logo-img { width: 52px; height: 52px; }
 .update-reactor span svg { transform: none; }
 .update-reactor > i { position: absolute; inset: 3px; border: 1px dashed rgba(var(--accent-primary-rgb), .38); border-radius: 50%; animation: reactor-spin 8s linear infinite; }.update-reactor > i:last-child { inset: 18px; animation-direction: reverse; animation-duration: 5s; }
 .update-downloaded { color: var(--positive); }.update-installing > i { animation-duration: 1.5s; }
@@ -873,7 +873,7 @@ h2, h3, p { margin-top: 0; }
   .sidebar { padding-inline: 8px; }
   .brand-name, .brand-subtitle, .nav-button span, .sidebar-status { display: none; }
   .brand-mark { width: 52px; height: 52px; padding: 4px; border-radius: 22%; }
-  .brand-mark .veiron-logo-img { width: 40px; height: 40px; }
+  .brand-mark .vireon-logo-img { width: 40px; height: 40px; }
   .nav-button { justify-content: center; }
 }
 @media (max-width: 900px) { .grid.cols-2, .grid.cols-3, .grid.cols-4, .grid.cols-5, .miner-command-deck, .node-command-deck, .dashboard-analytics, .command-hero, .assets-hero, .fee-disposition, .explorer-rail, .p2p-readiness, .mempool-flow, .seed-control, .detail-grid { grid-template-columns: 1fr; } .dashboard-widget.widget-full { grid-column: 1 / -1; } .miner-controls, .node-command-deck > :last-child, .hero-telemetry { grid-column: auto; } .hero-telemetry { grid-template-columns: repeat(2, 1fr); } .native-asset-emblem { width: 112px; height: 112px; margin: auto; }.network-switch, .live-cadence, .p2p-readiness > i, .mempool-flow > i { display: none; } .event-stream article { grid-template-columns: 66px 1fr; } .event-stream time { grid-column: 2; } .detail-dialog-backdrop { padding: 10px; } .detail-dialog, .detail-dialog.is-wide { width: calc(100vw - 20px); max-height: min(90dvh, calc(100dvh - 20px)); } .detail-span-full { grid-column: auto; } .update-transfer-stats { grid-template-columns: 1fr; }.update-version-row { grid-template-columns: 1fr; }.update-version-row > i { display: none; } }

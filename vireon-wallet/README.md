@@ -1,4 +1,4 @@
-# veiron-wallet
+# vireon-wallet
 
 Status: Draft / Mainnet Candidate / Prototype
 
@@ -16,7 +16,7 @@ Primary candidate commands:
 Current scope:
 - local wallet files under the matching network root;
 - local signed transaction files under the matching network root;
-- deterministic address and signing primitives from `veiron-core`;
+- deterministic address and signing primitives from `vireon-core`;
 - BIP39 English mnemonic creation and SLIP-0010 ed25519 derivation on `m/44'/7330'/account'/change'/address_index'`;
 - local RPC balance reads and local RPC transaction submission.
 

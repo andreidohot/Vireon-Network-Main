@@ -4671,7 +4671,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "veiron-desktop-tauri"
+name = "vireon-desktop-tauri"
 version = "1.0.0"
 dependencies = [
  "dirs",
@@ -4690,11 +4690,11 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio",
  "url",
- "veiron-sdk-rust",
+ "vireon-sdk-rust",
 ]
 
 [[package]]
-name = "veiron-sdk-rust"
+name = "vireon-sdk-rust"
 version = "1.0.0"
 dependencies = [
  "bech32",

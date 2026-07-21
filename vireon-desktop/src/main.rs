@@ -7,15 +7,15 @@ mod services;
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
         viewport: eframe::egui::ViewportBuilder::default()
-            .with_title("Veiron.exe")
+            .with_title("Vireon.exe")
             .with_decorations(false)
             .with_inner_size([1600.0, 900.0])
             .with_min_inner_size([1120.0, 720.0]),
         ..Default::default()
     };
     eframe::run_native(
-        "Veiron Desktop",
+        "Vireon Desktop",
         options,
-        Box::new(|context| Ok(Box::new(app::VeironApp::new(context)))),
+        Box::new(|context| Ok(Box::new(app::VireonApp::new(context)))),
     )
 }

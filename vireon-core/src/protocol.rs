@@ -7,7 +7,7 @@ use crate::constants::{
 use crate::network::Network;
 use crate::upgrade::{LAUNCH_BLOCK_VERSION, LAUNCH_PROTOCOL_VERSION};
 
-pub const PROTOCOL_PARAMETERS_ID: &str = "veiron-launch-parameters-v1";
+pub const PROTOCOL_PARAMETERS_ID: &str = "vireon-launch-parameters-v1";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct ProtocolParameters {

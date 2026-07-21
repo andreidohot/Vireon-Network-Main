@@ -6,11 +6,11 @@ Status: Prototype / Mainnet Candidate — **not** Mainnet Live.
 
 After the workflow is on the default branch:
 
-[![candidate-chain-health](https://github.com/andreidohot/veiron-network/actions/workflows/candidate-chain-health.yml/badge.svg)](https://github.com/andreidohot/veiron-network/actions/workflows/candidate-chain-health.yml)
+[![candidate-chain-health](https://github.com/andreidohot/vireon-network/actions/workflows/candidate-chain-health.yml/badge.svg)](https://github.com/andreidohot/vireon-network/actions/workflows/candidate-chain-health.yml)
 
 ## What is checked
 
-`veiron-browser-host --check-health`:
+`vireon-browser-host --check-health`:
 
 1. RPC reachable (`GET /status`)
 2. Tip available (`GET /chain/tip`)
@@ -32,13 +32,13 @@ If neither indexer flag is set, indexer issues are **warnings only**.
 ## Local / operator
 
 ```powershell
-cargo run -q -p veiron-browser-host -- --check-health --json
-cargo run -q -p veiron-browser-host -- --check-health --require-indexer-sync --json
-cargo run -q -p veiron-browser-host -- --check-health --max-indexer-lag 2 --json
+cargo run -q -p vireon-browser-host -- --check-health --json
+cargo run -q -p vireon-browser-host -- --check-health --require-indexer-sync --json
+cargo run -q -p vireon-browser-host -- --check-health --max-indexer-lag 2 --json
 
 .\scripts\browser\probe-chain.ps1 -Strict
 .\scripts\browser\probe-chain.ps1 -MaxIndexerLag 2
-.\scripts\browser\probe-chain.ps1 -Watch -IntervalSec 30 -Strict -WebhookUrl $env:VEIRON_HEALTH_WEBHOOK_URL
+.\scripts\browser\probe-chain.ps1 -Watch -IntervalSec 30 -Strict -WebhookUrl $env:VIREON_HEALTH_WEBHOOK_URL
 ```
 
 ```bash
@@ -49,7 +49,7 @@ cargo run -q -p veiron-browser-host -- --check-health --max-indexer-lag 2 --json
 
 Webhook payload (JSON POST): `text`, `code`, `health` (body of health JSON when available).
 
-Env alias: `VEIRON_HEALTH_WEBHOOK_URL`.
+Env alias: `VIREON_HEALTH_WEBHOOK_URL`.
 
 ## GitHub Actions
 
@@ -57,9 +57,9 @@ Workflow: `.github/workflows/candidate-chain-health.yml`
 
 - schedule: every 30 minutes
 - manual: `workflow_dispatch` (RPC URL, strict, max lag)
-- builds `veiron-browser-host` and runs `--check-health --json` (+ indexer policy)
+- builds `vireon-browser-host` and runs `--check-health --json` (+ indexer policy)
 - uploads `health.json` artifact
-- optional failure webhook via repo secret **`VEIRON_HEALTH_WEBHOOK_URL`**
+- optional failure webhook via repo secret **`VIREON_HEALTH_WEBHOOK_URL`**
 
 ## Windows Task Scheduler (local cron)
 
@@ -71,22 +71,22 @@ Workflow: `.github/workflows/candidate-chain-health.yml`
 .\scripts\browser\register-health-task.ps1 -IntervalMinutes 15 -MaxIndexerLag 2
 
 # With webhook
-.\scripts\browser\register-health-task.ps1 -Strict -WebhookUrl $env:VEIRON_HEALTH_WEBHOOK_URL
+.\scripts\browser\register-health-task.ps1 -Strict -WebhookUrl $env:VIREON_HEALTH_WEBHOOK_URL
 
 # Remove
 .\scripts\browser\register-health-task.ps1 -Unregister
 ```
 
-Logs: `%LOCALAPPDATA%\Veiron\health\probe-*.log`
+Logs: `%LOCALAPPDATA%\Vireon\health\probe-*.log`
 
 Manual run once:
 
 ```powershell
-Start-ScheduledTask -TaskName 'VeironCandidateChainHealth'
+Start-ScheduledTask -TaskName 'VireonCandidateChainHealth'
 ```
 
 ## Notes
 
-- Public default RPC is the Mainnet Candidate gateway from `veiron-sdk-rust`.
+- Public default RPC is the Mainnet Candidate gateway from `vireon-sdk-rust`.
 - Failures are operational signals, not protocol consensus proofs.
 - Do not market a green check as "mainnet live".

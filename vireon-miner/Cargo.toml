@@ -1,9 +1,9 @@
 [package]
-name = "veiron-miner"
+name = "vireon-miner"
 version = "1.0.0"
 edition = "2021"
 license = "Apache-2.0"
-description = "Veiron FiroPoW 0.9.4 CUDA-only GPU miner for NVIDIA"
+description = "Vireon FiroPoW 0.9.4 CUDA-only GPU miner for NVIDIA"
 build = "build.rs"
 
 [features]
@@ -19,7 +19,7 @@ serde_json = "1"
 thiserror = "1"
 toml = "0.8"
 atomic-write-file = "0.3"
-veiron-core = { path = "../veiron-core" }
+vireon-core = { path = "../vireon-core" }
 
 [dev-dependencies]
 tempfile = "3"

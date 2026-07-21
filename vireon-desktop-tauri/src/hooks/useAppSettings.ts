@@ -10,20 +10,20 @@ export function useAppSettings() {
   const reload = useCallback(async () => {
     setLoading(true);
     try {
-      setSettings(await window.veiron.settings.get());
+      setSettings(await window.vireon.settings.get());
     } finally {
       setLoading(false);
     }
   }, []);
 
   const update = useCallback(async (patch: Partial<AppSettings>) => {
-    const next = await window.veiron.settings.update(patch);
+    const next = await window.vireon.settings.update(patch);
     setSettings(next);
     return next;
   }, []);
 
   const reset = useCallback(async () => {
-    const next = await window.veiron.settings.reset();
+    const next = await window.vireon.settings.reset();
     setSettings(next);
     return next;
   }, []);

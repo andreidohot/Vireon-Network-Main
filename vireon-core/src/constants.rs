@@ -1,4 +1,4 @@
-pub const PROJECT_NAME: &str = "Veiron Network";
+pub const PROJECT_NAME: &str = "Vireon Network";
 pub const TICKER: &str = "VIRE";
 pub const ADDRESS_PREFIX: &str = "vire";
 pub const DEVNET_ADDRESS_PREFIX: &str = "dvire";

@@ -1,7 +1,7 @@
-//! Canonical Veiron Proof-of-Work — **FiroPoW 0.9.4** (VeironPoW v1).
+//! Canonical Vireon Proof-of-Work — **FiroPoW 0.9.4** (VireonPoW v1).
 //!
 //! Re-exports the FiroPoW module. Blake3 is **not** used for mining.
-//! Future: Veiron PoLW v2 activates via fixed-height upgrade only.
+//! Future: Vireon PoLW v2 activates via fixed-height upgrade only.
 
 pub use crate::firopow::{
     boundary_from_leading_zero_bits, check_pow, epoch_number, firopow_hash, firopow_prewarm,

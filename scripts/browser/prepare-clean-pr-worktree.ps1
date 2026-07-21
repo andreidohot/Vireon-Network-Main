@@ -32,7 +32,7 @@ git rev-parse --verify origin/main | Out-Null
 
 $pathsByPr = @{
     A = @(
-        "veiron-sdk-rust",
+        "vireon-sdk-rust",
         "Cargo.toml",
         "Cargo.lock",
         "docs/api/04_SDK_CLIENT_V0.md",
@@ -40,17 +40,17 @@ $pathsByPr = @{
     )
     # B needs SDK (path dep + workspace member) to compile on a clean base.
     B = @(
-        "veiron-sdk-rust",
+        "vireon-sdk-rust",
         "Cargo.toml",
-        "veiron-wallet/Cargo.toml",
-        "veiron-wallet/src/rpc.rs",
+        "vireon-wallet/Cargo.toml",
+        "vireon-wallet/src/rpc.rs",
         "docs/api/04_SDK_CLIENT_V0.md",
         "docs/api/README.md"
     )
     # C needs SDK (path dep + workspace member).
     C = @(
-        "veiron-sdk-rust",
-        "veiron-browser",
+        "vireon-sdk-rust",
+        "vireon-browser",
         "Cargo.toml",
         "docs/architecture/07_BROWSER_EXTENSION_AND_NATIVE_HOST.md",
         "docs/architecture/README.md",
@@ -59,8 +59,8 @@ $pathsByPr = @{
     )
     # D CI builds the host; include sdk+browser so the worktree is self-testable.
     D = @(
-        "veiron-sdk-rust",
-        "veiron-browser",
+        "vireon-sdk-rust",
+        "vireon-browser",
         "Cargo.toml",
         "scripts/browser",
         "scripts/README.md",
@@ -73,19 +73,19 @@ $pathsByPr = @{
         "docs/architecture/README.md",
         "README.md"
     )
-    # E: Tauri is its own Cargo workspace; still needs monorepo veiron-sdk-rust on disk
+    # E: Tauri is its own Cargo workspace; still needs monorepo vireon-sdk-rust on disk
     # (path deps from src-tauri and native/keystore-helper).
     E = @(
-        "veiron-sdk-rust",
+        "vireon-sdk-rust",
         "Cargo.toml",
-        "veiron-desktop-tauri",
+        "vireon-desktop-tauri",
         "docs/api/04_SDK_CLIENT_V0.md",
         "docs/api/README.md"
     )
 }
 
 $defaultBranch = @{
-    A = "feat/veiron-sdk-rust-client"
+    A = "feat/vireon-sdk-rust-client"
     B = "feat/wallet-sdk-rpc"
     C = "feat/browser-native-host"
     D = "feat/ops-chain-health"
@@ -94,7 +94,7 @@ $defaultBranch = @{
 
 if (-not $BranchName) { $BranchName = $defaultBranch[$Pr] }
 if (-not $WorktreeRoot) {
-    $WorktreeRoot = Join-Path (Split-Path $RepoRoot -Parent) ("veiron-pr-" + $Pr.ToLower())
+    $WorktreeRoot = Join-Path (Split-Path $RepoRoot -Parent) ("vireon-pr-" + $Pr.ToLower())
 }
 
 $paths = $pathsByPr[$Pr]
@@ -121,20 +121,20 @@ foreach ($rel in $paths) {
         $dstToml = Join-Path $WorktreeRoot "Cargo.toml"
         $text = Get-Content -Raw $dstToml
         $changed = $false
-        if ($Pr -in @("A", "B", "C", "D", "E") -and $text -notmatch '"veiron-sdk-rust"') {
-            $text = $text -replace '("veiron-wallet",\r?\n)', "`$1    `"veiron-sdk-rust`",`n"
+        if ($Pr -in @("A", "B", "C", "D", "E") -and $text -notmatch '"vireon-sdk-rust"') {
+            $text = $text -replace '("vireon-wallet",\r?\n)', "`$1    `"vireon-sdk-rust`",`n"
             $changed = $true
-            Write-Host "[patched]     Cargo.toml (+ veiron-sdk-rust)"
+            Write-Host "[patched]     Cargo.toml (+ vireon-sdk-rust)"
         }
-        if ($Pr -in @("C", "D") -and $text -notmatch 'veiron-browser/host') {
+        if ($Pr -in @("C", "D") -and $text -notmatch 'vireon-browser/host') {
             # Insert host after sdk if present, else after wallet
-            if ($text -match '"veiron-sdk-rust"') {
-                $text = $text -replace '("veiron-sdk-rust",\r?\n)', "`$1    `"veiron-browser/host`",`n"
+            if ($text -match '"vireon-sdk-rust"') {
+                $text = $text -replace '("vireon-sdk-rust",\r?\n)', "`$1    `"vireon-browser/host`",`n"
             } else {
-                $text = $text -replace '("veiron-wallet",\r?\n)', "`$1    `"veiron-browser/host`",`n"
+                $text = $text -replace '("vireon-wallet",\r?\n)', "`$1    `"vireon-browser/host`",`n"
             }
             $changed = $true
-            Write-Host "[patched]     Cargo.toml (+ veiron-browser/host)"
+            Write-Host "[patched]     Cargo.toml (+ vireon-browser/host)"
         }
         if ($changed) {
             Set-Content -Path $dstToml -Value $text -NoNewline -Encoding utf8
@@ -159,7 +159,7 @@ foreach ($rel in $paths) {
         New-Item -ItemType Directory -Force -Path $dstParent | Out-Null
     }
     if (Test-Path $src -PathType Container) {
-        if ($rel -eq "veiron-desktop-tauri") {
+        if ($rel -eq "vireon-desktop-tauri") {
             # Origin already has a Tauri tree; overlay dirty SDK-wired sources without
             # build artifacts / sidecar binaries / node_modules.
             if (-not (Test-Path $dst)) {
@@ -167,7 +167,7 @@ foreach ($rel in $paths) {
             }
             $xd = @("node_modules", "target", "dist", "dist-ssr", ".vite")
             $xf = @("*.exe", "*.pdb", "*.log")
-            $robolog = Join-Path $env:TEMP ("veiron-pr-e-robocopy-{0}.log" -f [guid]::NewGuid().ToString("n"))
+            $robolog = Join-Path $env:TEMP ("vireon-pr-e-robocopy-{0}.log" -f [guid]::NewGuid().ToString("n"))
             $roboArgs = @($src, $dst, "/E", "/NFL", "/NDL", "/NJH", "/NJS", "/nc", "/ns", "/np", "/R:1", "/W:1", "/LOG:$robolog")
             foreach ($d in $xd) { $roboArgs += @("/XD", $d) }
             foreach ($f in $xf) { $roboArgs += @("/XF", $f) }
@@ -175,7 +175,7 @@ foreach ($rel in $paths) {
             $rc = $LASTEXITCODE
             # robocopy: 0-7 success-ish, >=8 failure
             if ($rc -ge 8) {
-                throw "robocopy failed for veiron-desktop-tauri (exit $rc); log: $robolog"
+                throw "robocopy failed for vireon-desktop-tauri (exit $rc); log: $robolog"
             }
             # Drop generated sidecar copies that must not enter git.
             $binDir = Join-Path $dst "src-tauri\binaries"

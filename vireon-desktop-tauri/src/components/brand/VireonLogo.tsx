@@ -8,11 +8,11 @@ const sizes: Record<LogoSize, number> = {
   xl: 120
 };
 
-export function VeironLogo({
+export function VireonLogo({
   size = "md",
   className = "",
   framed = false,
-  alt = "Veiron"
+  alt = "Vireon"
 }: {
   size?: LogoSize;
   className?: string;
@@ -28,7 +28,7 @@ export function VeironLogo({
       alt={alt}
       width={px}
       height={px}
-      className={`veiron-logo-img ${className}`.trim()}
+      className={`vireon-logo-img ${className}`.trim()}
       draggable={false}
       decoding="async"
     />
@@ -37,7 +37,7 @@ export function VeironLogo({
   if (!framed) return img;
 
   return (
-    <div className={`veiron-logo-frame veiron-logo-frame-${size}`} aria-hidden={alt === ""}>
+    <div className={`vireon-logo-frame vireon-logo-frame-${size}`} aria-hidden={alt === ""}>
       {img}
     </div>
   );

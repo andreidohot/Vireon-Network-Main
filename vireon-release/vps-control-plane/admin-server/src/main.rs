@@ -3,13 +3,13 @@ use clap::Parser;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use tokio::net::TcpListener;
-use veiron_vps_admin::{router, run_agent_reporter, AdminConfig, AdminState, FleetStore};
+use vireon_vps_admin::{router, run_agent_reporter, AdminConfig, AdminState, FleetStore};
 
 #[derive(Debug, Parser)]
-#[command(name = "veiron-vps-admin")]
-#[command(about = "Loopback-only Veiron VPS fleet control plane")]
+#[command(name = "vireon-vps-admin")]
+#[command(about = "Loopback-only Vireon VPS fleet control plane")]
 struct Cli {
-    #[arg(long, default_value = "/etc/veiron-control/admin.toml")]
+    #[arg(long, default_value = "/etc/vireon-control/admin.toml")]
     config: PathBuf,
     #[arg(long)]
     check_config: bool,
@@ -18,7 +18,7 @@ struct Cli {
 #[tokio::main]
 async fn main() {
     if let Err(error) = run().await {
-        eprintln!("veiron-vps-admin error: {error}");
+        eprintln!("vireon-vps-admin error: {error}");
         std::process::exit(1);
     }
 }
@@ -46,7 +46,7 @@ async fn run() -> Result<(), String> {
         .await
         .map_err(|error| error.to_string())?;
     println!(
-        "veiron-vps-admin listening on http://{}:{} ({})",
+        "vireon-vps-admin listening on http://{}:{} ({})",
         config.bind_host, config.bind_port, config.status_label
     );
     serve(listener, router(state))

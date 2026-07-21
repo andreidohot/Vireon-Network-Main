@@ -1,6 +1,6 @@
 #![cfg(feature = "native")]
 
-use veiron_sdk_rust::{Network, NetworkConfig, RpcClient};
+use vireon_sdk_rust::{Network, NetworkConfig, RpcClient};
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -12,7 +12,7 @@ async fn rpc_status_and_account_decode() {
         .and(path("/status"))
         .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
             "network_id": "veiron-mainnet-candidate",
-            "network_name": "Veiron Mainnet Candidate",
+            "network_name": "Vireon Mainnet Candidate",
             "status_label": "Planned / Mainnet Candidate",
             "initialized": true,
             "block_count": 2,
@@ -326,7 +326,7 @@ async fn rpc_status_and_account_decode() {
     // tip height 1, block 1, required 12 → immature
     assert_eq!(
         matured[0].maturity.status,
-        veiron_sdk_rust::MaturityStatus::Immature
+        vireon_sdk_rust::MaturityStatus::Immature
     );
     assert_eq!(matured[0].maturity.confirmations, 0);
 }

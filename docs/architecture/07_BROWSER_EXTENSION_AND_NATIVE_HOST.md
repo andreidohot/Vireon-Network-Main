@@ -5,9 +5,9 @@ Status: Prototype / Mainnet Candidate / not store-ready
 ## Architecture
 
 ```text
-veiron-browser/
+vireon-browser/
 ├── extension/  Manifest V3 JavaScript UI and native-message bridge
-└── host/       Rust `veiron-browser-host` using `veiron-sdk-rust`
+└── host/       Rust `vireon-browser-host` using `vireon-sdk-rust`
 ```
 
 | Surface | Holds keys? | Responsibility |
@@ -31,7 +31,7 @@ Current method groups:
   delete;
 - wallet: session status, balance/account, prepare-and-sign, submit, send.
 
-The Rust protocol enum and handler in `veiron-browser/host/src/protocol.rs` are
+The Rust protocol enum and handler in `vireon-browser/host/src/protocol.rs` are
 the method-level source of truth.
 
 ## Recovery and security
@@ -52,4 +52,4 @@ the method-level source of truth.
 - unrestricted website/dApp signing;
 - remote operator control.
 
-Registration and CLI commands are maintained in `../../veiron-browser/README.md`.
+Registration and CLI commands are maintained in `../../vireon-browser/README.md`.

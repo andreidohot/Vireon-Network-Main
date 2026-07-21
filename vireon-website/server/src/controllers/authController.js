@@ -23,7 +23,7 @@ export async function login(req, res) {
     return res.status(401).json({ error: 'Invalid email or password' })
   }
 
-  res.cookie('veiron_refresh_token', session.refreshToken, cookieOptions)
+  res.cookie('vireon_refresh_token', session.refreshToken, cookieOptions)
   return res.json({
     user: session.user,
     accessToken: session.accessToken,
@@ -31,7 +31,7 @@ export async function login(req, res) {
 }
 
 export async function refresh(req, res) {
-  const refreshToken = req.cookies.veiron_refresh_token
+  const refreshToken = req.cookies.vireon_refresh_token
 
   if (!refreshToken) {
     return res.status(401).json({ error: 'Missing refresh token' })
@@ -41,24 +41,24 @@ export async function refresh(req, res) {
     const session = await refreshSession(refreshToken)
 
     if (!session) {
-      res.clearCookie('veiron_refresh_token', clearCookieOptions)
+      res.clearCookie('vireon_refresh_token', clearCookieOptions)
       return res.status(401).json({ error: 'Invalid refresh token' })
     }
 
-    res.cookie('veiron_refresh_token', session.refreshToken, cookieOptions)
+    res.cookie('vireon_refresh_token', session.refreshToken, cookieOptions)
     return res.json({
       user: session.user,
       accessToken: session.accessToken,
     })
   } catch {
-    res.clearCookie('veiron_refresh_token', clearCookieOptions)
+    res.clearCookie('vireon_refresh_token', clearCookieOptions)
     return res.status(401).json({ error: 'Invalid refresh token' })
   }
 }
 
 export async function logout(req, res) {
-  await logoutSession(req.cookies.veiron_refresh_token)
-  res.clearCookie('veiron_refresh_token', clearCookieOptions)
+  await logoutSession(req.cookies.vireon_refresh_token)
+  res.clearCookie('vireon_refresh_token', clearCookieOptions)
   return res.status(204).send()
 }
 

@@ -1,6 +1,6 @@
 network = "testnet"
 network_id = "veiron-testnet"
-human_name = "Veiron Testnet"
+human_name = "Vireon Testnet"
 status_label = "Planned / Public Testnet Candidate"
 block_time_seconds = 60
 difficulty_leading_zero_bits = 12
@@ -16,6 +16,6 @@ p2p_listen_port = 19787
 max_peers = 64
 seed_nodes = []
 max_mempool_transactions = 1024
-genesis_config_path = "veiron-devnet/config/genesis-testnet.json"
+genesis_config_path = "vireon-devnet/config/genesis-testnet.json"
 chain_magic_hex = "56545354"
 allow_mainnet_candidate = false

@@ -3996,7 +3996,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "veiron-core"
+name = "vireon-core"
 version = "1.0.0"
 dependencies = [
  "bech32",
@@ -4013,7 +4013,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "veiron-keystore-helper"
+name = "vireon-keystore-helper"
 version = "1.0.0"
 dependencies = [
  "dirs 6.0.0",
@@ -4021,15 +4021,15 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.18",
- "veiron-core",
- "veiron-sdk-rust",
- "veiron-wallet",
+ "vireon-core",
+ "vireon-sdk-rust",
+ "vireon-wallet",
  "windows-sys 0.59.0",
  "zeroize",
 ]
 
 [[package]]
-name = "veiron-node"
+name = "vireon-node"
 version = "1.0.0"
 dependencies = [
  "atomic-write-file",
@@ -4043,11 +4043,11 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "toml",
- "veiron-core",
+ "vireon-core",
 ]
 
 [[package]]
-name = "veiron-sdk-rust"
+name = "vireon-sdk-rust"
 version = "1.0.0"
 dependencies = [
  "bech32",
@@ -4065,7 +4065,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "veiron-wallet"
+name = "vireon-wallet"
 version = "1.0.0"
 dependencies = [
  "aes-gcm",
@@ -4078,9 +4078,9 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 1.0.69",
- "veiron-core",
- "veiron-node",
- "veiron-sdk-rust",
+ "vireon-core",
+ "vireon-node",
+ "vireon-sdk-rust",
  "zeroize",
 ]
 

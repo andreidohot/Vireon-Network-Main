@@ -1,4 +1,4 @@
-# veiron-devnet/data
+# vireon-devnet/data
 
 Status: Draft / Private Devnet / Runtime-only
 

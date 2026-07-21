@@ -1,4 +1,4 @@
-# veiron-benchmarks
+# vireon-benchmarks
 
 Reserved for benchmark plans and performance reports.
 

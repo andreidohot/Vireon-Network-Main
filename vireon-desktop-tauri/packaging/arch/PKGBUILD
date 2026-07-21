@@ -1,21 +1,21 @@
-# Maintainer: Veiron Network <admin@veiron.network>
-# Arch Linux package for Veiron Control Center (Tauri).
+# Maintainer: Vireon Network <admin@vireon.network>
+# Arch Linux package for Vireon Control Center (Tauri).
 #
 # Build (from this directory, after Linux release artifacts exist):
 #   makepkg -si
 #
 # Or build the AppImage on any Linux host and install without AUR:
 #   bash scripts/release/build-linux-desktop.sh
-#   chmod +x veiron-release/apps/linux/*.AppImage
+#   chmod +x vireon-release/apps/linux/*.AppImage
 #
-# Status: Mainnet Candidate / Prototype Ă„â€šĂ‹ÂÄ‚ËĂ˘â‚¬ĹˇĂ‚Â¬Ä‚ËĂ˘â€šÂ¬ÄąÄ„ not public Mainnet.
+# Status: Mainnet Candidate / Prototype -- not public Mainnet.
 
-pkgname=veiron-control-center
+pkgname=vireon-control-center
 pkgver=1.0.0
 pkgrel=1
-pkgdesc="Veiron Mainnet Candidate Control Center (Tauri) â€” wallet, FiroPoW GPU miner, chain view"
+pkgdesc="Vireon Mainnet Candidate Control Center (Tauri) -- wallet, FiroPoW GPU miner, chain view"
 arch=('x86_64')
-url="https://veiron.network"
+url="https://vireon.network"
 license=('LicenseRef-Proprietary')
 depends=(
   'webkit2gtk-4.1'
@@ -48,7 +48,7 @@ options=('!lto') # Tauri/AppImage tooling can conflict with full LTO strip on Ar
 source=()
 sha256sums=()
 
-# Expect monorepo checkout: packaging/arch is under veiron-desktop-tauri/
+# Expect monorepo checkout: packaging/arch is under vireon-desktop-tauri/
 _repo_root="$(cd "${startdir}/../../.." && pwd)"
 
 prepare() {
@@ -64,50 +64,50 @@ build() {
 }
 
 package() {
-  local out="$_repo_root/veiron-release/apps/linux"
+  local out="$_repo_root/vireon-release/apps/linux"
   install -d "$pkgdir/usr/bin"
   install -d "$pkgdir/usr/share/applications"
   install -d "$pkgdir/usr/share/icons/hicolor/256x256/apps"
-  install -d "$pkgdir/opt/veiron-control-center"
+  install -d "$pkgdir/opt/vireon-control-center"
 
   # Prefer AppImage as portable payload under /opt, with a wrapper in PATH.
   local appimage
   appimage="$(find "$out" -maxdepth 1 -type f -name '*.AppImage' | head -1 || true)"
   if [[ -n "$appimage" ]]; then
-    install -Dm755 "$appimage" "$pkgdir/opt/veiron-control-center/veiron-control-center.AppImage"
-    cat > "$pkgdir/usr/bin/veiron-control-center" <<'WRAP'
+    install -Dm755 "$appimage" "$pkgdir/opt/vireon-control-center/vireon-control-center.AppImage"
+    cat > "$pkgdir/usr/bin/vireon-control-center" <<'WRAP'
 #!/bin/sh
-exec /opt/veiron-control-center/veiron-control-center.AppImage "$@"
+exec /opt/vireon-control-center/vireon-control-center.AppImage "$@"
 WRAP
-    chmod 755 "$pkgdir/usr/bin/veiron-control-center"
+    chmod 755 "$pkgdir/usr/bin/vireon-control-center"
   else
-    local bin="$_repo_root/veiron-desktop-tauri/src-tauri/target/release/veiron-desktop-tauri"
+    local bin="$_repo_root/vireon-desktop-tauri/src-tauri/target/release/vireon-desktop-tauri"
     if [[ -f "$bin" ]]; then
-      install -Dm755 "$bin" "$pkgdir/usr/bin/veiron-control-center"
+      install -Dm755 "$bin" "$pkgdir/usr/bin/vireon-control-center"
     else
       echo "No AppImage or release binary found" >&2
       return 1
     fi
   fi
 
-  install -Dm644 /dev/stdin "$pkgdir/usr/share/applications/veiron-control-center.desktop" <<EOF
+  install -Dm644 /dev/stdin "$pkgdir/usr/share/applications/vireon-control-center.desktop" <<EOF
 [Desktop Entry]
-Name=Veiron Control Center
-Comment=Veiron Mainnet Candidate wallet, miner and chain view
-Exec=veiron-control-center
-Icon=veiron-control-center
+Name=Vireon Control Center
+Comment=Vireon Mainnet Candidate wallet, miner and chain view
+Exec=vireon-control-center
+Icon=vireon-control-center
 Terminal=false
 Type=Application
 Categories=Network;Finance;Utility;
-Keywords=blockchain;veiron;mining;wallet;
+Keywords=blockchain;vireon;mining;wallet;
 EOF
 
   local icon=""
   for candidate in \
-    "$_repo_root/veiron-desktop-tauri/src-tauri/icons/128x128.png" \
-    "$_repo_root/veiron-desktop-tauri/src-tauri/icons/icon.png" \
-    "$_repo_root/veiron-desktop-tauri/public/icon.png" \
-    "$_repo_root/veiron-desktop-tauri/logo.png"
+    "$_repo_root/vireon-desktop-tauri/src-tauri/icons/128x128.png" \
+    "$_repo_root/vireon-desktop-tauri/src-tauri/icons/icon.png" \
+    "$_repo_root/vireon-desktop-tauri/public/icon.png" \
+    "$_repo_root/vireon-desktop-tauri/logo.png"
   do
     if [[ -f "$candidate" ]]; then
       icon="$candidate"
@@ -115,6 +115,6 @@ EOF
     fi
   done
   if [[ -n "$icon" ]]; then
-    install -Dm644 "$icon" "$pkgdir/usr/share/icons/hicolor/256x256/apps/veiron-control-center.png"
+    install -Dm644 "$icon" "$pkgdir/usr/share/icons/hicolor/256x256/apps/vireon-control-center.png"
   fi
 }

@@ -1,7 +1,7 @@
 import { AlertTriangle, CheckCircle2, Download, LoaderCircle, RefreshCw, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { UpdateState } from "@shared/types";
-import { VeironLogo } from "../brand/VeironLogo";
+import { VireonLogo } from "../brand/VireonLogo";
 import { formatUpdateBytes, isBlockingUpdate, shouldShowUpdateNotice, updateHeading, updateNoticeKey } from "./updatePresentation";
 
 const initialState: UpdateState = {
@@ -18,8 +18,8 @@ export function UpdateCenter() {
 
   useEffect(() => {
     let active = true;
-    void window.veiron.updates.state().then((next) => { if (active) setState(next); });
-    const unsubscribe = window.veiron.updates.onState((next) => {
+    void window.vireon.updates.state().then((next) => { if (active) setState(next); });
+    const unsubscribe = window.vireon.updates.onState((next) => {
       setState(next);
       if (next.phase !== "error") setActionError(null);
       // When update finishes or idles, clear the "use app now" override for the next cycle.
@@ -32,11 +32,11 @@ export function UpdateCenter() {
 
   const download = async () => {
     setActionError(null);
-    try { await window.veiron.updates.download(); } catch (error) { setActionError(String(error)); }
+    try { await window.vireon.updates.download(); } catch (error) { setActionError(String(error)); }
   };
   const install = async (restart: boolean) => {
     setActionError(null);
-    try { await window.veiron.updates.install(restart); } catch (error) { setActionError(String(error)); }
+    try { await window.vireon.updates.install(restart); } catch (error) { setActionError(String(error)); }
   };
 
   const blocking = isBlockingUpdate(state.phase) && !allowThrough;
@@ -49,7 +49,7 @@ export function UpdateCenter() {
     {showMessage && !blocking && <aside className={`update-toast ${state.phase === "error" ? "update-error" : ""}`} role="status" aria-live="polite">
       <span className="update-toast-icon">{state.phase === "available" || state.phase === "checking" ? <Download size={19} /> : state.phase === "error" ? <AlertTriangle size={19} /> : <CheckCircle2 size={19} />}</span>
       <div>
-        <small>VEIRON UPDATE · GITHUB · SHA-256 VERIFIED</small>
+        <small>VIREON UPDATE · GITHUB · SHA-256 VERIFIED</small>
         <strong>
           {state.phase === "available"
             ? `Update ${state.available_version} available`
@@ -67,9 +67,9 @@ export function UpdateCenter() {
       </div>
     </aside>}
 
-    {blocking && <div className="update-lock" role="dialog" aria-modal="true" aria-label="Veiron approved update">
+    {blocking && <div className="update-lock" role="dialog" aria-modal="true" aria-label="Vireon approved update">
       <section className="update-modal">
-        <div className={`update-reactor update-${state.phase}`}><span className="update-reactor-logo"><VeironLogo size="md" alt="" /></span><i /><i /></div>
+        <div className={`update-reactor update-${state.phase}`}><span className="update-reactor-logo"><VireonLogo size="md" alt="" /></span><i /><i /></div>
         <div className="update-copy"><small>APPROVED UPDATE · GITHUB · SHA-256 VERIFIED</small><h2>{updateHeading(state)}</h2><p>{state.message}</p></div>
         <div className="update-version-row"><span><small>Installed</small><b>v{state.current_version}</b></span><i /><span><small>Update</small><b>v{state.available_version ?? "--"}</b></span></div>
         {components ? <p className="muted" style={{ marginTop: 8 }}>Components: {components}</p> : null}

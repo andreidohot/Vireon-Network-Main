@@ -10,7 +10,7 @@ export default function WhitepaperPage() {
     <>
       <PageHero
         eyebrow="Whitepaper preview"
-        title="A cinematic entry point for the Veiron source of truth."
+        title="A cinematic entry point for the Vireon source of truth."
         text="This page is a website-level whitepaper overview. It summarizes identity, economics, architecture, standards, roadmap and risk without pretending the full network is live."
       >
         <div className="flex flex-col gap-3 sm:flex-row">

@@ -1,10 +1,10 @@
 use crate::protocol::network::Network;
 use serde::Serialize;
 
-pub const ADDRESS_STANDARD_ID: &str = "veiron-address-bech32m-ed25519-v1";
-pub const SIGNATURE_STANDARD_ID: &str = "veiron-signature-ed25519-v1";
-pub const KEY_DERIVATION_POLICY_ID: &str = "veiron-key-ed25519-v1";
-pub const WALLET_SEED_STANDARD_ID: &str = "veiron-wallet-bip39-slip10-v1";
+pub const ADDRESS_STANDARD_ID: &str = "vireon-address-bech32m-ed25519-v1";
+pub const SIGNATURE_STANDARD_ID: &str = "vireon-signature-ed25519-v1";
+pub const KEY_DERIVATION_POLICY_ID: &str = "vireon-key-ed25519-v1";
+pub const WALLET_SEED_STANDARD_ID: &str = "vireon-wallet-bip39-slip10-v1";
 pub const ADDRESS_ENCODING: &str = "Bech32m";
 pub const ADDRESS_CHECKSUM_RULE: &str = "Bech32m canonical lowercase checksum";
 pub const ADDRESS_PAYLOAD_LAYOUT: &str = "version-byte || ed25519-public-key";

@@ -1,6 +1,6 @@
 network = "devnet"
 network_id = "veiron-devnet"
-human_name = "Veiron Devnet"
+human_name = "Vireon Devnet"
 status_label = "Draft / Private Devnet"
 block_time_seconds = 60
 difficulty_leading_zero_bits = 4
@@ -16,6 +16,6 @@ p2p_listen_port = 18787
 max_peers = 32
 seed_nodes = []
 max_mempool_transactions = 256
-genesis_config_path = "veiron-devnet/config/genesis-devnet.json"
+genesis_config_path = "vireon-devnet/config/genesis-devnet.json"
 chain_magic_hex = "56444556"
 allow_mainnet_candidate = false

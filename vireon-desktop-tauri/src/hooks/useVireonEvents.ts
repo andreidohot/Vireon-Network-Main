@@ -7,7 +7,7 @@ import { useNotificationsOptional } from "../shared/notifications";
  * Subscribes to real Tauri backend events and feeds the in-app notification store.
  * Never invents events — only reacts to payloads from Rust.
  */
-export function useVeironEvents(opts?: {
+export function useVireonEvents(opts?: {
   minerWasRunning?: boolean;
   online?: boolean;
 }) {
@@ -21,27 +21,27 @@ export function useVeironEvents(opts?: {
 
     void (async () => {
       unsubs.push(
-        await listen<{ height: number; reward_atomic: string }>("veiron:block-mined", (event) => {
+        await listen<{ height: number; reward_atomic: string }>("vireon:block-mined", (event) => {
           const { height, reward_atomic } = event.payload;
           api.notify({
             kind: "mining",
             title: `Block #${height} mined`,
             body: `Reward ${formatAtomic(reward_atomic)} VIRE accepted on chain.`,
             severity: "both",
-            source: "veiron:block-mined"
+            source: "vireon:block-mined"
           });
         })
       );
 
       unsubs.push(
-        await listen<{ title: string; body: string; kind?: string }>("veiron:notify", (event) => {
+        await listen<{ title: string; body: string; kind?: string }>("vireon:notify", (event) => {
           const kind = (event.payload.kind as "info" | "success" | "warning" | "error" | "system") || "system";
           api.notify({
             kind,
             title: event.payload.title,
             body: event.payload.body,
             severity: kind === "error" || kind === "warning" ? "both" : "center",
-            source: "veiron:notify"
+            source: "vireon:notify"
           });
         })
       );

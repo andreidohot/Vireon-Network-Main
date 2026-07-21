@@ -1,4 +1,4 @@
-use crate::protocol::errors::{Result, VeironError};
+use crate::protocol::errors::{Result, VireonError};
 use crate::protocol::signing::PrivateKey;
 use crate::protocol::standards::{
     launch_key_derivation_policy, launch_wallet_seed_standard, KeyDerivationPolicy,
@@ -32,7 +32,7 @@ impl MnemonicWordCount {
         match value {
             12 => Ok(Self::Twelve),
             24 => Ok(Self::TwentyFour),
-            _ => Err(VeironError::InvalidMnemonic(format!(
+            _ => Err(VireonError::InvalidMnemonic(format!(
                 "unsupported mnemonic word count {value}; expected 12 or 24"
             ))),
         }
@@ -102,13 +102,13 @@ impl fmt::Display for WalletDerivationPath {
 
 pub fn generate_mnemonic(word_count: MnemonicWordCount) -> Result<String> {
     let mnemonic = Mnemonic::generate_in(Language::English, word_count.as_usize())
-        .map_err(|error| VeironError::InvalidMnemonic(error.to_string()))?;
+        .map_err(|error| VireonError::InvalidMnemonic(error.to_string()))?;
     Ok(mnemonic.to_string())
 }
 
 pub fn normalize_mnemonic(phrase: &str) -> Result<String> {
     let mnemonic = Mnemonic::parse_in_normalized(Language::English, phrase)
-        .map_err(|error| VeironError::InvalidMnemonic(error.to_string()))?;
+        .map_err(|error| VireonError::InvalidMnemonic(error.to_string()))?;
     Ok(mnemonic.to_string())
 }
 
@@ -118,7 +118,7 @@ pub fn derive_private_key_from_mnemonic(
     path: WalletDerivationPath,
 ) -> Result<PrivateKey> {
     let mnemonic = Mnemonic::parse_in_normalized(Language::English, phrase)
-        .map_err(|error| VeironError::InvalidMnemonic(error.to_string()))?;
+        .map_err(|error| VireonError::InvalidMnemonic(error.to_string()))?;
     let seed = mnemonic.to_seed_normalized(passphrase);
     let mut node = derive_master_node(&seed)?;
     for segment in path.hardened_segments()? {
@@ -129,7 +129,7 @@ pub fn derive_private_key_from_mnemonic(
 
 fn hardened(index: u32) -> Result<u32> {
     index.checked_add(HARDENED_OFFSET).ok_or_else(|| {
-        VeironError::InvalidDerivationPath(format!("path segment {index} is too large"))
+        VireonError::InvalidDerivationPath(format!("path segment {index} is too large"))
     })
 }
 
@@ -146,7 +146,7 @@ fn derive_child_node(node: &DerivedNode, index: u32) -> Result<DerivedNode> {
 
 fn derive_node(key: &[u8], data: &[u8]) -> Result<DerivedNode> {
     let mut mac = HmacSha512::new_from_slice(key)
-        .map_err(|error| VeironError::InvalidDerivationPath(error.to_string()))?;
+        .map_err(|error| VireonError::InvalidDerivationPath(error.to_string()))?;
     mac.update(data);
     let digest = mac.finalize().into_bytes();
     let mut derived_key = [0_u8; 32];
@@ -195,11 +195,11 @@ mod tests {
     #[test]
     fn invalid_mnemonic_is_rejected() {
         let error = derive_private_key_from_mnemonic(
-            "not a valid veiron mnemonic",
+            "not a valid vireon mnemonic",
             "",
             WalletDerivationPath::default(),
         )
         .expect_err("invalid mnemonic must fail");
-        assert!(matches!(error, VeironError::InvalidMnemonic(_)));
+        assert!(matches!(error, VireonError::InvalidMnemonic(_)));
     }
 }

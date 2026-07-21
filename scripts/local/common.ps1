@@ -3,18 +3,31 @@ $ErrorActionPreference = "Stop"
 
 $script:WorkspaceRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $script:SidecarDir = Join-Path $script:WorkspaceRoot "bin"
-$script:IsPackaged = Test-Path (Join-Path $script:SidecarDir "veiron-node.exe")
-$script:LocalRoot = if ($env:VEIRON_LOCAL_ROOT) {
-    $env:VEIRON_LOCAL_ROOT
-} elseif ($script:IsPackaged) {
+$script:IsPackaged = Test-Path (Join-Path $script:SidecarDir "vireon-node.exe")
+$legacyLocalRoot = if ($script:IsPackaged) {
     Join-Path $env:LOCALAPPDATA "Veiron\ControlCenter\.veiron-local"
 } else {
     Join-Path $script:WorkspaceRoot ".veiron-local"
 }
+$script:LocalRoot = if ($env:VIREON_LOCAL_ROOT) {
+    $env:VIREON_LOCAL_ROOT
+} elseif ($script:IsPackaged) {
+    Join-Path $env:LOCALAPPDATA "Vireon\ControlCenter\.vireon-local"
+} elseif ((Test-Path -LiteralPath $legacyLocalRoot) -and -not (Test-Path -LiteralPath (Join-Path $script:WorkspaceRoot ".vireon-local"))) {
+    $legacyLocalRoot
+} else {
+    Join-Path $script:WorkspaceRoot ".vireon-local"
+}
 $script:ChainDir = Join-Path $script:LocalRoot "chain"
 $script:MempoolDir = Join-Path $script:LocalRoot "mempool"
 $script:IndexerDir = Join-Path $script:LocalRoot "indexer"
-$script:WalletDir = Join-Path $env:USERPROFILE ".veiron-mainnet\wallets"
+$newWalletDir = Join-Path $env:USERPROFILE ".vireon-mainnet\wallets"
+$legacyWalletDir = Join-Path $env:USERPROFILE ".veiron-mainnet\wallets"
+$script:WalletDir = if ((Test-Path -LiteralPath $legacyWalletDir) -and -not (Test-Path -LiteralPath $newWalletDir)) {
+    $legacyWalletDir
+} else {
+    $newWalletDir
+}
 $script:SignedTxDir = Join-Path $script:WalletDir "signed-txs"
 $script:LogsDir = Join-Path $script:LocalRoot "logs"
 $script:BackupsDir = Join-Path $script:LocalRoot "backups"
@@ -29,7 +42,7 @@ $script:LocalRpcConfig = if ($script:IsPackaged) {
 } else {
     Join-Path $script:WorkspaceRoot "configs\rpc.local.toml"
 }
-$script:ExplorerDir = Join-Path $script:WorkspaceRoot "veiron-explorer"
+$script:ExplorerDir = Join-Path $script:WorkspaceRoot "vireon-explorer"
 $script:ExplorerEnvExample = Join-Path $script:WorkspaceRoot "configs\explorer.local.example.env"
 $script:RpcUrl = "http://127.0.0.1:10787"
 $script:ExplorerUrl = "http://127.0.0.1:4173"
@@ -81,7 +94,7 @@ bind_host = "127.0.0.1"
 bind_port = 10787
 network = "mainnet-candidate"
 network_id = "veiron-mainnet-candidate"
-human_name = "Veiron Mainnet Candidate"
+human_name = "Vireon Mainnet Candidate"
 status_label = "Planned / Mainnet Candidate"
 address_prefix = "vire"
 chain_data_path = "$($script:ChainDir.Replace('\', '\\'))"
@@ -168,7 +181,7 @@ function Assert-ServicePortAvailable {
             "pid=$($listener.OwningProcess) process=unknown"
         }
     }
-    throw "Cannot start $Name because port $Port is already owned by another process: $($owners -join '; '). Stop the other Veiron installation before starting this stack."
+    throw "Cannot start $Name because port $Port is already owned by another process: $($owners -join '; '). Stop the other Vireon installation before starting this stack."
 }
 
 function Get-ManagedProcessState {
@@ -300,7 +313,7 @@ function Invoke-NodeCommand {
         "--data-dir", $script:ChainDir,
         "--mempool-dir", $script:MempoolDir
     ) + $CommandArgs
-    Invoke-CargoRun -Package "veiron-node" -CliArgs $args -CaptureOutput:$CaptureOutput
+    Invoke-CargoRun -Package "vireon-node" -CliArgs $args -CaptureOutput:$CaptureOutput
 }
 
 function Invoke-WalletCommand {
@@ -312,7 +325,7 @@ function Invoke-WalletCommand {
         "--rpc-base-url", $script:RpcUrl,
         "--chain-data-dir", $script:ChainDir
     ) + $CommandArgs
-    Invoke-CargoRun -Package "veiron-wallet" -CliArgs $args -CaptureOutput:$CaptureOutput
+    Invoke-CargoRun -Package "vireon-wallet" -CliArgs $args -CaptureOutput:$CaptureOutput
 }
 
 function Invoke-IndexerCommand {
@@ -322,21 +335,21 @@ function Invoke-IndexerCommand {
         "--chain-data-dir", $script:ChainDir,
         "--index-dir", $script:IndexerDir
     ) + $CommandArgs
-    Invoke-CargoRun -Package "veiron-indexer" -CliArgs $args -CaptureOutput:$CaptureOutput
+    Invoke-CargoRun -Package "vireon-indexer" -CliArgs $args -CaptureOutput:$CaptureOutput
 }
 
 function Invoke-RpcStartCommandString {
-    $sidecar = Join-Path $script:SidecarDir "veiron-rpc-gateway.exe"
+    $sidecar = Join-Path $script:SidecarDir "vireon-rpc-gateway.exe"
     if (Test-Path -LiteralPath $sidecar) {
         return "& " + (Quote-PowerShell $sidecar) + " --config " + (Quote-PowerShell $script:LocalRpcConfig)
     }
     "& " + (Quote-PowerShell $script:CargoPath) + " " + (Join-PowerShellArgs (@() + $script:CargoPrefix + @(
-        "run", "-p", "veiron-rpc-gateway", "--", "--config", $script:LocalRpcConfig
+        "run", "-p", "vireon-rpc-gateway", "--", "--config", $script:LocalRpcConfig
     )))
 }
 
 function Invoke-NodeStartCommandString {
-    $sidecar = Join-Path $script:SidecarDir "veiron-node.exe"
+    $sidecar = Join-Path $script:SidecarDir "vireon-node.exe"
     if (Test-Path -LiteralPath $sidecar) {
         return "& " + (Quote-PowerShell $sidecar) + " " + (Join-PowerShellArgs @(
             "--config", $script:LocalNodeConfig,
@@ -346,7 +359,7 @@ function Invoke-NodeStartCommandString {
         ))
     }
     "& " + (Quote-PowerShell $script:CargoPath) + " " + (Join-PowerShellArgs (@() + $script:CargoPrefix + @(
-        "run", "-p", "veiron-node", "--",
+        "run", "-p", "vireon-node", "--",
         "--config", $script:LocalNodeConfig,
         "--data-dir", $script:ChainDir,
         "--mempool-dir", $script:MempoolDir,
@@ -358,7 +371,7 @@ function Get-ExplorerStartCommandString {
     $viteCli = Join-Path $script:ExplorerDir "node_modules\vite\bin\vite.js"
     @(
         "if (-not (Test-Path " + (Quote-PowerShell (Join-Path $script:ExplorerDir "node_modules")) + ")) { & npm install }",
-        '$env:VITE_VEIRON_RPC_URL = ' + (Quote-PowerShell $script:RpcUrl) + ";",
+        '$env:VITE_VIREON_RPC_URL = ' + (Quote-PowerShell $script:RpcUrl) + ";",
         "& node " + (Quote-PowerShell $viteCli) + " --host 127.0.0.1 --port 4173"
     ) -join "; "
 }
@@ -525,7 +538,7 @@ function Stop-WorkspaceBinaryProcess {
 
 function Stop-NodeProcess {
     if (-not (Test-ManagedProcess "node")) {
-        Stop-WorkspaceBinaryProcess "veiron-node"
+        Stop-WorkspaceBinaryProcess "vireon-node"
         return
     }
 
@@ -542,7 +555,7 @@ function Stop-NodeProcess {
     } catch {
         Stop-ManagedProcess "node"
     } finally {
-        Stop-WorkspaceBinaryProcess "veiron-node"
+        Stop-WorkspaceBinaryProcess "vireon-node"
     }
 }
 

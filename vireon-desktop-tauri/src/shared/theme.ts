@@ -5,8 +5,8 @@ import type { ThemeId as SettingsThemeId } from "@shared/types";
 export type ThemeBase = "dark" | "light";
 export type ThemeVariant = "default" | "midnight" | "high-contrast";
 
-export const THEME_STORAGE_KEY = "veiron.theme";
-export const THEME_VARIANT_KEY = "veiron.theme.variant";
+export const THEME_STORAGE_KEY = "vireon.theme";
+export const THEME_VARIANT_KEY = "vireon.theme.variant";
 
 export function normalizeTheme(id: string | null | undefined): {
   base: ThemeBase;
@@ -17,12 +17,12 @@ export function normalizeTheme(id: string | null | undefined): {
     case "light":
       return { base: "light", variant: "default", settingsId: "light" };
     case "midnight":
-    case "veiron-midnight":
+    case "vireon-midnight":
       return { base: "dark", variant: "midnight", settingsId: "midnight" };
     case "high-contrast":
       return { base: "dark", variant: "high-contrast", settingsId: "high-contrast" };
     case "dark":
-    case "veiron-dark":
+    case "vireon-dark":
     default:
       return { base: "dark", variant: "default", settingsId: "dark" };
   }

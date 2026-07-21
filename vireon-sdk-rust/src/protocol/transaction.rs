@@ -2,7 +2,7 @@ use crate::protocol::address::Address;
 use crate::protocol::amount::Amount;
 use crate::protocol::constants::{MAX_SUPPLY_ATOMIC, TX_SIGNING_DOMAIN_PREFIX};
 use crate::protocol::crypto::{double_sha256, Hash};
-use crate::protocol::errors::{Result, VeironError};
+use crate::protocol::errors::{Result, VireonError};
 use crate::protocol::network::Network;
 use crate::protocol::signing::{PrivateKey, PublicKey, Signature};
 use serde::{Deserialize, Serialize};
@@ -68,7 +68,7 @@ impl Transaction {
         Ok(tx)
     }
 
-    // Same rationale as `new` â€” network + key + fee fields stay explicit at call sites.
+    // Same rationale as `new` -- network + key + fee fields stay explicit at call sites.
     #[allow(clippy::too_many_arguments)]
     pub fn new_signed(
         version: u32,
@@ -190,7 +190,7 @@ impl Transaction {
             return Ok(Amount::ZERO);
         }
         let available_tip = self.max_fee.checked_sub(base_fee).map_err(|_| {
-            VeironError::InvalidFee("max fee is below the block base fee".to_owned())
+            VireonError::InvalidFee("max fee is below the block base fee".to_owned())
         })?;
         Ok(if self.priority_fee > available_tip {
             available_tip
@@ -215,7 +215,7 @@ impl Transaction {
             return Ok(());
         }
         if self.max_fee < base_fee {
-            return Err(VeironError::InvalidFee(
+            return Err(VireonError::InvalidFee(
                 "max fee is below the block base fee".to_owned(),
             ));
         }
@@ -225,19 +225,19 @@ impl Transaction {
 
     pub fn sign(&mut self, private_key: &PrivateKey) -> Result<()> {
         if self.from.is_none() {
-            return Err(VeironError::InvalidTransaction(
+            return Err(VireonError::InvalidTransaction(
                 "coinbase transactions cannot be signed".to_owned(),
             ));
         }
 
         let public_key = private_key.public_key();
         let sender_address = Address::parse(self.from.as_deref().ok_or_else(|| {
-            VeironError::InvalidTransaction("non-coinbase transaction requires sender".to_owned())
+            VireonError::InvalidTransaction("non-coinbase transaction requires sender".to_owned())
         })?)?;
         let expected_from =
             Address::from_public_key_for_network(&public_key, sender_address.network()).to_string();
         if self.from.as_deref() != Some(expected_from.as_str()) {
-            return Err(VeironError::InvalidTransaction(
+            return Err(VireonError::InvalidTransaction(
                 "sender address does not match signing key".to_owned(),
             ));
         }
@@ -256,15 +256,15 @@ impl Transaction {
         }
 
         let from = self.from.as_deref().ok_or_else(|| {
-            VeironError::InvalidTransaction("non-coinbase transaction requires sender".to_owned())
+            VireonError::InvalidTransaction("non-coinbase transaction requires sender".to_owned())
         })?;
         let sender_public_key = self.sender_public_key.as_ref().ok_or_else(|| {
-            VeironError::InvalidTransaction(
+            VireonError::InvalidTransaction(
                 "non-coinbase transaction requires sender public key".to_owned(),
             )
         })?;
         let signature = self.signature.as_ref().ok_or_else(|| {
-            VeironError::InvalidTransaction(
+            VireonError::InvalidTransaction(
                 "non-coinbase transaction requires signature".to_owned(),
             )
         })?;
@@ -272,7 +272,7 @@ impl Transaction {
         let sender_address = Address::parse(from)?;
         let recipient_address = Address::parse(&self.to)?;
         if sender_address.network() != recipient_address.network() {
-            return Err(VeironError::InvalidNetwork {
+            return Err(VireonError::InvalidNetwork {
                 expected: recipient_address.network().network_id().to_owned(),
                 actual: sender_address.network().network_id().to_owned(),
             });
@@ -281,7 +281,7 @@ impl Transaction {
             Address::from_public_key_for_network(sender_public_key, sender_address.network())
                 .to_string();
         if derived_address != from {
-            return Err(VeironError::InvalidTransaction(
+            return Err(VireonError::InvalidTransaction(
                 "sender address does not match sender public key".to_owned(),
             ));
         }
@@ -294,7 +294,7 @@ impl Transaction {
         if let Some(from) = &self.from {
             let sender = Address::parse(from)?;
             if sender.network() != recipient.network() {
-                return Err(VeironError::InvalidNetwork {
+                return Err(VireonError::InvalidNetwork {
                     expected: recipient.network().network_id().to_owned(),
                     actual: sender.network().network_id().to_owned(),
                 });
@@ -305,34 +305,34 @@ impl Transaction {
 
     fn validate_shape(&self) -> Result<()> {
         if self.to.trim().is_empty() {
-            return Err(VeironError::InvalidTransaction(
+            return Err(VireonError::InvalidTransaction(
                 "recipient cannot be empty".to_owned(),
             ));
         }
         Address::parse(&self.to)?;
         if self.amount == Amount::ZERO {
-            return Err(VeironError::ZeroAmountTransaction);
+            return Err(VireonError::ZeroAmountTransaction);
         }
         if self.max_fee.as_atomic() > MAX_SUPPLY_ATOMIC {
-            return Err(VeironError::InvalidFee(
+            return Err(VireonError::InvalidFee(
                 "max fee exceeds max supply bounds".to_owned(),
             ));
         }
         if self.priority_fee.as_atomic() > MAX_SUPPLY_ATOMIC {
-            return Err(VeironError::InvalidFee(
+            return Err(VireonError::InvalidFee(
                 "priority fee exceeds max supply bounds".to_owned(),
             ));
         }
         if self.is_coinbase() {
             if self.max_fee != Amount::ZERO || self.priority_fee != Amount::ZERO {
-                return Err(VeironError::InvalidTransaction(
+                return Err(VireonError::InvalidTransaction(
                     "coinbase max fee and priority fee must be zero".to_owned(),
                 ));
             }
             return Ok(());
         }
         if self.priority_fee > self.max_fee {
-            return Err(VeironError::InvalidFee(
+            return Err(VireonError::InvalidFee(
                 "priority fee cannot exceed max fee".to_owned(),
             ));
         }
@@ -342,12 +342,12 @@ impl Transaction {
             .as_deref()
             .is_some_and(|value| value.trim().is_empty())
         {
-            return Err(VeironError::InvalidTransaction(
+            return Err(VireonError::InvalidTransaction(
                 "sender cannot be empty".to_owned(),
             ));
         }
         if self.sender_public_key.is_some() ^ self.signature.is_some() {
-            return Err(VeironError::InvalidTransaction(
+            return Err(VireonError::InvalidTransaction(
                 "sender public key and signature must both be present or both be absent".to_owned(),
             ));
         }
@@ -355,7 +355,7 @@ impl Transaction {
             let sender = Address::parse(from)?;
             let recipient = Address::parse(&self.to)?;
             if sender.network() != recipient.network() {
-                return Err(VeironError::InvalidNetwork {
+                return Err(VireonError::InvalidNetwork {
                     expected: recipient.network().network_id().to_owned(),
                     actual: sender.network().network_id().to_owned(),
                 });

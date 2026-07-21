@@ -1,12 +1,12 @@
-# veiron-devnet
+# vireon-devnet
 
 Status: Draft / Private Devnet / Prototype
 
-This folder contains local-only devnet assets for Veiron Network.
+This folder contains local-only devnet assets for Vireon Network.
 
 Current contents:
 - `config/devnet.toml` for private devnet parameters;
-- `data/` for local JSONL block storage produced by `veiron-node`.
+- `data/` for local JSONL block storage produced by `vireon-node`.
 
 Rules:
 - local developer use only;

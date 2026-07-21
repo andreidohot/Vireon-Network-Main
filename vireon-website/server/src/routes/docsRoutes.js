@@ -10,7 +10,7 @@ router.get('/openapi.json', (req, res) => {
 
 router.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiDocument, {
   explorer: true,
-  customSiteTitle: 'Veiron Network API Docs',
+  customSiteTitle: 'Vireon Network API Docs',
 }))
 
 export default router

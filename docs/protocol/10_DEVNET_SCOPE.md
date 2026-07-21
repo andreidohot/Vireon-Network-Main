@@ -10,9 +10,9 @@ Normal product/operator flows use Mainnet Candidate.
 
 | Profile | Network ID | HRP | Data root | RPC | P2P | Resettable |
 |---|---|---|---|---:|---:|---:|
-| Devnet | `veiron-devnet` | `dvire` | `.veiron-dev` | 8787 | 18787 | Yes |
-| Testnet fixture | `veiron-testnet` | `tvire` | `.veiron-testnet` | 9787 | 19787 | No product reset workflow |
-| Mainnet Candidate | `veiron-mainnet-candidate` | `vire` | `.veiron-mainnet` | 10787 | 20787 | No |
+| Devnet | `veiron-devnet` | `dvire` | `.vireon-dev` | 8787 | 18787 | Yes |
+| Testnet fixture | `veiron-testnet` | `tvire` | `.vireon-testnet` | 9787 | 19787 | No product reset workflow |
+| Mainnet Candidate | `veiron-mainnet-candidate` | `vire` | `.vireon-mainnet` | 10787 | 20787 | No |
 
 Cross-network blocks, addresses, P2P handshakes, and storage roots must be
 rejected. Devnet reset is destructive and requires explicit confirmation plus

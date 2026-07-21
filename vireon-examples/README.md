@@ -1,16 +1,16 @@
-# veiron-examples
+# vireon-examples
 
-Runnable scripts for **Veiron Mainnet Candidate** using `@veiron/sdk`.
+Runnable scripts for **Vireon Mainnet Candidate** using `@vireon/sdk`.
 
 ## Setup
 
 ```bash
-cd ../veiron-sdk
+cd ../vireon-sdk
 npm install
 npm run build
 
-cd ../veiron-examples
-# no install required — scripts import the built SDK from ../veiron-sdk/dist
+cd ../vireon-examples
+# no install required — scripts import the built SDK from ../vireon-sdk/dist
 ```
 
 ## Scripts
@@ -25,8 +25,8 @@ cd ../veiron-examples
 Optional env:
 
 ```bash
-export VEIRON_RPC_URL=https://rpcnode.dohotstudio.com
-export VEIRON_POOL_URL=https://rpcnode.dohotstudio.com/pool
+export VIREON_RPC_URL=https://rpcnode.dohotstudio.com
+export VIREON_POOL_URL=https://rpcnode.dohotstudio.com/pool
 ```
 
 ## Notes

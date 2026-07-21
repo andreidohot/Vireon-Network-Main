@@ -1,5 +1,5 @@
 use serde::Serialize;
-use veiron_core::{
+use vireon_core::{
     generate_mnemonic, Address, MnemonicWordCount, Network, PrivateKey, WalletDerivationPath,
 };
 use zeroize::Zeroize;
@@ -34,7 +34,7 @@ fn wallet_material_from_mnemonic(mut phrase: String) -> Result<MobileWalletMater
         .map(|key| {
             let public_key = key.public_key();
             MobileWalletMaterial {
-                schema: "veiron-mobile-wallet-v1",
+                schema: "vireon-mobile-wallet-v1",
                 network_id: Network::MainnetCandidate.network_id(),
                 address: Address::from_public_key_for_network(
                     &public_key,
@@ -60,7 +60,7 @@ mod android {
     };
 
     #[no_mangle]
-    pub extern "system" fn Java_network_veiron_mobile_NativeWallet_createWalletNative<'local>(
+    pub extern "system" fn Java_network_vireon_mobile_NativeWallet_createWalletNative<'local>(
         mut unowned_env: EnvUnowned<'local>,
         _class: JClass<'local>,
     ) -> JString<'local> {
@@ -70,7 +70,7 @@ mod android {
     }
 
     #[no_mangle]
-    pub extern "system" fn Java_network_veiron_mobile_NativeWallet_importWalletNative<'local>(
+    pub extern "system" fn Java_network_vireon_mobile_NativeWallet_importWalletNative<'local>(
         mut unowned_env: EnvUnowned<'local>,
         _class: JClass<'local>,
         phrase: JString<'local>,

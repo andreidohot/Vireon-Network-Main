@@ -38,7 +38,7 @@ fn writable_dir(path: &Path) -> bool {
     if fs::create_dir_all(path).is_err() {
         return false;
     }
-    let probe = path.join(".veiron-write-probe");
+    let probe = path.join(".vireon-write-probe");
     match fs::write(&probe, b"ok") {
         Ok(()) => {
             let _ = fs::remove_file(probe);
@@ -60,11 +60,11 @@ fn port_free(port: u16) -> bool {
     TcpListener::bind(("127.0.0.1", port)).is_ok()
 }
 
-/// Chain storage must live under a directory named `.veiron-local` or `.veiron-mainnet`.
+/// Chain storage must live under a directory named `.vireon-local` or `.vireon-mainnet`.
 pub fn local_root_name_ok(local: &Path) -> bool {
     local.components().any(|c| {
         let s = c.as_os_str().to_string_lossy();
-        s == ".veiron-local" || s == ".veiron-mainnet"
+        s == ".vireon-local" || s == ".vireon-mainnet"
     })
 }
 
@@ -125,24 +125,24 @@ pub fn check() -> RuntimeHealth {
     let settings = settings_path();
     let helper = keystore_helper_path(&workspace);
     let operator = if cfg!(windows) {
-        workspace.join("veiron.ps1")
+        workspace.join("vireon.ps1")
     } else {
-        workspace.join("veiron.sh")
+        workspace.join("vireon.sh")
     };
     let local_operator = if cfg!(windows) {
         workspace
             .join("scripts")
             .join("local")
-            .join("veiron-local.ps1")
+            .join("vireon-local.ps1")
     } else {
         workspace.join("scripts").join("local").join("start-all.sh")
     };
 
     let bin = workspace.join("bin");
-    let bundled_node_ok = bin.join(bin_name("veiron-node")).exists();
-    let bundled_rpc_ok = bin.join(bin_name("veiron-rpc-gateway")).exists();
-    let bundled_miner_ok = bin.join(bin_name("veiron-miner")).exists();
-    let bundled_indexer_ok = bin.join(bin_name("veiron-indexer")).exists();
+    let bundled_node_ok = bin.join(bin_name("vireon-node")).exists();
+    let bundled_rpc_ok = bin.join(bin_name("vireon-rpc-gateway")).exists();
+    let bundled_miner_ok = bin.join(bin_name("vireon-miner")).exists();
+    let bundled_indexer_ok = bin.join(bin_name("vireon-indexer")).exists();
     let configs_ok = workspace
         .join("configs")
         .join("mainnet-candidate.toml")
@@ -179,7 +179,7 @@ pub fn check() -> RuntimeHealth {
     }
     if !local_root_name_ok {
         issues.push(format!(
-            "local root must include .veiron-local or .veiron-mainnet path segment: {}",
+            "local root must include .vireon-local or .vireon-mainnet path segment: {}",
             local.display()
         ));
     }
@@ -194,16 +194,16 @@ pub fn check() -> RuntimeHealth {
     }
     if packaged {
         if !bundled_node_ok {
-            issues.push("packaged build missing bin/veiron-node".into());
+            issues.push("packaged build missing bin/vireon-node".into());
         }
         if !bundled_rpc_ok {
-            issues.push("packaged build missing bin/veiron-rpc-gateway".into());
+            issues.push("packaged build missing bin/vireon-rpc-gateway".into());
         }
         if !bundled_miner_ok {
-            issues.push("packaged build missing bin/veiron-miner".into());
+            issues.push("packaged build missing bin/vireon-miner".into());
         }
         if !bundled_indexer_ok {
-            issues.push("packaged build missing bin/veiron-indexer".into());
+            issues.push("packaged build missing bin/vireon-indexer".into());
         }
         if !configs_ok {
             issues.push("packaged build missing configs".into());
@@ -213,7 +213,7 @@ pub fn check() -> RuntimeHealth {
     // They still surface so operators know start will fail.
     if !p2p_port_free {
         issues.push(
-            "P2P port 20787 is already in use (another Veiron node is running). Stop it before start."
+            "P2P port 20787 is already in use (another Vireon node is running). Stop it before start."
                 .into(),
         );
     }
@@ -267,14 +267,14 @@ mod tests {
     use std::path::PathBuf;
 
     #[test]
-    fn accepts_dot_veiron_local_segment() {
-        let path = PathBuf::from(r"C:\Users\x\AppData\Local\Veiron\ControlCenter\.veiron-local");
+    fn accepts_dot_vireon_local_segment() {
+        let path = PathBuf::from(r"C:\Users\x\AppData\Local\Vireon\ControlCenter\.vireon-local");
         assert!(local_root_name_ok(&path));
     }
 
     #[test]
     fn rejects_temp_without_required_segment() {
-        let path = PathBuf::from(r"C:\Users\x\AppData\Local\Temp\veiron-critical-smoke-local");
+        let path = PathBuf::from(r"C:\Users\x\AppData\Local\Temp\vireon-critical-smoke-local");
         assert!(!local_root_name_ok(&path));
     }
 }

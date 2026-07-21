@@ -1,8 +1,8 @@
 use clap::{Parser, Subcommand};
 use serde::Serialize;
 use std::path::PathBuf;
-use veiron_core::Network;
-use veiron_indexer::{
+use vireon_core::Network;
+use vireon_indexer::{
     default_index_dir_for_network, default_network_root, find_address, find_block,
     find_transaction, index_chain, indexer_status_with_chain, latest_block, load_index,
     reset_index, sync_index, watch_index,
@@ -10,16 +10,16 @@ use veiron_indexer::{
 
 const INDEXER_EXAMPLES: &str = "\
 Examples:
-  veiron-indexer --network mainnet-candidate --chain-data-dir .veiron-local/chain --index-dir .veiron-local/indexer index-chain
-  veiron-indexer --network mainnet-candidate --chain-data-dir .veiron-local/chain --index-dir .veiron-local/indexer sync
-  veiron-indexer --network mainnet-candidate --chain-data-dir .veiron-local/chain --index-dir .veiron-local/indexer watch --interval-seconds 5
-  veiron-indexer --network mainnet-candidate --index-dir .veiron-local/indexer status
-  veiron-indexer --network mainnet-candidate --index-dir .veiron-local/indexer latest-block
+  vireon-indexer --network mainnet-candidate --chain-data-dir .vireon-local/chain --index-dir .vireon-local/indexer index-chain
+  vireon-indexer --network mainnet-candidate --chain-data-dir .vireon-local/chain --index-dir .vireon-local/indexer sync
+  vireon-indexer --network mainnet-candidate --chain-data-dir .vireon-local/chain --index-dir .vireon-local/indexer watch --interval-seconds 5
+  vireon-indexer --network mainnet-candidate --index-dir .vireon-local/indexer status
+  vireon-indexer --network mainnet-candidate --index-dir .vireon-local/indexer latest-block
 ";
 
 #[derive(Debug, Parser)]
-#[command(name = "veiron-indexer")]
-#[command(about = "Draft / Mainnet Candidate / Prototype indexer CLI for Veiron Network")]
+#[command(name = "vireon-indexer")]
+#[command(about = "Draft / Mainnet Candidate / Prototype indexer CLI for Vireon Network")]
 #[command(after_help = INDEXER_EXAMPLES)]
 struct Cli {
     #[arg(long, default_value = "mainnet-candidate")]
@@ -109,14 +109,14 @@ fn main() {
     match result {
         Ok(message) => println!("{message}"),
         Err(error) => {
-            eprintln!("veiron-indexer error: {error}");
+            eprintln!("vireon-indexer error: {error}");
             std::process::exit(1);
         }
     }
 }
 
 fn json_output<T: Serialize>(
-    value: veiron_indexer::IndexerResult<T>,
-) -> veiron_indexer::IndexerResult<String> {
+    value: vireon_indexer::IndexerResult<T>,
+) -> vireon_indexer::IndexerResult<String> {
     value.and_then(|inner| serde_json::to_string_pretty(&inner).map_err(Into::into))
 }

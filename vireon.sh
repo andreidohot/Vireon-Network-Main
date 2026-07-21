@@ -60,9 +60,9 @@ metrics_path = "$miner_dir/metrics.json"
 $source_config
 EOF
     if [[ "$PACKAGED" == "true" ]]; then
-      command="cd $(printf %q "$ROOT") && $(printf %q "$ROOT/bin/veiron-miner") --config $(printf %q "$config") mine"
+      command="cd $(printf %q "$ROOT") && $(printf %q "$ROOT/bin/vireon-miner") --config $(printf %q "$config") mine"
     else
-      command="cd $(printf %q "$ROOT") && env CARGO_TARGET_DIR=$(printf %q "$BUILD_DIR") $(printf %q "$CARGO_BIN") run -p veiron-miner --release -- --config $(printf %q "$config") mine"
+      command="cd $(printf %q "$ROOT") && env CARGO_TARGET_DIR=$(printf %q "$BUILD_DIR") $(printf %q "$CARGO_BIN") run -p vireon-miner --release -- --config $(printf %q "$config") mine"
     fi
     start_background_process "miner" "$ROOT" "$command"
     ;;
@@ -71,8 +71,8 @@ EOF
     stop_managed_process miner
     ;;
   help|--help|-h)
-    echo "Usage: ./veiron.sh start|stop|restart|status|mine|validate|backup|miner-start|miner-stop"
-    echo "Linux desktop runtime for Veiron Mainnet Candidate / Prototype."
+    echo "Usage: ./vireon.sh start|stop|restart|status|mine|validate|backup|miner-start|miner-stop"
+    echo "Linux desktop runtime for Vireon Mainnet Candidate / Prototype."
     ;;
   *) echo "unknown command: $COMMAND" >&2; exit 2 ;;
 esac

@@ -1,9 +1,9 @@
 use crate::{MinerError, Result};
 use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
-use veiron_core::{hash_to_hex, Address, Block, BlockHeader, Hash, Transaction};
+use vireon_core::{hash_to_hex, Address, Block, BlockHeader, Hash, Transaction};
 
-pub const MINING_PROTOCOL_VERSION: &str = "veiron-mining-v1";
+pub const MINING_PROTOCOL_VERSION: &str = "vireon-mining-v1";
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MiningTemplate {
@@ -47,7 +47,7 @@ impl MiningTemplate {
                 self.expires_at_unix_seconds
             )));
         }
-        let network = veiron_core::Network::from_network_id(&self.network_id).ok_or_else(|| {
+        let network = vireon_core::Network::from_network_id(&self.network_id).ok_or_else(|| {
             MinerError::InvalidTemplate(format!("unknown network_id {}", self.network_id))
         })?;
         let address = Address::parse(miner_address)?;

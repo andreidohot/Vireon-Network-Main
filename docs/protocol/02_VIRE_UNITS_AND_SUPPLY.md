@@ -11,7 +11,7 @@ Fixed supply facts:
 
 ## Fixed Unit Model For The Current Core Prototype
 
-For the canonical Veiron amount model:
+For the canonical Vireon amount model:
 - decimals: 8;
 - atomic units per VIRE: 100,000,000.
 

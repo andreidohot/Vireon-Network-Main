@@ -1,5 +1,5 @@
 use crate::constants::{ATOMIC_UNITS_PER_VIRE, DECIMALS, MAX_SUPPLY_ATOMIC};
-use crate::errors::{Result, VeironError};
+use crate::errors::{Result, VireonError};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -24,14 +24,14 @@ impl Amount {
         self.0
             .checked_add(other.0)
             .map(Self)
-            .ok_or(VeironError::AmountOverflow)
+            .ok_or(VireonError::AmountOverflow)
     }
 
     pub fn checked_sub(self, other: Self) -> Result<Self> {
         self.0
             .checked_sub(other.0)
             .map(Self)
-            .ok_or(VeironError::AmountOverflow)
+            .ok_or(VireonError::AmountOverflow)
     }
 
     pub fn format_vire(self) -> String {
@@ -43,14 +43,14 @@ impl Amount {
     pub fn parse_vire(input: &str) -> Result<Self> {
         let trimmed = input.trim();
         if trimmed.is_empty() {
-            return Err(VeironError::AmountParse(input.to_owned()));
+            return Err(VireonError::AmountParse(input.to_owned()));
         }
 
         let mut parts = trimmed.split('.');
         let whole_part = parts.next().unwrap_or_default();
         let fractional_part = parts.next();
         if parts.next().is_some() {
-            return Err(VeironError::AmountParse(trimmed.to_owned()));
+            return Err(VireonError::AmountParse(trimmed.to_owned()));
         }
 
         let whole_value: u64 = if whole_part.is_empty() {
@@ -58,17 +58,17 @@ impl Amount {
         } else {
             whole_part
                 .parse()
-                .map_err(|_| VeironError::AmountParse(trimmed.to_owned()))?
+                .map_err(|_| VireonError::AmountParse(trimmed.to_owned()))?
         };
 
         let whole_atomic = whole_value
             .checked_mul(ATOMIC_UNITS_PER_VIRE)
-            .ok_or(VeironError::AmountOverflow)?;
+            .ok_or(VireonError::AmountOverflow)?;
 
         let fractional_atomic = match fractional_part {
             Some(part) => {
                 if part.len() > DECIMALS as usize {
-                    return Err(VeironError::TooManyDecimals {
+                    return Err(VireonError::TooManyDecimals {
                         value: trimmed.to_owned(),
                         max: DECIMALS,
                     });
@@ -84,7 +84,7 @@ impl Amount {
                 } else {
                     padded
                         .parse::<u64>()
-                        .map_err(|_| VeironError::AmountParse(trimmed.to_owned()))?
+                        .map_err(|_| VireonError::AmountParse(trimmed.to_owned()))?
                 }
             }
             None => 0,
@@ -92,10 +92,10 @@ impl Amount {
 
         let total = whole_atomic
             .checked_add(fractional_atomic)
-            .ok_or(VeironError::AmountOverflow)?;
+            .ok_or(VireonError::AmountOverflow)?;
 
         if total > MAX_SUPPLY_ATOMIC {
-            return Err(VeironError::AmountParse(format!(
+            return Err(VireonError::AmountParse(format!(
                 "{trimmed} exceeds max supply"
             )));
         }

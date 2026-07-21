@@ -60,12 +60,12 @@ function Copy-LibcxxShared {
 
 Push-Location $root
 try {
-    cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -o veiron-android/app/src/main/jniLibs build --release -p veiron-mobile-core
+    cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -o vireon-android/app/src/main/jniLibs build --release -p vireon-mobile-core
     if ($LASTEXITCODE -ne 0) { throw "Android native build failed." }
 
     foreach ($abi in $abiTriples.Keys) {
-        $jniDir = Join-Path $root "veiron-android\app\src\main\jniLibs\$abi"
-        $library = Join-Path $jniDir "libveiron_mobile_core.so"
+        $jniDir = Join-Path $root "vireon-android\app\src\main\jniLibs\$abi"
+        $library = Join-Path $jniDir "libvireon_mobile_core.so"
         if (-not (Test-Path $library) -or (Get-Item $library).Length -le 4) {
             throw "Android native build did not produce '$library'."
         }

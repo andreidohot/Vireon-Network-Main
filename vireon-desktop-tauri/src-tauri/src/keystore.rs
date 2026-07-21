@@ -80,8 +80,8 @@ async fn invoke<T: DeserializeOwned>(mut request: serde_json::Value) -> AppResul
     cmd.stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
-        .env("VEIRON_RPC_URL", get_rpc_url())
-        .env("VEIRON_KEYSTORE_PARENT_TOKEN", &token)
+        .env("VIREON_RPC_URL", get_rpc_url())
+        .env("VIREON_KEYSTORE_PARENT_TOKEN", &token)
         .kill_on_drop(true);
     #[cfg(windows)]
     {
@@ -138,7 +138,7 @@ pub async fn create(display_name: &str) -> AppResult<WalletCreateResult> {
     invoke(json!({ "command": "create", "display_name": display_name })).await
 }
 
-/// Native OS dialog import â€” recovery phrase never crosses the WebView (A-H08).
+/// Native OS dialog import -- recovery phrase never crosses the WebView (A-H08).
 pub async fn import_native(display_name: &str) -> AppResult<WalletMetadata> {
     invoke(json!({
         "command": "import",

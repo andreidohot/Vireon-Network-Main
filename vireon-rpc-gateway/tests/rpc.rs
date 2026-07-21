@@ -5,23 +5,23 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use tempfile::tempdir;
 use tower::util::ServiceExt;
-use veiron_core::{
+use vireon_core::{
     firopow::mine_firopow_solution, Address, Network, PrivateKey, Transaction,
     INITIAL_BASE_FEE_ATOMIC,
 };
-use veiron_indexer::index_devnet;
-use veiron_miner::{MiningSubmitRequest, MiningTemplate};
-use veiron_node::{
+use vireon_indexer::index_devnet;
+use vireon_miner::{MiningSubmitRequest, MiningTemplate};
+use vireon_node::{
     default_miner_address, init_devnet, mine_dev_blocks, mine_pending_block, storage,
     submit_transaction,
 };
-use veiron_rpc_gateway::{load_chain, router, RpcAccessMode, RpcConfig, RpcState};
+use vireon_rpc_gateway::{load_chain, router, RpcAccessMode, RpcConfig, RpcState};
 
 fn write_devnet_config(path: &Path) {
     let content = r#"
 network = "devnet"
 network_id = "veiron-devnet"
-human_name = "Veiron Devnet"
+human_name = "Vireon Devnet"
 status_label = "Draft / Private Devnet"
 block_time_seconds = 60
 difficulty_leading_zero_bits = 4
@@ -33,7 +33,7 @@ initial_block_reward = "19.02587519"
 default_rpc_port = 8787
 default_p2p_port = 18787
 max_mempool_transactions = 8
-genesis_config_path = "veiron-devnet/config/genesis-devnet.json"
+genesis_config_path = "vireon-devnet/config/genesis-devnet.json"
 chain_magic_hex = "56444556"
 allow_mainnet_candidate = false
 "#;
@@ -43,8 +43,8 @@ allow_mainnet_candidate = false
 
 fn setup_paths() -> (tempfile::TempDir, PathBuf, PathBuf) {
     let temp_dir = tempdir().expect("tempdir");
-    let config_path = temp_dir.path().join("veiron-devnet/config/devnet.toml");
-    let data_dir = temp_dir.path().join(".veiron-dev/chain");
+    let config_path = temp_dir.path().join("vireon-devnet/config/devnet.toml");
+    let data_dir = temp_dir.path().join(".vireon-dev/chain");
     write_devnet_config(&config_path);
     (temp_dir, config_path, data_dir)
 }
@@ -55,7 +55,7 @@ fn rpc_state(data_dir: &Path, index_dir: &Path) -> RpcState {
         .expect("devnet dir")
         .parent()
         .expect("workspace temp root")
-        .join(".veiron-dev/mempool");
+        .join(".vireon-dev/mempool");
     RpcState::new(RpcConfig {
         bind_host: "127.0.0.1".to_owned(),
         bind_port: 8787,
@@ -82,10 +82,10 @@ fn rpc_state(data_dir: &Path, index_dir: &Path) -> RpcState {
 #[tokio::test]
 async fn cors_preflight_allows_configured_origins_only() {
     let (temp_dir, _config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let mut state = rpc_state_with_access_mode(&data_dir, &index_dir, RpcAccessMode::PublicSubmit);
     state.config.cors_allowed_origins = vec![
-        "https://veiron.network".to_owned(),
+        "https://vireon.network".to_owned(),
         "http://127.0.0.1:4173".to_owned(),
     ];
     let app = router(state);
@@ -96,7 +96,7 @@ async fn cors_preflight_allows_configured_origins_only() {
             Request::builder()
                 .method("OPTIONS")
                 .uri("/transactions")
-                .header("origin", "https://veiron.network")
+                .header("origin", "https://vireon.network")
                 .header("access-control-request-method", "POST")
                 .header("access-control-request-headers", "content-type")
                 .body(Body::empty())
@@ -107,7 +107,7 @@ async fn cors_preflight_allows_configured_origins_only() {
     assert_eq!(allowed.status(), StatusCode::OK);
     assert_eq!(
         allowed.headers().get("access-control-allow-origin"),
-        Some(&"https://veiron.network".parse().expect("header"))
+        Some(&"https://vireon.network".parse().expect("header"))
     );
 
     let rejected = app
@@ -141,7 +141,7 @@ fn rpc_state_with_access_mode(
 #[tokio::test]
 async fn public_read_profile_hides_mutating_and_operator_routes() {
     let (temp_dir, _config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let app = router(rpc_state_with_access_mode(
         &data_dir,
         &index_dir,
@@ -172,7 +172,7 @@ async fn public_read_profile_hides_mutating_and_operator_routes() {
 #[tokio::test]
 async fn public_read_profile_exposes_p2p_status() {
     let (temp_dir, config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let app = router(
         rpc_state_with_access_mode(&data_dir, &index_dir, RpcAccessMode::PublicRead)
             .with_node_config_path(config_path),
@@ -193,7 +193,7 @@ async fn public_read_profile_exposes_p2p_status() {
 #[tokio::test]
 async fn public_submit_profile_hides_mining_by_default() {
     let (temp_dir, _config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let app = router(rpc_state_with_access_mode(
         &data_dir,
         &index_dir,
@@ -216,7 +216,7 @@ async fn public_submit_profile_hides_mining_by_default() {
 #[tokio::test]
 async fn public_submit_can_opt_in_to_loopback_mining() {
     let (temp_dir, _config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let mut state = rpc_state_with_access_mode(&data_dir, &index_dir, RpcAccessMode::PublicSubmit);
     state.config.expose_mining_endpoints = Some(true);
     let app = router(state);
@@ -237,7 +237,7 @@ async fn public_submit_can_opt_in_to_loopback_mining() {
 #[tokio::test]
 async fn health_response_works() {
     let (temp_dir, _config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let app = router(rpc_state(&data_dir, &index_dir));
 
     let response = app
@@ -256,7 +256,7 @@ async fn health_response_works() {
 #[tokio::test]
 async fn p2p_status_reports_the_local_network_view() {
     let (temp_dir, config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let app = router(rpc_state(&data_dir, &index_dir).with_node_config_path(config_path));
 
     let response = app
@@ -281,7 +281,7 @@ async fn p2p_status_reports_the_local_network_view() {
 #[tokio::test]
 async fn public_sync_status_exposes_aggregates_without_peer_details() {
     let (temp_dir, config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let miner_address = default_miner_address(Network::Devnet);
     init_devnet(&config_path, &data_dir, &miner_address).expect("init");
     let app = router(
@@ -312,7 +312,7 @@ async fn public_sync_status_exposes_aggregates_without_peer_details() {
 #[tokio::test]
 async fn status_response_works() {
     let (temp_dir, config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let miner_address = default_miner_address(Network::Devnet);
     init_devnet(&config_path, &data_dir, &miner_address).expect("init");
     let app = router(rpc_state(&data_dir, &index_dir));
@@ -339,7 +339,7 @@ async fn status_response_works() {
 #[tokio::test]
 async fn network_response_exposes_frozen_standards() {
     let (temp_dir, _config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let app = router(rpc_state(&data_dir, &index_dir));
 
     let response = app
@@ -358,15 +358,15 @@ async fn network_response_exposes_frozen_standards() {
 
     assert_eq!(
         json["address_standard_id"],
-        Value::from("veiron-address-bech32m-ed25519-v1")
+        Value::from("vireon-address-bech32m-ed25519-v1")
     );
     assert_eq!(
         json["signature_standard_id"],
-        Value::from("veiron-signature-ed25519-v1")
+        Value::from("vireon-signature-ed25519-v1")
     );
     assert_eq!(
         json["key_derivation_policy_id"],
-        Value::from("veiron-key-ed25519-v1")
+        Value::from("vireon-key-ed25519-v1")
     );
     assert_eq!(
         json["tx_signing_domain"],
@@ -374,7 +374,7 @@ async fn network_response_exposes_frozen_standards() {
     );
     assert_eq!(
         json["protocol_parameters_id"],
-        Value::from("veiron-launch-parameters-v1")
+        Value::from("vireon-launch-parameters-v1")
     );
     assert_eq!(
         json["max_supply_atomic"],
@@ -386,7 +386,7 @@ async fn network_response_exposes_frozen_standards() {
 #[tokio::test]
 async fn mining_template_and_submission_append_a_block() {
     let (temp_dir, config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let miner = PrivateKey::generate();
     let miner_address =
         Address::from_public_key_for_network(&miner.public_key(), Network::Devnet).to_string();
@@ -451,7 +451,7 @@ async fn mining_template_and_submission_append_a_block() {
 #[tokio::test]
 async fn chain_tip_response_works() {
     let (temp_dir, config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let miner_address = default_miner_address(Network::Devnet);
     init_devnet(&config_path, &data_dir, &miner_address).expect("init");
     mine_dev_blocks(&config_path, &data_dir, &miner_address, 2).expect("mine");
@@ -478,7 +478,7 @@ async fn chain_tip_response_works() {
 #[tokio::test]
 async fn missing_block_response_is_404() {
     let (temp_dir, config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let miner_address = default_miner_address(Network::Devnet);
     init_devnet(&config_path, &data_dir, &miner_address).expect("init");
     let app = router(rpc_state(&data_dir, &index_dir));
@@ -499,7 +499,7 @@ async fn missing_block_response_is_404() {
 #[test]
 fn loading_devnet_data_works() {
     let (temp_dir, config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let miner_address = default_miner_address(Network::Devnet);
     init_devnet(&config_path, &data_dir, &miner_address).expect("init");
     mine_dev_blocks(&config_path, &data_dir, &miner_address, 1).expect("mine");
@@ -512,7 +512,7 @@ fn loading_devnet_data_works() {
 #[tokio::test]
 async fn invalid_devnet_data_handling_returns_500() {
     let (temp_dir, _config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     storage::ensure_data_dir(&data_dir).expect("ensure data dir");
     fs::write(storage::chain_file_path(&data_dir), "{invalid}\n").expect("invalid chain file");
     let app = router(rpc_state(&data_dir, &index_dir));
@@ -533,7 +533,7 @@ async fn invalid_devnet_data_handling_returns_500() {
 #[tokio::test]
 async fn address_balance_endpoint_works() {
     let (temp_dir, config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let miner = PrivateKey::generate();
     let recipient = PrivateKey::generate();
     let miner_address =
@@ -542,16 +542,16 @@ async fn address_balance_endpoint_works() {
         Address::from_public_key_for_network(&recipient.public_key(), Network::Devnet).to_string();
 
     init_devnet(&config_path, &data_dir, &miner_address).expect("init");
-    let mempool_dir = temp_dir.path().join(".veiron-dev/mempool");
+    let mempool_dir = temp_dir.path().join(".vireon-dev/mempool");
     let transaction = Transaction::new_signed(
         1,
         1,
         Network::Devnet,
         &miner,
         recipient_address.clone(),
-        veiron_core::Amount::from_atomic(100),
-        veiron_core::Amount::from_atomic(INITIAL_BASE_FEE_ATOMIC + 1),
-        veiron_core::Amount::from_atomic(1),
+        vireon_core::Amount::from_atomic(100),
+        vireon_core::Amount::from_atomic(INITIAL_BASE_FEE_ATOMIC + 1),
+        vireon_core::Amount::from_atomic(1),
         None,
     )
     .expect("transaction");
@@ -579,7 +579,7 @@ async fn address_balance_endpoint_works() {
 #[tokio::test]
 async fn state_and_supply_endpoints_work() {
     let (temp_dir, config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let miner = PrivateKey::generate();
     let miner_address =
         Address::from_public_key_for_network(&miner.public_key(), Network::Devnet).to_string();
@@ -621,14 +621,14 @@ async fn state_and_supply_endpoints_work() {
 
     assert_eq!(
         supply_json["emitted_supply_atomic"],
-        Value::from(veiron_core::INITIAL_BLOCK_REWARD_ATOMIC * 2)
+        Value::from(vireon_core::INITIAL_BLOCK_REWARD_ATOMIC * 2)
     );
 }
 
 #[tokio::test]
 async fn indexer_status_and_summary_endpoints_work() {
     let (temp_dir, config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let miner = PrivateKey::generate();
     let recipient = PrivateKey::generate();
     let miner_address =
@@ -637,16 +637,16 @@ async fn indexer_status_and_summary_endpoints_work() {
         Address::from_public_key_for_network(&recipient.public_key(), Network::Devnet).to_string();
 
     init_devnet(&config_path, &data_dir, &miner_address).expect("init");
-    let mempool_dir = temp_dir.path().join(".veiron-dev/mempool");
+    let mempool_dir = temp_dir.path().join(".vireon-dev/mempool");
     let transaction = Transaction::new_signed(
         1,
         1,
         Network::Devnet,
         &miner,
         recipient_address.clone(),
-        veiron_core::Amount::from_atomic(100),
-        veiron_core::Amount::from_atomic(INITIAL_BASE_FEE_ATOMIC + 1),
-        veiron_core::Amount::from_atomic(1),
+        vireon_core::Amount::from_atomic(100),
+        vireon_core::Amount::from_atomic(INITIAL_BASE_FEE_ATOMIC + 1),
+        vireon_core::Amount::from_atomic(1),
         None,
     )
     .expect("transaction");
@@ -824,8 +824,8 @@ async fn indexer_status_and_summary_endpoints_work() {
 #[tokio::test]
 async fn transaction_submission_and_mempool_endpoints_work() {
     let (temp_dir, config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
-    let mempool_dir = temp_dir.path().join(".veiron-dev/mempool");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
+    let mempool_dir = temp_dir.path().join(".vireon-dev/mempool");
     let miner = PrivateKey::generate();
     let recipient = PrivateKey::generate();
     let miner_address =
@@ -841,14 +841,14 @@ async fn transaction_submission_and_mempool_endpoints_work() {
         Network::Devnet,
         &miner,
         recipient_address,
-        veiron_core::Amount::from_atomic(100),
-        veiron_core::Amount::from_atomic(INITIAL_BASE_FEE_ATOMIC + 1),
-        veiron_core::Amount::from_atomic(1),
+        vireon_core::Amount::from_atomic(100),
+        vireon_core::Amount::from_atomic(INITIAL_BASE_FEE_ATOMIC + 1),
+        vireon_core::Amount::from_atomic(1),
         None,
     )
     .expect("transaction");
     let payload = serde_json::to_vec(&transaction).expect("json");
-    let tx_hash = veiron_core::hash_to_hex(&transaction.tx_hash());
+    let tx_hash = vireon_core::hash_to_hex(&transaction.tx_hash());
 
     let submit_response = app
         .clone()
@@ -918,7 +918,7 @@ async fn transaction_submission_and_mempool_endpoints_work() {
 #[tokio::test]
 async fn invalid_transaction_submission_is_rejected() {
     let (temp_dir, config_path, data_dir) = setup_paths();
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     let miner = PrivateKey::generate();
     let recipient = PrivateKey::generate();
     let miner_address =
@@ -934,9 +934,9 @@ async fn invalid_transaction_submission_is_rejected() {
         Network::Devnet,
         &miner,
         recipient_address,
-        veiron_core::Amount::from_atomic(100),
-        veiron_core::Amount::from_atomic(INITIAL_BASE_FEE_ATOMIC + 1),
-        veiron_core::Amount::from_atomic(1),
+        vireon_core::Amount::from_atomic(100),
+        vireon_core::Amount::from_atomic(INITIAL_BASE_FEE_ATOMIC + 1),
+        vireon_core::Amount::from_atomic(1),
         None,
     )
     .expect("transaction");

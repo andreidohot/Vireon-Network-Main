@@ -34,7 +34,7 @@ export default function Preloader() {
                 transition={{ duration: 1.05, repeat: Infinity, ease: 'easeInOut' }}
               />
             </div>
-            <p className="mt-5 font-mono text-xs uppercase tracking-[0.28em] text-frost/45">Initializing Veiron interface</p>
+            <p className="mt-5 font-mono text-xs uppercase tracking-[0.28em] text-frost/45">Initializing Vireon interface</p>
           </motion.div>
         </motion.div>
       )}

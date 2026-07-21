@@ -4,7 +4,7 @@ use std::{fs, path::PathBuf};
 use thiserror::Error;
 use zeroize::Zeroize;
 
-const SERVICE: &str = "Veiron Desktop";
+const SERVICE: &str = "Vireon Desktop";
 const ACCOUNT: &str = "mainnet-candidate-default-wallet";
 
 #[derive(Debug, Error)]
@@ -36,7 +36,7 @@ pub struct WalletMetadata {
 impl WalletMetadata {
     pub fn new(address: String, public_key_hex: String, key_origin: &str) -> Self {
         Self {
-            schema: "veiron-desktop-wallet-metadata-v1".to_owned(),
+            schema: "vireon-desktop-wallet-metadata-v1".to_owned(),
             network_id: "veiron-mainnet-candidate".to_owned(),
             address,
             public_key_hex,
@@ -48,7 +48,7 @@ impl WalletMetadata {
 
 pub fn metadata_path() -> Result<PathBuf> {
     dirs::data_local_dir()
-        .map(|root| root.join("Veiron").join("Desktop").join("wallet.json"))
+        .map(|root| root.join("Vireon").join("Desktop").join("wallet.json"))
         .ok_or_else(|| DesktopError::Metadata("LOCALAPPDATA is unavailable".to_owned()))
 }
 
@@ -59,7 +59,7 @@ pub fn load_metadata() -> Result<Option<WalletMetadata>> {
     }
     let bytes = fs::read(path).map_err(metadata_error)?;
     let metadata: WalletMetadata = serde_json::from_slice(&bytes).map_err(metadata_error)?;
-    if metadata.schema != "veiron-desktop-wallet-metadata-v1"
+    if metadata.schema != "vireon-desktop-wallet-metadata-v1"
         || metadata.network_id != "veiron-mainnet-candidate"
     {
         return Err(DesktopError::Metadata(

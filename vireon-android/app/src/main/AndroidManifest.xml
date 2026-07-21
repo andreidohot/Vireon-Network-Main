@@ -8,8 +8,8 @@
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
     <application
-        android:theme="@style/Theme.Veiron"
-        android:label="Veiron Control"
+        android:theme="@style/Theme.Vireon"
+        android:label="Vireon Control"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
         android:networkSecurityConfig="@xml/network_security_config"

@@ -1,7 +1,7 @@
 /* FOUC theme bootstrap — external so CSP can use script-src 'self' only. */
 (function () {
   try {
-    var key = "veiron.theme";
+    var key = "vireon.theme";
     var t = localStorage.getItem(key);
     if (t !== "dark" && t !== "light") {
       t =

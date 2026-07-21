@@ -1,9 +1,9 @@
 export const openApiDocument = {
   openapi: '3.0.3',
   info: {
-    title: 'Veiron Network API',
+    title: 'Vireon Network API',
     version: '0.5.0',
-    description: 'API for the Veiron website, CMS, admin panel and read-only Veiron Mainnet Candidate RPC adapter.',
+    description: 'API for the Vireon website, CMS, admin panel and read-only Vireon Mainnet Candidate RPC adapter.',
   },
   servers: [
     { url: 'http://localhost:4000', description: 'Local development' },

@@ -6,7 +6,7 @@ use crate::keystore::{
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::path::PathBuf;
-use veiron_sdk_rust::{
+use vireon_sdk_rust::{
     Amount, BlockingRpcClient, MnemonicWordCount, Network, NetworkConfig, SignedTransfer,
     TransferBuilder, WalletAccount, ATOMIC_UNITS_PER_VIRE,
 };
@@ -87,7 +87,7 @@ impl HostState {
             "ping" => Response::ok(
                 id,
                 serde_json::json!({
-                    "service": "veiron-browser-host",
+                    "service": "vireon-browser-host",
                     "version": env!("CARGO_PKG_VERSION"),
                     "status": "Mainnet Candidate / Prototype"
                 }),
@@ -286,7 +286,7 @@ impl HostState {
                             id,
                             serde_json::json!({
                                 "address": address,
-                                "warning": "Ephemeral RAM session only â€” not persisted. Prefer create_wallet."
+                                "warning": "Ephemeral RAM session only -- not persisted. Prefer create_wallet."
                             }),
                         )
                     }
@@ -484,7 +484,7 @@ impl HostState {
                     .ok_or_else(|| "params.transaction is required".to_owned());
                 match tx_value {
                     Ok(value) => {
-                        match serde_json::from_value::<veiron_sdk_rust::Transaction>(value) {
+                        match serde_json::from_value::<vireon_sdk_rust::Transaction>(value) {
                             Ok(tx) => match self.rpc.submit(&tx) {
                                 Ok(response) => match serde_json::to_value(response) {
                                     Ok(v) => Response::ok(id, v),
@@ -555,7 +555,7 @@ fn maybe_confirm_send(
         })
         .unwrap_or_else(|| "(missing amount)".to_owned());
     let summary = format!(
-        "Confirm Veiron transfer (Mainnet Candidate)\n\nFrom: {}\nTo: {}\nAmount: {}\nRPC: {}\n\nPress OK to sign/submit, Cancel to abort.",
+        "Confirm Vireon transfer (Mainnet Candidate)\n\nFrom: {}\nTo: {}\nAmount: {}\nRPC: {}\n\nPress OK to sign/submit, Cancel to abort.",
         account.address_string(),
         to,
         amount,

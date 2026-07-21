@@ -18,14 +18,14 @@ On VPS (`rpcnode.dohotstudio.com`):
 
 | Path | Action |
 |------|--------|
-| `/var/lib/veiron/.veiron-mainnet/chain/*` | Wiped (blocks / tip) |
-| `/var/lib/veiron/.veiron-mainnet/mempool/*` | Wiped |
-| `/var/lib/veiron/.veiron-mainnet/indexer/*` | Wiped |
-| `/var/lib/veiron/.veiron-mainnet/genesis-info.json` | Removed then re-created |
-| `/var/lib/veiron-pool/pool-state.json` | Wiped (shares / PPLNS state) |
+| `/var/lib/vireon/.vireon-mainnet/chain/*` | Wiped (blocks / tip) |
+| `/var/lib/vireon/.vireon-mainnet/mempool/*` | Wiped |
+| `/var/lib/vireon/.vireon-mainnet/indexer/*` | Wiped |
+| `/var/lib/vireon/.vireon-mainnet/genesis-info.json` | Removed then re-created |
+| `/var/lib/vireon-pool/pool-state.json` | Wiped (shares / PPLNS state) |
 | `p2p-identity.key` | **Kept** (stable peer id) |
 
-Backups under `/var/lib/veiron/backups/`.
+Backups under `/var/lib/vireon/backups/`.
 
 ## What was **not** changed
 
@@ -51,15 +51,9 @@ With ~177 MH/s continuous, equilibrium net_diff is ~**33** → ~**1 minute** per
 2. Expect **fast blocks** at the start (diff 16) then DAA climbs toward ~60 s
 3. Rebuild Windows **and** Linux Control Center 0.9.0 for matching product version
 
-## Scripts
+## Retired scripts
 
-```bash
-# Rebuild VPS binaries (WSL/Linux)
-cargo build --release -p veiron-node -p veiron-rpc-gateway -p veiron-indexer -p veiron-mining-pool
-
-# Deploy
-bash scripts/release/deploy-vps-binaries.sh root@host /path/to/key
-
-# Full chain reset
-bash scripts/release/reset-vps-candidate-chain.sh root@host /path/to/key
-```
+The direct-binary deploy and chain-reset scripts used for this historical event
+have been removed. They are intentionally unavailable because the supported VPS
+path is now the Docker control plane in `vireon-release/vps-control-plane/`.
+This record must not be used as current operational guidance.

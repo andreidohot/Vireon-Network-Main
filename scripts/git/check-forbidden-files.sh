@@ -12,7 +12,7 @@ if find . -type f \( -name "*.key" -o -name "*.pem" -o -name "*.seed" -o -name "
 fi
 
 tracked="$(git ls-files)"
-for pattern in ".veiron-dev/" ".veiron-testnet/" ".veiron-mainnet/" "target/" "node_modules/"; do
+for pattern in ".vireon-dev/" ".vireon-testnet/" ".vireon-mainnet/" "target/" "node_modules/"; do
   if grep -Fq "$pattern" <<<"$tracked"; then
     echo "Tracked files contain forbidden pattern: $pattern" >&2
     exit 1

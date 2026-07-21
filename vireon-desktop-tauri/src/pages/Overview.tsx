@@ -3,7 +3,7 @@ import {
   Blocks, Cpu, Database, Network, Radio, Send, ShieldCheck, WalletCards, Zap
 } from "lucide-react";
 import { formatAtomic, formatHashrate, shortHash } from "@shared/format";
-import { VeironLogo } from "../components/brand/VeironLogo";
+import { VireonLogo } from "../components/brand/VireonLogo";
 import { TelemetryChart } from "../components/charts/TelemetryChart";
 import { BarChart } from "../components/charts/BarChart";
 import { Gauge } from "../components/charts/Gauge";
@@ -64,14 +64,14 @@ export function Overview() {
     <div className="page grid overview-page">
       <section className="command-hero">
         <div className="hero-brand-watermark" aria-hidden="true">
-          <VeironLogo size="xl" alt="" />
+          <VireonLogo size="xl" alt="" />
         </div>
         <div className="hero-copy">
           <span className="hero-kicker">
             <i /> LIVE · MAINNET CANDIDATE
           </span>
           <h2>
-            Veiron <b>network</b>
+            Vireon <b>network</b>
             <br />
             command center
           </h2>

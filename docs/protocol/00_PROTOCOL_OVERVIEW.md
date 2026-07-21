@@ -1,4 +1,4 @@
-# Veiron Protocol Overview
+# Vireon Protocol Overview
 
 Status: Implemented / Mainnet Candidate / not public Mainnet
 
@@ -7,7 +7,7 @@ Status: Implemented / Mainnet Candidate / not public Mainnet
 - proprietary Rust-based Layer 1 with VIRE as the native asset;
 - account-based balances and nonce-ordered signed transfers;
 - ed25519 signatures and network-separated Bech32m addresses;
-- FiroPoW 0.9.4 (`VeironPoW v1`, period length 1);
+- FiroPoW 0.9.4 (`VireonPoW v1`, period length 1);
 - NVIDIA CUDA-only product mining with canonical core validation;
 - LWMA-style difficulty retargeting and cumulative-work fork choice;
 - 60-second block target, 60,000,000 VIRE supply cap, 1,576,800-block

@@ -1,6 +1,6 @@
-# Veiron Network Website
+# Vireon Network Website
 
-React + Vite + Tailwind CSS + Framer Motion + React Three Fiber prototype for the Veiron Network public website.
+React + Vite + Tailwind CSS + Framer Motion + React Three Fiber prototype for the Vireon Network public website.
 
 This is a fresh website project, built separately from previous website experiments.
 
@@ -52,7 +52,7 @@ cp .env.example .env
 - `/developers` - SDK, standards and developer stack
 - `/tokenomics` - supply, rewards, halving and open token decisions
 - `/faq` - readiness and product FAQ
-- `/passport` - Veiron Passport proof layer
+- `/passport` - Vireon Passport proof layer
 - `/ecosystem` - wallet, explorer, Passport, SDK and product layer
 - `/whitepaper` - cinematic whitepaper preview
 - `/roadmap` - phase roadmap
@@ -61,9 +61,9 @@ cp .env.example .env
 
 ## Scope
 
-This website follows the attached Veiron Source Info:
+This website follows the attached Vireon Source Info:
 
-- public name: Veiron Network;
+- public name: Vireon Network;
 - ticker: VIRE;
 - direction: Rust-based mineable Layer 1;
 - block time: 60 seconds;
@@ -71,7 +71,7 @@ This website follows the attached Veiron Source Info:
 - public claims stay honest while protocol decisions are still open;
 - palette direction: deep graphite, ion cyan, electric blue and violet plasma.
 - includes smooth wheel scrolling, scroll progress, animated global background effects, multiple R3F scenes and scroll-driven roadmap progress.
-- connects Explorer, Mining, Status and Tokenomics pages directly to the Veiron Mainnet Candidate Rust RPC.
+- connects Explorer, Mining, Status and Tokenomics pages directly to the Vireon Mainnet Candidate Rust RPC.
 - includes a lazy-loaded `/admin` panel for dashboard, users, content, network params, roadmap, FAQ and audit log management.
 
 ## Admin

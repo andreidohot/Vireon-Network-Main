@@ -1,5 +1,5 @@
 export const RPC_BASE_URL = (
-  import.meta.env.VITE_VEIRON_RPC_URL ?? "https://rpcnode.dohotstudio.com"
+  import.meta.env.VITE_VIREON_RPC_URL ?? "https://rpcnode.dohotstudio.com"
 ).replace(/\/+$/, "");
 
 export interface HealthResponse {

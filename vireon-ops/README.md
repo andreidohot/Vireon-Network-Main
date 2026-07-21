@@ -1,4 +1,4 @@
-# veiron-ops
+# vireon-ops
 
 Reserved for runbooks, incident response and operational procedures.
 

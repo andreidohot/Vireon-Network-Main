@@ -2,7 +2,7 @@
 
 Status: Draft / Mainnet Candidate / Prototype
 
-Protocol identifier: `veiron-pool-v1`.
+Protocol identifier: `vireon-pool-v1`.
 
 ## Public Endpoints
 

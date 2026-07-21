@@ -1,9 +1,9 @@
 [package]
-name = "veiron-wallet"
+name = "vireon-wallet"
 version = "1.0.0"
 edition = "2021"
 license = "Apache-2.0"
-description = "Draft local devnet wallet CLI for Veiron Network"
+description = "Draft local devnet wallet CLI for Vireon Network"
 
 [dependencies]
 aes-gcm = "0.10"
@@ -16,9 +16,9 @@ reqwest = { version = "0.12", default-features = false, features = ["blocking", 
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "1"
-veiron-core = { path = "../veiron-core" }
-veiron-node = { path = "../veiron-node" }
-veiron-sdk-rust = { path = "../veiron-sdk-rust", features = ["native", "blocking"] }
+vireon-core = { path = "../vireon-core" }
+vireon-node = { path = "../vireon-node" }
+vireon-sdk-rust = { path = "../vireon-sdk-rust", features = ["native", "blocking"] }
 zeroize = "1"
 
 [dev-dependencies]

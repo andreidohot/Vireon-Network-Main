@@ -1,4 +1,4 @@
-# veiron-community
+# vireon-community
 
 Reserved for contribution guides, community material and public collaboration docs.
 

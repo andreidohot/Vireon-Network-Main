@@ -22,7 +22,7 @@ export default function ExplorerPage() {
       <PageHero
         eyebrow="Explorer"
         title="Explorer is the truth surface for blocks, transactions, assets and status."
-        text="This public surface reads Mainnet Candidate blocks from the Veiron RPC while preserving honest launch status."
+        text="This public surface reads Mainnet Candidate blocks from the Vireon RPC while preserving honest launch status."
       >
         <MainnetCandidateBadge source={statsSource === 'rpc' && blocksSource === 'rpc' ? 'rpc' : 'fallback'} />
       </PageHero>
@@ -49,7 +49,7 @@ export default function ExplorerPage() {
       </section>
       <section className="px-5 py-20">
         <div className="mx-auto max-w-7xl">
-          <SectionHeader eyebrow="Candidate chain" title="Latest Mainnet Candidate blocks." text="These rows come directly from the Veiron Rust RPC. They are candidate-chain data, not a public mainnet launch claim." />
+          <SectionHeader eyebrow="Candidate chain" title="Latest Mainnet Candidate blocks." text="These rows come directly from the Vireon Rust RPC. They are candidate-chain data, not a public mainnet launch claim." />
           <div className="overflow-hidden rounded-lg border border-line">
             {(blocks.length ? blocks : [{ height: 'offline', hash: 'API unavailable', reward: '0.00000000', txCount: 0, timestamp: null }]).map((block) => (
               <div key={block.id || block.hash} className="grid gap-3 border-b border-line bg-white/[0.025] p-5 last:border-b-0 md:grid-cols-[120px_1fr_170px_100px] md:items-center">

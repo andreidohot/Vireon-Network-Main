@@ -1,8 +1,8 @@
-// Veiron FiroPoW 0.9.4 CUDA miner (ProgPoW period_length = 1).
-// Must match veiron-core / vendored firoorg progpow byte-for-byte.
+// Vireon FiroPoW 0.9.4 CUDA miner (ProgPoW period_length = 1).
+// Must match vireon-core / vendored firoorg progpow byte-for-byte.
 // Host re-validates every solution before submit.
 //
-// Build: nvcc via veiron-miner/build.rs when gpu-cuda feature is on.
+// Build: nvcc via vireon-miner/build.rs when gpu-cuda feature is on.
 
 #include <cuda_runtime.h>
 #include <stdint.h>
@@ -192,7 +192,7 @@ __device__ void d_keccak512_64(uint32_t words[16]) {
 }
 
 /// Build hash512 DAG items directly in VRAM from the ~16 MiB light cache.
-__global__ void veiron_build_dag_kernel(
+__global__ void vireon_build_dag_kernel(
     const uint32_t* __restrict__ light,
     uint32_t light_items,
     uint32_t* __restrict__ dag,
@@ -435,7 +435,7 @@ __device__ bool d_hash_meets_boundary(const uint32_t final_words[8], const uint8
     return true;
 }
 
-__global__ void veiron_firopow_search_kernel(
+__global__ void vireon_firopow_search_kernel(
     const uint32_t* __restrict__ dag1024,
     const uint32_t* __restrict__ l1,
     int full_dataset_num_items_1024,
@@ -491,7 +491,7 @@ __global__ void veiron_firopow_search_kernel(
 // ---------------------------------------------------------------------------
 extern "C" {
 
-struct VeironCudaDeviceInfo {
+struct VireonCudaDeviceInfo {
     int index;
     char name[256];
     size_t total_mem;
@@ -500,13 +500,13 @@ struct VeironCudaDeviceInfo {
     int minor;
 };
 
-int veiron_cuda_available(void) {
+int vireon_cuda_available(void) {
     int n = 0;
     if (cudaGetDeviceCount(&n) != cudaSuccess) return 0;
     return n > 0 ? n : 0;
 }
 
-int veiron_cuda_device_info(int index, VeironCudaDeviceInfo* out) {
+int vireon_cuda_device_info(int index, VireonCudaDeviceInfo* out) {
     if (!out) return -1;
     int n = 0;
     if (cudaGetDeviceCount(&n) != cudaSuccess || index < 0 || index >= n) return -1;
@@ -523,7 +523,7 @@ int veiron_cuda_device_info(int index, VeironCudaDeviceInfo* out) {
     return 0;
 }
 
-struct VeironCudaMiner {
+struct VireonCudaMiner {
     int device_index;
     uint32_t* d_dag;
     uint32_t* d_l1;
@@ -539,9 +539,9 @@ struct VeironCudaMiner {
     size_t dag_bytes;
 };
 
-VeironCudaMiner* veiron_cuda_miner_create(int device_index) {
+VireonCudaMiner* vireon_cuda_miner_create(int device_index) {
     if (cudaSetDevice(device_index) != cudaSuccess) return nullptr;
-    auto* m = new VeironCudaMiner();
+    auto* m = new VireonCudaMiner();
     m->device_index = device_index;
     m->d_dag = nullptr;
     m->d_l1 = nullptr;
@@ -575,7 +575,7 @@ VeironCudaMiner* veiron_cuda_miner_create(int device_index) {
     return m;
 }
 
-void veiron_cuda_miner_destroy(VeironCudaMiner* m) {
+void vireon_cuda_miner_destroy(VireonCudaMiner* m) {
     if (!m) return;
     cudaSetDevice(m->device_index);
     if (m->d_dag) cudaFree(m->d_dag);
@@ -590,8 +590,8 @@ void veiron_cuda_miner_destroy(VeironCudaMiner* m) {
     delete m;
 }
 
-int veiron_cuda_miner_build_dag(
-    VeironCudaMiner* m,
+int vireon_cuda_miner_build_dag(
+    VireonCudaMiner* m,
     int block_number,
     const uint32_t* light_host,
     uint32_t light_items,
@@ -643,7 +643,7 @@ int veiron_cuda_miner_build_dag(
     const int threads = 128;
     int blocks = (int)((dataset_items_512 + (uint32_t)threads - 1u) / (uint32_t)threads);
     if (blocks > 65535) blocks = 65535;
-    veiron_build_dag_kernel<<<blocks, threads>>>(
+    vireon_build_dag_kernel<<<blocks, threads>>>(
         d_light, light_items, m->d_dag, dataset_items_512);
     cudaError_t build_error = cudaGetLastError();
     if (build_error == cudaSuccess) build_error = cudaDeviceSynchronize();
@@ -656,8 +656,8 @@ int veiron_cuda_miner_build_dag(
     return 0;
 }
 
-int veiron_cuda_miner_copy_dag_item(
-    VeironCudaMiner* m,
+int vireon_cuda_miner_copy_dag_item(
+    VireonCudaMiner* m,
     uint32_t index,
     uint8_t out[128]
 ) {
@@ -670,8 +670,8 @@ int veiron_cuda_miner_copy_dag_item(
 
 // Mine a batch on device. Returns 0 on success (found or not).
 // *found_out = 1 if solution, 0 otherwise.
-int veiron_cuda_mine_firopow(
-    VeironCudaMiner* m,
+int vireon_cuda_mine_firopow(
+    VireonCudaMiner* m,
     int block_number,
     const uint8_t header_hash[32],
     const uint8_t boundary[32],
@@ -724,7 +724,7 @@ int veiron_cuda_mine_firopow(
         if (jobs > (uint32_t)blocks * (uint32_t)threads)
             jobs = (uint32_t)blocks * (uint32_t)threads;
 
-        veiron_firopow_search_kernel<<<blocks, threads>>>(
+        vireon_firopow_search_kernel<<<blocks, threads>>>(
             m->d_dag,
             m->d_l1,
             m->full_dataset_num_items_1024,
@@ -763,7 +763,7 @@ cleanup:
     return rc;
 }
 
-int veiron_cuda_device_kernels_linked(void) {
+int vireon_cuda_device_kernels_linked(void) {
     return 1;
 }
 

@@ -190,8 +190,8 @@ export function Pool() {
       setError(null);
       try {
         const [cat, snap] = await Promise.all([
-          window.veiron.pool.catalog(),
-          window.veiron.pool.snapshot(target, wallet?.address ?? null)
+          window.vireon.pool.catalog(),
+          window.vireon.pool.snapshot(target, wallet?.address ?? null)
         ]);
         setCatalog(cat);
         setSnapshot(snap);

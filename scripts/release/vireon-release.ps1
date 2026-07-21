@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
     [string]$RepoPath = ".",
     [string]$ArtifactsPath = "",
@@ -315,7 +315,7 @@ function Ensure-GitHubPrerelease {
         return
     }
 
-    $notesPath = Join-Path ([System.IO.Path]::GetTempPath()) ("veiron-release-notes-{0}.md" -f ([guid]::NewGuid().ToString("N")))
+    $notesPath = Join-Path ([System.IO.Path]::GetTempPath()) ("vireon-release-notes-{0}.md" -f ([guid]::NewGuid().ToString("N")))
     @"
 ## Mainnet Candidate prerelease - not public Mainnet
 
@@ -328,7 +328,7 @@ Acest release poate contine artefacte construite local si verificate de operator
             $create = Invoke-Native -Command "gh" -Arguments @(
                 "release", "create", $Tag,
                 "--verify-tag",
-                "--title", "Veiron $Tag",
+                "--title", "Vireon $Tag",
                 "--notes-file", $notesPath,
                 "--prerelease"
             ) -Capture -AllowFailure
@@ -365,7 +365,7 @@ function Publish-LocalArtifactsToRelease {
     Write-Title "Publica artefactele locale"
     Ensure-GitHubPrerelease -Tag $Tag
 
-    $stage = Join-Path ([System.IO.Path]::GetTempPath()) ("veiron-local-release-{0}" -f ([guid]::NewGuid().ToString("N")))
+    $stage = Join-Path ([System.IO.Path]::GetTempPath()) ("vireon-local-release-{0}" -f ([guid]::NewGuid().ToString("N")))
     New-Item -ItemType Directory -Path $stage -Force | Out-Null
 
     try {
@@ -401,7 +401,7 @@ function Publish-LocalArtifactsToRelease {
 }
 
 function Get-DesktopVersion {
-    $packagePath = Join-Path (Get-Location) "veiron-desktop-tauri/package.json"
+    $packagePath = Join-Path (Get-Location) "vireon-desktop-tauri/package.json"
     if (Test-Path $packagePath) {
         try {
             $package = Get-Content -Raw -Path $packagePath | ConvertFrom-Json
@@ -411,7 +411,7 @@ function Get-DesktopVersion {
             }
         }
         catch {
-            Write-Warn "Nu am putut citi versiunea din veiron-desktop-tauri/package.json."
+            Write-Warn "Nu am putut citi versiunea din vireon-desktop-tauri/package.json."
         }
     }
 
@@ -607,7 +607,7 @@ function Create-And-PushCandidateTag {
         return
     }
 
-    $tagMessage = "Veiron candidate release $tag"
+    $tagMessage = "Vireon candidate release $tag"
     if ($useLocalArtifacts) {
         foreach ($platform in $localPlatforms) {
             $tagMessage += "`n[local-$platform]"
@@ -851,7 +851,7 @@ else {
     $script:ResolvedArtifactsPath = Join-Path $repoRoot $ArtifactsPath
 }
 
-Write-Title "Veiron Independent Release Manager v$script:ReleaseManagerVersion"
+Write-Title "Vireon Independent Release Manager v$script:ReleaseManagerVersion"
 Write-Ok "Repository: $repoRoot"
 Write-Info "Artefacte locale: $script:ResolvedArtifactsPath"
 

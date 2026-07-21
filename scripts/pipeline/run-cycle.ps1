@@ -32,7 +32,7 @@ $runId = Get-Date -Format "yyyyMMdd-HHmmss"
 $runDir = Join-Path $paths.Runs $runId
 Ensure-Dir $runDir
 
-Write-Host "=== Veiron pipeline cycle ===" -ForegroundColor Green
+Write-Host "=== Vireon pipeline cycle ===" -ForegroundColor Green
 Write-Host "Mode: $Mode"
 Write-Host "Repo: $Repo"
 Write-Host "Run:  $runDir"

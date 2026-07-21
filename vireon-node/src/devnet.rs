@@ -18,7 +18,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::thread;
 use std::time::{Duration, SystemTime};
-use veiron_core::{
+use vireon_core::{
     apply_transaction, blake3_hash, block_reward, child_block_with_consensus_difficulty,
     common_ancestor_height, genesis_with_difficulty_for_network,
     genesis_with_timestamp_for_network, hash_to_hex, median_time_past,
@@ -29,8 +29,8 @@ use veiron_core::{
 
 pub const DEFAULT_MAINNET_CANDIDATE_CONFIG_PATH: &str = "configs/mainnet-candidate.toml";
 pub const DEFAULT_CONFIG_PATH: &str = DEFAULT_MAINNET_CANDIDATE_CONFIG_PATH;
-pub const DEFAULT_DATA_DIR: &str = ".veiron-mainnet/chain";
-pub const LOCAL_OPERATOR_ROOT: &str = ".veiron-local";
+pub const DEFAULT_DATA_DIR: &str = ".vireon-mainnet/chain";
+pub const LOCAL_OPERATOR_ROOT: &str = ".vireon-local";
 pub const GENESIS_REVIEW_STANDARD_ID: &str = "veiron-genesis-review-v1";
 pub const GENESIS_APPROVAL_STANDARD_ID: &str = "veiron-genesis-approval-v1";
 const NODE_RUNTIME_DIR_NAME: &str = "node";
@@ -336,8 +336,8 @@ struct GenesisReviewPayload {
 
 pub fn default_config_path(network: Network) -> PathBuf {
     match network {
-        Network::Devnet => PathBuf::from("veiron-devnet/config/devnet.toml"),
-        Network::Testnet => PathBuf::from("veiron-devnet/config/testnet.toml"),
+        Network::Devnet => PathBuf::from("vireon-devnet/config/devnet.toml"),
+        Network::Testnet => PathBuf::from("vireon-devnet/config/testnet.toml"),
         Network::MainnetCandidate => PathBuf::from(DEFAULT_MAINNET_CANDIDATE_CONFIG_PATH),
     }
 }
@@ -727,7 +727,7 @@ pub fn balance(config_path: &Path, data_dir: &Path, address: &str) -> NodeResult
         address: address.to_owned(),
         balance_atomic: balance.as_atomic(),
         exists: chain.state().balances().contains_key(address)
-            || next_nonce > veiron_core::FIRST_ACCOUNT_NONCE,
+            || next_nonce > vireon_core::FIRST_ACCOUNT_NONCE,
         next_nonce,
     })
 }
@@ -1071,7 +1071,7 @@ pub fn start_node(
         let mempool_dir = mempool_dir.to_path_buf();
         let runtime_dir = runtime_dir.clone();
         thread::Builder::new()
-            .name("veiron-p2p".to_owned())
+            .name("vireon-p2p".to_owned())
             .spawn(move || run_p2p_service(config_path, data_dir, mempool_dir, runtime_dir, stop))?
     };
 

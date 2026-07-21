@@ -80,7 +80,7 @@ jobs:
           set -euo pipefail
           mkdir -p release-publish/vps
 
-          find veiron-release -maxdepth 1 -type f \
+          find vireon-release -maxdepth 1 -type f \
             \( -name '*.tar.gz' -o -name '*.zip' -o -name '*.sha256' \) \
             -exec cp {} release-publish/vps/ \; 2>/dev/null || true
           find release-artifacts -maxdepth 1 -type f \
@@ -120,7 +120,7 @@ jobs:
           if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             gh release create "$RELEASE_TAG" \
               --verify-tag \
-              --title "Veiron $RELEASE_TAG" \
+              --title "Vireon $RELEASE_TAG" \
               --notes-file release-notes.md \
               --prerelease \
               || gh release view "$RELEASE_TAG" >/dev/null

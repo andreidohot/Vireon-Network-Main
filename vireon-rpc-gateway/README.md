@@ -1,4 +1,4 @@
-# veiron-rpc-gateway
+# vireon-rpc-gateway
 
 Status: Mainnet Candidate / public prototype / not public Mainnet
 
@@ -18,7 +18,7 @@ plus solo mining, and exposes it through HTTPS with request/body/rate limits.
 This deliberate public mining surface is candidate/prototype behavior and still
 requires abuse testing before G4. Detailed `/p2p/status` remains local.
 
-Mining templates use `veiron-mining-v1`, unpredictable in-memory IDs, immutable
+Mining templates use `vireon-mining-v1`, unpredictable in-memory IDs, immutable
 candidate fields, and 90-second expiry. Submissions carry nonce, final hash, and
 FiroPoW mix hash; node/core recompute and fully validate before persistence.
 
@@ -29,5 +29,5 @@ and safety boundaries.
 Run locally:
 
 ```powershell
-cargo run -p veiron-rpc-gateway -- --config configs/rpc.mainnet-candidate.toml
+cargo run -p vireon-rpc-gateway -- --config configs/rpc.mainnet-candidate.toml
 ```

@@ -1,7 +1,7 @@
 use crate::Result;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
-use veiron_core::{Block, Hash};
+use vireon_core::{Block, Hash};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]

@@ -4,7 +4,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::{Duration, Instant};
-use veiron_miner::{
+use vireon_miner::{
     default_activity_path, ActivityLog, BackendConfig, CudaMiningCoordinator, FileWorkSource,
     MinerConfig, MinerError, MiningBackend, MiningJob, MiningMode, MiningSubmitRequest,
     PoolWorkSource, Result, RpcWorkSource, SubmitStatus, WorkSource, WorkSourceConfig,
@@ -12,12 +12,12 @@ use veiron_miner::{
 
 #[derive(Debug, Parser)]
 #[command(
-    name = "veiron-miner",
+    name = "vireon-miner",
     version,
-    about = "Veiron FiroPoW 0.9.4 CUDA-only GPU miner — no CPU/OpenCL mining"
+    about = "Vireon FiroPoW 0.9.4 CUDA-only GPU miner — no CPU/OpenCL mining"
 )]
 struct Cli {
-    #[arg(long, default_value = "veiron-miner/config.toml")]
+    #[arg(long, default_value = "vireon-miner/config.toml")]
     config: PathBuf,
     #[arg(long, default_value_t = false)]
     json: bool,
@@ -39,7 +39,7 @@ enum Command {
         /// Filter: all | gpu | cuda
         #[arg(long, default_value = "all")]
         backend: String,
-        /// Emit JSON (also accepted as global `veiron-miner --json devices`).
+        /// Emit JSON (also accepted as global `vireon-miner --json devices`).
         #[arg(long, default_value_t = false)]
         json: bool,
     },
@@ -145,7 +145,7 @@ fn run() -> Result<()> {
     match &cli.command {
         Command::Devices { backend, json } => {
             // Devices does not require a full config file.
-            // Accept both `veiron-miner --json devices` and `veiron-miner devices --json`.
+            // Accept both `vireon-miner --json devices` and `vireon-miner devices --json`.
             devices(backend, cli.json || *json)
         }
         Command::Config { action } => {
@@ -215,15 +215,15 @@ fn cuda_feature_enabled() -> bool {
 
 fn devices(backend_filter: &str, json: bool) -> Result<()> {
     let filter = backend_filter.to_ascii_lowercase();
-    let report = veiron_miner::enumerate_device_report();
+    let report = vireon_miner::enumerate_device_report();
     let filtered: Vec<_> = report
         .devices
         .into_iter()
         .filter(|d| match filter.as_str() {
             "all" => true,
             "cpu" | "opencl" => false,
-            "gpu" => matches!(d.backend, veiron_miner::BackendId::GpuCuda),
-            "cuda" | "nvidia" => matches!(d.backend, veiron_miner::BackendId::GpuCuda),
+            "gpu" => matches!(d.backend, vireon_miner::BackendId::GpuCuda),
+            "cuda" | "nvidia" => matches!(d.backend, vireon_miner::BackendId::GpuCuda),
             _ => true,
         })
         .collect();
@@ -273,7 +273,7 @@ fn status(config: &MinerConfig) -> Result<()> {
 
 fn synthetic_config() -> MinerConfig {
     MinerConfig {
-        schema_version: veiron_miner::MINER_CONFIG_SCHEMA_VERSION,
+        schema_version: vireon_miner::MINER_CONFIG_SCHEMA_VERSION,
         miner_address:
             "vrnd1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
                 .into(),
@@ -307,15 +307,15 @@ fn make_job_from_template(source: &dyn WorkSource, config: &MinerConfig) -> Resu
 }
 
 fn synthetic_job() -> MiningJob {
-    use veiron_core::{Amount, Hash, Network, PrivateKey, Transaction};
-    let address = veiron_core::Address::from_public_key_for_network(
+    use vireon_core::{Amount, Hash, Network, PrivateKey, Transaction};
+    let address = vireon_core::Address::from_public_key_for_network(
         &PrivateKey::generate().public_key(),
         Network::Devnet,
     )
     .to_string();
     let transaction = Transaction::coinbase(1, address, Amount::from_atomic(1)).expect("coinbase");
     let block =
-        veiron_core::Block::new(Network::Devnet, 1, Hash::zero(), 0, 1, 0, vec![transaction])
+        vireon_core::Block::new(Network::Devnet, 1, Hash::zero(), 0, 1, 0, vec![transaction])
             .expect("block");
     MiningJob {
         template_id: "benchmark".into(),
@@ -348,7 +348,7 @@ fn benchmark(config: &MinerConfig, device: &str, seconds: u64, json: bool) -> Re
     {
         #[cfg(feature = "gpu-cuda")]
         {
-            let mut cuda = veiron_miner::CudaGpuBackend::default();
+            let mut cuda = vireon_miner::CudaGpuBackend::default();
             match cuda.initialize(BackendConfig {
                 batch_size: config.effective_gpu_batch(),
                 device_ids: config.gpu_devices.clone(),
@@ -835,14 +835,14 @@ fn mine(config: &MinerConfig, once: bool) -> Result<()> {
                 format!(
                     "nonce={} final={} mix={} share_diff={}",
                     solution.nonce,
-                    veiron_core::hash_to_hex(&solution.final_hash),
-                    veiron_core::hash_to_hex(&solution.mix_hash),
+                    vireon_core::hash_to_hex(&solution.final_hash),
+                    vireon_core::hash_to_hex(&solution.mix_hash),
                     share_difficulty
                 ),
             );
             if core_out.final_hash != solution.final_hash
                 || core_out.mix_hash != solution.mix_hash
-                || !veiron_core::check_pow(&core_out.final_hash, share_difficulty)
+                || !vireon_core::check_pow(&core_out.final_hash, share_difficulty)
             {
                 log.warn(
                     "solution_rejected_local",

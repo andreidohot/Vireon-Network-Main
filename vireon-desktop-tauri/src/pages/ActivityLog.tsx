@@ -29,7 +29,7 @@ export function ActivityLog() {
   useEffect(() => {
     const load = async () => {
       const entries = await Promise.all(
-        services.map(async (name) => [name, await window.veiron.logs.recent(name, 260)] as const)
+        services.map(async (name) => [name, await window.vireon.logs.recent(name, 260)] as const)
       );
       setLogs(Object.fromEntries(entries) as Record<Service, string>);
     };

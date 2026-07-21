@@ -1,8 +1,8 @@
-# Veiron P2P Networking
+# Vireon P2P Networking
 
 Status: Draft / Mainnet Candidate / Prototype
 
-Veiron nodes use `rust-libp2p` with encrypted Noise sessions over TCP and Yamux stream multiplexing. Protocol paths include the active `network_id` and protocol version. A peer handshake additionally binds the chain magic and actual local genesis hash, preventing synchronization across incompatible networks.
+Vireon nodes use `rust-libp2p` with encrypted Noise sessions over TCP and Yamux stream multiplexing. Protocol paths include the active `network_id` and protocol version. A peer handshake additionally binds the chain magic and actual local genesis hash, preventing synchronization across incompatible networks.
 
 The current implementation provides:
 

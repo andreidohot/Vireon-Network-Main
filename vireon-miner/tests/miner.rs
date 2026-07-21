@@ -1,11 +1,11 @@
 use std::fs;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tempfile::tempdir;
-use veiron_core::{
+use vireon_core::{
     block_reward, firopow::mine_firopow_solution, hash_to_hex, initial_base_fee, Address, Block,
     Hash, Network, PrivateKey, Transaction,
 };
-use veiron_miner::{
+use vireon_miner::{
     FileWorkSource, MiningSubmitRequest, MiningTemplate, SubmitStatus, WorkSource,
     MINING_PROTOCOL_VERSION,
 };
@@ -87,7 +87,7 @@ fn parallel_nonce_search_finds_valid_firopow() {
     .expect("difficulty zero always solves");
 
     assert!(nonce >= 100);
-    assert!(veiron_core::check_pow(
+    assert!(vireon_core::check_pow(
         &result.final_hash,
         block.header.difficulty_leading_zero_bits
     ));

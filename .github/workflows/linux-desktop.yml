@@ -26,20 +26,20 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           ref: ${{ inputs.tag || github.ref }}
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
       - uses: Jimver/cuda-toolkit@3d45d157f327c09c04b50ee6ccdea2d9d017ec76
         with:
           cuda: "13.2.0"
           method: network
           sub-packages: '["nvcc", "cudart-dev"]'
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: veiron-desktop-tauri/package-lock.json
+          cache-dependency-path: vireon-desktop-tauri/package-lock.json
 
       - name: Install Linux packaging dependencies
         run: >-
@@ -55,7 +55,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p release-publish/linux
-          find veiron-release/apps/linux -maxdepth 1 -type f -exec cp {} release-publish/linux/ \;
+          find vireon-release/apps/linux -maxdepth 1 -type f -exec cp {} release-publish/linux/ \;
           test -n "$(find release-publish/linux -type f -print -quit)"
           (
             cd release-publish/linux
@@ -65,9 +65,9 @@ jobs:
           )
 
       - name: Upload workflow artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: veiron-control-center-linux-${{ env.RELEASE_TAG }}
+          name: vireon-control-center-linux-${{ env.RELEASE_TAG }}
           if-no-files-found: error
           path: release-publish/linux/*
 
@@ -79,7 +79,7 @@ jobs:
           if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             gh release create "$RELEASE_TAG" \
               --verify-tag \
-              --title "Veiron Linux $RELEASE_TAG" \
+              --title "Vireon Linux $RELEASE_TAG" \
               --notes "Standalone Linux Control Center build." \
               --prerelease
           fi

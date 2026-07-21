@@ -1,9 +1,9 @@
 {
-    "name":  "veiron-examples",
+    "name":  "vireon-examples",
     "version":  "1.0.0",
     "private":  true,
     "type":  "module",
-    "description":  "Runnable examples for Veiron Mainnet Candidate (uses @veiron/sdk)",
+    "description":  "Runnable examples for Vireon Mainnet Candidate (uses @vireon/sdk)",
     "scripts":  {
                     "chain-status":  "node scripts/chain-status.mjs",
                     "pool-status":  "node scripts/pool-status.mjs",

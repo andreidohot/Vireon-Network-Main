@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 /path/to/veiron-repository" >&2
+  echo "Usage: $0 /path/to/vireon-repository" >&2
   exit 2
 fi
 
@@ -25,11 +25,11 @@ cp "$SOURCE_DIR"/*.yml "$TARGET_DIR/"
 
 RELEASE_TOOLS_DIR="$REPO_PATH/scripts/release"
 mkdir -p "$RELEASE_TOOLS_DIR"
-cp "$(dirname "$0")/veiron-release.ps1" "$RELEASE_TOOLS_DIR/"
-cp "$(dirname "$0")/veiron-release.cmd" "$RELEASE_TOOLS_DIR/"
+cp "$(dirname "$0")/vireon-release.ps1" "$RELEASE_TOOLS_DIR/"
+cp "$(dirname "$0")/vireon-release.cmd" "$RELEASE_TOOLS_DIR/"
 
 echo "Installed rebuilt workflows into: $TARGET_DIR"
 echo "Installed interactive release manager into: $RELEASE_TOOLS_DIR"
 echo "Backup of previous workflows: $BACKUP_DIR"
 echo "Next: review 'git diff -- .github/workflows scripts/release' and commit the changes."
-echo "On Windows, run: .\scripts\release\veiron-release.cmd"
+echo "On Windows, run: .\scripts\release\vireon-release.cmd"

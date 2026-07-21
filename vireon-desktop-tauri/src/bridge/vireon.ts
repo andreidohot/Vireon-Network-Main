@@ -14,7 +14,7 @@ import type {
   RuntimeHealth,
   SubmissionResult,
   UpdateState,
-  VeironBridge,
+  VireonBridge,
   WalletCreateResult,
   WalletMetadata
 } from "@shared/types";
@@ -26,7 +26,7 @@ function platform(): "windows" | "linux" | "other" {
   return "other";
 }
 
-export function createVeironBridge(): VeironBridge {
+export function createVireonBridge(): VireonBridge {
   return {
     network: {
       snapshot: () => invoke<NetworkSnapshot>("network_snapshot"),
@@ -107,8 +107,8 @@ export function createVeironBridge(): VeironBridge {
   };
 }
 
-export function installVeironBridge(): VeironBridge {
-  const bridge = createVeironBridge();
-  window.veiron = bridge;
+export function installVireonBridge(): VireonBridge {
+  const bridge = createVireonBridge();
+  window.vireon = bridge;
   return bridge;
 }

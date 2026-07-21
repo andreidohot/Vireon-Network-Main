@@ -2,11 +2,11 @@
  * Print public pool coordinator status.
  * Usage: node scripts/pool-status.mjs [poolUrl]
  */
-import { createVeironClient } from "../../veiron-sdk/dist/index.js";
+import { createVireonClient } from "../../vireon-sdk/dist/index.js";
 
 const poolUrl =
-  process.argv[2] ?? process.env.VEIRON_POOL_URL ?? "https://rpcnode.dohotstudio.com/pool";
-const client = createVeironClient({ poolUrl });
+  process.argv[2] ?? process.env.VIREON_POOL_URL ?? "https://rpcnode.dohotstudio.com/pool";
+const client = createVireonClient({ poolUrl });
 
 const pool = await client.poolStatus();
 

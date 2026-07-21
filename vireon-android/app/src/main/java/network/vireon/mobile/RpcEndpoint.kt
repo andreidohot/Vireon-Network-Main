@@ -1,4 +1,4 @@
-package network.veiron.mobile
+package network.vireon.mobile
 
 import java.net.URI
 
@@ -10,7 +10,7 @@ object RpcEndpointPolicy {
 
     fun normalize(raw: String): String {
         val trimmed = raw.trim().trimEnd('/')
-        require(trimmed.isNotEmpty()) { "Enter a Veiron RPC endpoint." }
+        require(trimmed.isNotEmpty()) { "Enter a Vireon RPC endpoint." }
         val withScheme = if ("://" in trimmed) trimmed else "https://$trimmed"
         val uri = runCatching { URI(withScheme) }
             .getOrElse { throw IllegalArgumentException("Invalid RPC endpoint: ${it.message}") }
@@ -19,7 +19,7 @@ object RpcEndpointPolicy {
         }
         require(!uri.host.isNullOrBlank()) { "RPC endpoint must include a valid host." }
         require(uri.port != P2P_PORT) {
-            "Port 20787 is Veiron P2P, not HTTP RPC. Use https://rpcnode.dohotstudio.com for the public RPC."
+            "Port 20787 is Vireon P2P, not HTTP RPC. Use https://rpcnode.dohotstudio.com for the public RPC."
         }
         require(uri.rawQuery == null && uri.rawFragment == null) {
             "RPC endpoint cannot contain a query or fragment."

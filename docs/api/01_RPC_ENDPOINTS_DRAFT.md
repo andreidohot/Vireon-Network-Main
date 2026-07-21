@@ -3,7 +3,7 @@
 Status: Implemented / Mainnet Candidate / route availability depends on profile
 
 The filename retains `_DRAFT` for link stability. The route list below reflects
-the current Axum router in `veiron-rpc-gateway/src/app.rs`.
+the current Axum router in `vireon-rpc-gateway/src/app.rs`.
 
 ## Public read routes
 
@@ -60,7 +60,7 @@ Routes are available in local mode and may be explicitly enabled in a loopback-
 bound `public-submit` gateway behind the reviewed HTTPS reverse proxy. The
 reference VPS uses this path for solo miners with dedicated rate limits.
 
-Templates use protocol `veiron-mining-v1`, contain an immutable FiroPoW 0.9.4
+Templates use protocol `vireon-mining-v1`, contain an immutable FiroPoW 0.9.4
 candidate, expire after 90 seconds, and have unpredictable in-memory IDs. A
 submit carries template ID, nonce, final hash, and FiroPoW mix hash. Node/core
 recompute the work and perform complete state/chain validation before atomic

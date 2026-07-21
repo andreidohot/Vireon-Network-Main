@@ -1,25 +1,25 @@
-https://andreidohot.github.io/Veiron-Network-Main/#
+https://andreidohot.github.io/Vireon-Network-Main/#
 
 
-# Veiron Network
+# Vireon Network
 
-Veiron Network is an independent, Rust-based Proof-of-Work Layer 1 blockchain currently under active development.
+Vireon Network is an independent, Rust-based Proof-of-Work Layer 1 blockchain currently under active development.
 
 The project is being built as a complete blockchain ecosystem rather than as a token deployed on an existing network. Its architecture includes a native blockchain core, consensus rules, node software, peer-to-peer networking, wallet infrastructure, mining software, an RPC gateway, an indexer, a block explorer, developer tooling and desktop control applications.
 
-Veiron is currently classified as a:
+Vireon is currently classified as a:
 
 > **Mainnet Candidate / Experimental Prototype**
 
 This classification is important.
 
-Veiron Network is not currently a public production blockchain, and VIRE generated or transferred inside the current network must not be treated as real money, legal tender, an investment product or a production cryptocurrency.
+Vireon Network is not currently a public production blockchain, and VIRE generated or transferred inside the current network must not be treated as real money, legal tender, an investment product or a production cryptocurrency.
 
 ---
 
 ## Important experimental-network notice
 
-The current Veiron network exists for:
+The current Vireon network exists for:
 
 * blockchain development;
 * protocol testing;
@@ -37,7 +37,7 @@ The current network is not intended for real financial activity.
 
 ### VIRE does not represent real funds at this stage
 
-VIRE balances created on the current Mainnet Candidate, local network, development network or any other experimental Veiron environment:
+VIRE balances created on the current Mainnet Candidate, local network, development network or any other experimental Vireon environment:
 
 * do not represent legal tender;
 * do not represent fiat currency;
@@ -71,9 +71,9 @@ No official token sale, exchange listing, public investment round, guaranteed li
 
 ---
 
-## What exactly is Veiron Network?
+## What exactly is Vireon Network?
 
-Veiron Network is a complete Layer 1 blockchain project being developed from its own protocol implementation.
+Vireon Network is a complete Layer 1 blockchain project being developed from its own protocol implementation.
 
 A Layer 1 blockchain is the base network that directly defines:
 
@@ -90,7 +90,7 @@ A Layer 1 blockchain is the base network that directly defines:
 * how the native asset is issued;
 * how protocol upgrades are introduced.
 
-Veiron is not simply:
+Vireon is not simply:
 
 * a website;
 * a wallet interface;
@@ -102,15 +102,15 @@ Veiron is not simply:
 * a centralized payment balance;
 * a reskinned cryptocurrency client.
 
-The long-term objective is to operate Veiron as an independent distributed network in which multiple nodes can validate the same protocol rules without relying on one central database.
+The long-term objective is to operate Vireon as an independent distributed network in which multiple nodes can validate the same protocol rules without relying on one central database.
 
 The current implementation already includes important parts of that foundation, but the network has not yet completed the testing, security and operational requirements necessary for public production use.
 
 ---
 
-## Why Veiron is being built
+## Why Vireon is being built
 
-Veiron is being developed as a general-purpose blockchain foundation for digital ownership and application infrastructure.
+Vireon is being developed as a general-purpose blockchain foundation for digital ownership and application infrastructure.
 
 The project is intended to explore how one network could eventually support:
 
@@ -132,7 +132,7 @@ The project is intended to explore how one network could eventually support:
 
 The aim is not to place every file, image, message or application record directly on the blockchain.
 
-Veiron follows an on-chain and off-chain separation model.
+Vireon follows an on-chain and off-chain separation model.
 
 ### Information intended for on-chain storage
 
@@ -226,11 +226,11 @@ A component being present in the repository does not automatically mean it is su
 
 ## Network parameters
 
-The following parameters describe the current Veiron protocol direction and Mainnet Candidate configuration.
+The following parameters describe the current Vireon protocol direction and Mainnet Candidate configuration.
 
 | Parameter                      | Current value              |
 | ------------------------------ | -------------------------- |
-| Project name                   | Veiron Network             |
+| Project name                   | Vireon Network             |
 | Native asset                   | VIRE                       |
 | Address prefix                 | `vire`                     |
 | Blockchain type                | Layer 1                    |
@@ -258,7 +258,7 @@ The following parameters describe the current Veiron protocol direction and Main
 
 ### Block time
 
-Veiron targets one block every 60 seconds.
+Vireon targets one block every 60 seconds.
 
 This means the protocol aims for approximately:
 
@@ -431,7 +431,7 @@ NVIDIA GPU
 CUDA
 ```
 
-The official Veiron miner does not currently provide:
+The official Vireon miner does not currently provide:
 
 * CPU mining;
 * OpenCL mining;
@@ -445,7 +445,7 @@ Changing the Proof-of-Work algorithm after a public launch would be a consensus-
 
 ### Future PoLW research
 
-Veiron may research Proof of Low Work or energy-aware mining models in the future.
+Vireon may research Proof of Low Work or energy-aware mining models in the future.
 
 This does not mean PoLW is currently active.
 
@@ -466,7 +466,7 @@ No PoLW mechanism should be advertised as implemented until it exists in consens
 
 ## Architecture
 
-Veiron is organized into three major conceptual layers.
+Vireon is organized into three major conceptual layers.
 
 ## 1. Base layer
 
@@ -547,32 +547,32 @@ Some product-layer components are runnable prototypes. Others remain planned.
 ## Repository structure
 
 ```text
-Veiron-Network-Main/
+Vireon-Network-Main/
 ├── configs/
 ├── docs/
 ├── scripts/
 ├── shared/
 │
-├── veiron-core/
-├── veiron-node/
-├── veiron-rpc-gateway/
-├── veiron-wallet/
-├── veiron-sdk/
-├── veiron-sdk-rust/
-├── veiron-indexer/
-├── veiron-explorer/
-├── veiron-miner/
-├── veiron-mining-pool/
-├── veiron-desktop/
-├── veiron-desktop-tauri/
-├── veiron-mobile-core/
-├── veiron-browser/
-├── veiron-release/
-├── veiron-website/
+├── vireon-core/
+├── vireon-node/
+├── vireon-rpc-gateway/
+├── vireon-wallet/
+├── vireon-sdk/
+├── vireon-sdk-rust/
+├── vireon-indexer/
+├── vireon-explorer/
+├── vireon-miner/
+├── vireon-mining-pool/
+├── vireon-desktop/
+├── vireon-desktop-tauri/
+├── vireon-mobile-core/
+├── vireon-browser/
+├── vireon-release/
+├── vireon-website/
 └── Cargo.toml
 ```
 
-### `veiron-core`
+### `vireon-core`
 
 The consensus-critical Rust library.
 
@@ -599,9 +599,9 @@ It contains or is expected to contain:
 * wire serialization;
 * validation rules.
 
-`veiron-core` is the primary source of truth for blockchain behavior.
+`vireon-core` is the primary source of truth for blockchain behavior.
 
-### `veiron-node`
+### `vireon-node`
 
 The blockchain node runtime.
 
@@ -618,7 +618,7 @@ Responsibilities include:
 * storing candidate-network data;
 * reporting health and diagnostics.
 
-### `veiron-rpc-gateway`
+### `vireon-rpc-gateway`
 
 The controlled API layer between node infrastructure and clients.
 
@@ -638,7 +638,7 @@ It may expose:
 
 Sensitive endpoints must not be exposed publicly without authentication and appropriate network protection.
 
-### `veiron-wallet`
+### `vireon-wallet`
 
 Wallet-related command-line and library functionality.
 
@@ -657,9 +657,9 @@ Current or intended responsibilities:
 
 Wallet software must never transmit private keys or mnemonic phrases to the public RPC gateway.
 
-### `veiron-miner`
+### `vireon-miner`
 
-Standalone mining software for Veiron.
+Standalone mining software for Vireon.
 
 Current direction:
 
@@ -673,7 +673,7 @@ Current direction:
 
 Mining during the current stage generates experimental VIRE only.
 
-### `veiron-mining-pool`
+### `vireon-mining-pool`
 
 Experimental pool infrastructure.
 
@@ -692,7 +692,7 @@ Potential responsibilities:
 
 The pool is not currently a production financial service.
 
-### `veiron-indexer`
+### `vireon-indexer`
 
 Converts blockchain history into searchable records for:
 
@@ -706,7 +706,7 @@ Converts blockchain history into searchable records for:
 * wallet history;
 * future assets and contracts.
 
-### `veiron-explorer`
+### `vireon-explorer`
 
 A web interface for examining the experimental blockchain.
 
@@ -724,7 +724,7 @@ The explorer may display:
 
 Explorer information is derived from experimental network data and must not be interpreted as proof of real-world monetary value.
 
-### Veiron Control Center
+### Vireon Control Center
 
 The desktop Control Center is intended to combine:
 
@@ -825,7 +825,7 @@ The Mainnet Candidate environment allows the project to test production-shaped b
 
 ## Requirements before any public mainnet
 
-Before Veiron can be described as a public mainnet, the project should complete at least:
+Before Vireon can be described as a public mainnet, the project should complete at least:
 
 * independent genesis verification;
 * reproducible release builds;
@@ -859,12 +859,12 @@ Until those gates are completed, all network activity must remain experimental.
 
 ## Maintainer
 
-Veiron Network was initiated and is currently maintained by:
+Vireon Network was initiated and is currently maintained by:
 
 ```text
 Project founder: z3dC0d3
 GitHub maintainer: andreidohot
-Primary repository: andreidohot/Veiron-Network-Main
+Primary repository: andreidohot/Vireon-Network-Main
 ```
 
 The maintainer currently acts as:
@@ -882,7 +882,7 @@ The maintainer currently acts as:
 
 The maintainer is responsible for coordinating decisions across:
 
-* `veiron-core`;
+* `vireon-core`;
 * node behavior;
 * network parameters;
 * mining;
@@ -952,7 +952,7 @@ Anyone claiming that such information is required for support should be treated 
 
 ### Future contributors
 
-Veiron may accept contributions in areas such as:
+Vireon may accept contributions in areas such as:
 
 * Rust development;
 * blockchain testing;
@@ -1010,7 +1010,7 @@ Before public production use, the following require independent review:
 
 ## Current limitations
 
-Veiron currently has several important limitations:
+Vireon currently has several important limitations:
 
 * there is no public production mainnet;
 * VIRE is not real money;
@@ -1111,7 +1111,7 @@ These names represent proposed standards, not currently live protocols.
 
 ## Project summary
 
-Veiron Network is an attempt to build a complete independent Layer 1 blockchain ecosystem from its own Rust-based protocol foundation.
+Vireon Network is an attempt to build a complete independent Layer 1 blockchain ecosystem from its own Rust-based protocol foundation.
 
 The project is not limited to creating a native coin. Its broader objective is to establish the technical base required for a network that can eventually support digital ownership, software licensing, applications, games, identity proofs, native assets, NFTs, storage commitments and encrypted digital services.
 
@@ -1144,7 +1144,7 @@ It contains working or partially working implementations for:
 * desktop network management;
 * local and VPS-oriented deployment tools.
 
-However, the existence of these components does not make Veiron a finished public blockchain.
+However, the existence of these components does not make Vireon a finished public blockchain.
 
 The project remains in the difficult stage between a functional prototype and production infrastructure.
 
@@ -1162,7 +1162,7 @@ The most important work ahead is not simply adding more visible features. It is 
 * without exposing wallet secrets;
 * without relying on undocumented behavior.
 
-Veiron must demonstrate that different nodes running the same protocol reach the same result.
+Vireon must demonstrate that different nodes running the same protocol reach the same result.
 
 It must demonstrate that invalid blocks and transactions are rejected consistently.
 
@@ -1176,7 +1176,7 @@ It must demonstrate that operators can back up, restore and recover their infras
 
 It must demonstrate that public releases are authentic and reproducible.
 
-Until these conditions are met, Veiron should be described honestly as a Mainnet Candidate and experimental blockchain.
+Until these conditions are met, Vireon should be described honestly as a Mainnet Candidate and experimental blockchain.
 
 The current VIRE asset exists only as a protocol unit inside experimental environments. It is not intended for real funds, investment, commercial payment or financial settlement.
 
@@ -1184,7 +1184,7 @@ A possible future production VIRE network may only be considered after technical
 
 No future launch, exchange listing, price, liquidity or conversion of experimental balances is guaranteed.
 
-The long-term success of Veiron depends on engineering quality, transparent status reporting, independent review, reliable infrastructure and real decentralized participation—not on promotional claims.
+The long-term success of Vireon depends on engineering quality, transparent status reporting, independent review, reliable infrastructure and real decentralized participation—not on promotional claims.
 
 ---
 
@@ -1243,7 +1243,7 @@ It does not provide:
 * guaranteed future launch;
 * guaranteed conversion of experimental balances.
 
-Do not use the current Veiron software to store, transfer or represent funds that you cannot afford to lose.
+Do not use the current Vireon software to store, transfer or represent funds that you cannot afford to lose.
 
 Do not purchase experimental VIRE from anyone claiming that it has an official monetary value.
 
@@ -1267,7 +1267,7 @@ The presence of visible source code does not automatically grant unrestricted pe
 
 ## Disclaimer
 
-Veiron Network is under active development.
+Vireon Network is under active development.
 
 The software may contain:
 

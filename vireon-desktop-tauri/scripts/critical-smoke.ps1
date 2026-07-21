@@ -31,7 +31,7 @@ try {
     Pop-Location
   }
 
-  $helper = Join-Path $Root "src-tauri\binaries\veiron-keystore-helper.exe"
+  $helper = Join-Path $Root "src-tauri\binaries\vireon-keystore-helper.exe"
   Assert-True (Test-Path $helper) "Keystore helper not staged: $helper"
 
   Write-Host "==> keystore helper self-call (metadata)"
@@ -43,7 +43,7 @@ try {
   $psi.RedirectStandardError = $true
   $psi.UseShellExecute = $false
   $psi.CreateNoWindow = $true
-  $psi.EnvironmentVariables["VEIRON_RPC_URL"] = "https://rpcnode.dohotstudio.com"
+  $psi.EnvironmentVariables["VIREON_RPC_URL"] = "https://rpcnode.dohotstudio.com"
   $p = [System.Diagnostics.Process]::Start($psi)
   $p.StandardInput.Write($json)
   $p.StandardInput.Close()
@@ -55,7 +55,7 @@ try {
   }
   Write-Host "keystore helper OK (stdout length $($stdout.Length))"
 
-  $operator = Join-Path $Repo "veiron.ps1"
+  $operator = Join-Path $Repo "vireon.ps1"
   Assert-True (Test-Path $operator) "Monorepo operator missing: $operator"
 
   Write-Host "==> prepare:native:sidecars (if not already staged)"
@@ -64,13 +64,13 @@ try {
 
   Write-Host "==> validate staged resources"
   $required = @(
-    "bin\veiron-node.exe",
-    "bin\veiron-rpc-gateway.exe",
-    "bin\veiron-miner.exe",
-    "bin\veiron-indexer.exe",
-    "bin\veiron-keystore-helper.exe",
-    "veiron.ps1",
-    "scripts\local\veiron-local.ps1",
+    "bin\vireon-node.exe",
+    "bin\vireon-rpc-gateway.exe",
+    "bin\vireon-miner.exe",
+    "bin\vireon-indexer.exe",
+    "bin\vireon-keystore-helper.exe",
+    "vireon.ps1",
+    "scripts\local\vireon-local.ps1",
     "scripts\local\common.ps1",
     "configs\mainnet-candidate.toml",
     "MANIFEST.json"
@@ -82,21 +82,21 @@ try {
   Write-Host "staged resources OK"
 
   Write-Host "==> operator status against staged resources"
-  $local = Join-Path $env:TEMP "veiron-tauri-critical\.veiron-local"
+  $local = Join-Path $env:TEMP "vireon-tauri-critical\.vireon-local"
   New-Item -ItemType Directory -Force -Path $local | Out-Null
-  $prevWs = $env:VEIRON_WORKSPACE_ROOT
-  $prevLocal = $env:VEIRON_LOCAL_ROOT
+  $prevWs = $env:VIREON_WORKSPACE_ROOT
+  $prevLocal = $env:VIREON_LOCAL_ROOT
   try {
-    $env:VEIRON_WORKSPACE_ROOT = $Res
-    $env:VEIRON_LOCAL_ROOT = $local
-    powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Res "veiron.ps1") status | Out-Null
+    $env:VIREON_WORKSPACE_ROOT = $Res
+    $env:VIREON_LOCAL_ROOT = $local
+    powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Res "vireon.ps1") status | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "staged operator status failed" }
     Write-Host "staged operator status OK"
   } finally {
-    if ($null -eq $prevWs) { Remove-Item Env:VEIRON_WORKSPACE_ROOT -ErrorAction SilentlyContinue }
-    else { $env:VEIRON_WORKSPACE_ROOT = $prevWs }
-    if ($null -eq $prevLocal) { Remove-Item Env:VEIRON_LOCAL_ROOT -ErrorAction SilentlyContinue }
-    else { $env:VEIRON_LOCAL_ROOT = $prevLocal }
+    if ($null -eq $prevWs) { Remove-Item Env:VIREON_WORKSPACE_ROOT -ErrorAction SilentlyContinue }
+    else { $env:VIREON_WORKSPACE_ROOT = $prevWs }
+    if ($null -eq $prevLocal) { Remove-Item Env:VIREON_LOCAL_ROOT -ErrorAction SilentlyContinue }
+    else { $env:VIREON_LOCAL_ROOT = $prevLocal }
   }
 
   $p2pBusy = $false

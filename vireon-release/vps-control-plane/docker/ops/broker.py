@@ -1,12 +1,12 @@
 from __future__ import annotations
-import json, os, secrets, shlex, subprocess
+import json, os, secrets, shlex, subprocess, threading, time
 from pathlib import Path
 from flask import Flask, jsonify, request
 app=Flask(__name__)
-WORKSPACE=Path(os.environ['VEIRON_WORKSPACE']).resolve(); COMPOSE_FILE=Path(os.environ.get('VEIRON_COMPOSE_FILE',WORKSPACE/'compose.yaml')); TOKEN_FILE=Path(os.environ.get('BROKER_TOKEN_FILE','/run/secrets/broker_token'))
+WORKSPACE=Path(os.environ['VIREON_WORKSPACE']).resolve(); COMPOSE_FILE=Path(os.environ.get('VIREON_COMPOSE_FILE',WORKSPACE/'compose.yaml')); TOKEN_FILE=Path(os.environ.get('BROKER_TOKEN_FILE','/run/secrets/broker_token'))
 def token(): return TOKEN_FILE.read_text().strip()
 def auth():
- v=request.headers.get('X-Veiron-Broker-Token',''); return bool(v and secrets.compare_digest(v,token()))
+ v=request.headers.get('X-Vireon-Broker-Token',''); return bool(v and secrets.compare_digest(v,token()))
 def load_env():
  env=os.environ.copy(); p=WORKSPACE/'.env'
  if p.exists():
@@ -16,7 +16,7 @@ def load_env():
    k,v=line.split('=',1)
    try: parts=shlex.split(v); env[k]=parts[0] if parts else ''
    except ValueError: env[k]=v.strip().strip("'\"")
- for k in ('VEIRON_HOST_WORKSPACE','VEIRON_HOST_REPO','VEIRON_COMPOSE_FILE'):
+ for k in ('VIREON_HOST_WORKSPACE','VIREON_HOST_REPO','VIREON_COMPOSE_FILE'):
   if k in os.environ: env[k]=os.environ[k]
  return env
 def cfg(): return load_env()
@@ -34,12 +34,24 @@ def profiles():
  if e.get('CLOUDFLARE_MODE')=='tunnel': p.append('cloudflare')
  if e.get('ENABLE_POOL','false').lower()=='true': p.append('pool')
  return p
+def schedule_installer_stop():
+ if os.environ.get('VIREON_INSTALLER_MODE','false').lower()!='true': return
+ def stop_later():
+  time.sleep(10)
+  subprocess.run(['docker','stop','vireon-installer'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
+  subprocess.run(['docker','stop','vireon-installer-broker'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,check=False)
+ threading.Thread(target=stop_later,daemon=True).start()
 def deploy():
  e=cfg(); out=[run(compose('config'),120)]
- if e.get('CLOUDFLARE_MODE','disabled')!='disabled': out.append(run([str(WORKSPACE/'scripts/cloudflare-bootstrap.sh')],600))
+ if e.get('CLOUDFLARE_MODE','disabled')=='tunnel': out.append(run([str(WORKSPACE/'scripts/cloudflare-bootstrap.sh'),'--prepare'],600))
  # Deliberately build from the checked-out repository. No pull, updater, mutable tag refresh or scheduled image replacement.
- args=('up','-d','--build','--remove-orphans')
- out.append(run(compose(*args,profiles=profiles()),7200)); out.append(run([str(WORKSPACE/'scripts/health-check-docker.sh')],600)); return '\n'.join(out)
+ args=('up','-d','--build')
+ out.append(run(compose(*args,profiles=profiles()),7200)); out.append(run([str(WORKSPACE/'scripts/health-check-docker.sh')],600))
+ if e.get('CLOUDFLARE_MODE','disabled')!='disabled':
+  out.append(run([str(WORKSPACE/'scripts/cloudflare-bootstrap.sh'),'--activate'],600))
+  out.append(run([str(WORKSPACE/'scripts/verify-public-health.sh')],300))
+ schedule_installer_stop()
+ return '\n'.join(out)
 def status():
  raw=run(compose('ps','--format','json'),120,False); services=[]
  for line in raw.splitlines():
@@ -47,7 +59,7 @@ def status():
   except json.JSONDecodeError: pass
  return {'configured':(WORKSPACE/'.env').exists(),'services':services,'raw':raw}
 @app.get('/health')
-def health(): return jsonify({'ok':True,'service':'veiron-docker-broker'})
+def health(): return jsonify({'ok':True,'service':'vireon-docker-broker'})
 @app.post('/v1/action')
 def action():
  if not auth(): return jsonify({'error':'unauthorized'}),401

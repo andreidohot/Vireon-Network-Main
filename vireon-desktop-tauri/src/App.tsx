@@ -12,7 +12,7 @@ import { TopBar } from "./components/layout/TopBar";
 import { StartupGate } from "./components/startup/StartupGate";
 import { UpdateCenter } from "./components/update/UpdateCenter";
 import { useAppSettings } from "./hooks/useAppSettings";
-import { useVeironEvents } from "./hooks/useVeironEvents";
+import { useVireonEvents } from "./hooks/useVireonEvents";
 import { ToastStack } from "./components/notifications/Toast";
 import { CommandPalette } from "./components/CommandPalette";
 import { useTheme } from "./shared/theme";
@@ -41,7 +41,7 @@ function isLocalRpcUrl(url: string): boolean {
   }
 }
 
-/** Adaptive telemetry interval for VPS vs local (vps-fix.md). */
+/** Adaptive telemetry interval for VPS versus local operation. */
 function snapshotPollMs(
   settingsMs: number,
   rpcUrl: string,
@@ -182,8 +182,8 @@ export default function App() {
 
   const reloadWallet = useCallback(async () => {
     const [active, available] = await Promise.all([
-      window.veiron.wallet.metadata(),
-      window.veiron.wallet.list()
+      window.vireon.wallet.metadata(),
+      window.vireon.wallet.list()
     ]);
     setWallet(active);
     setWallets(available);
@@ -193,7 +193,7 @@ export default function App() {
     setBusy(true);
     setStartupError(null);
     try {
-      setWallet(await window.veiron.wallet.select(walletId));
+      setWallet(await window.vireon.wallet.select(walletId));
       await reloadWallet();
     } catch (error) {
       setStartupError(String(error));
@@ -211,7 +211,7 @@ export default function App() {
     const showBusy = opts?.busy === true;
     if (showBusy) setBusy(true);
     try {
-      const next = await window.veiron.network.snapshot();
+      const next = await window.vireon.network.snapshot();
       setSnapshot(next);
       const prevStreak = pollFailStreak.current;
       if (next.online && !next.degraded) {
@@ -246,12 +246,12 @@ export default function App() {
   const operator = useCallback(async (command: OperatorCommand, minerOptions?: MinerStartOptions) => {
     const destructive = command === "stop" || command === "restart" || command === "miner-stop";
     if (settings.confirm_before_operator && destructive) {
-      const ok = window.confirm(`Run operator command "${command}"? Managed Veiron services may restart or stop.`);
+      const ok = window.confirm(`Run operator command "${command}"? Managed Vireon services may restart or stop.`);
       if (!ok) return "Operator command cancelled.";
     }
     setBusy(true);
     try {
-      return await window.veiron.operator.run(command, minerOptions);
+      return await window.vireon.operator.run(command, minerOptions);
     } finally {
       setBusy(false);
     }
@@ -263,7 +263,7 @@ export default function App() {
       .catch((error) => setStartupError(String(error)));
   }, [refresh, reloadWallet]);
 
-  // Adaptive poll: slower on VPS and while degraded (vps-fix.md).
+  // Adaptive poll: slower on VPS and while degraded.
   useEffect(() => {
     const interval = snapshotPollMs(
       settings.refresh_interval_ms,
@@ -292,7 +292,7 @@ export default function App() {
     pollTick
   ]);
 
-  useVeironEvents({
+  useVireonEvents({
     minerWasRunning: snapshot.miner_running,
     online: snapshot.online || snapshot.rpc_running
   });
@@ -344,7 +344,7 @@ export default function App() {
     setBusy(true);
     setStartupError(null);
     try {
-      await window.veiron.wallet.create(displayName);
+      await window.vireon.wallet.create(displayName);
       await reloadWallet();
     } catch (error) {
       setStartupError(String(error));
@@ -358,7 +358,7 @@ export default function App() {
     setStartupError(null);
     try {
       // Native OS dialog collects the phrase — never through React state.
-      await window.veiron.wallet.import(displayName);
+      await window.vireon.wallet.import(displayName);
       await reloadWallet();
     } catch (error) {
       setStartupError(String(error));
@@ -379,7 +379,7 @@ export default function App() {
 
   const addSeed = async (seed: string) => {
     try {
-      await window.veiron.network.addSeed(seed);
+      await window.vireon.network.addSeed(seed);
       await operator("restart");
       await refresh();
     } catch (error) {
@@ -456,7 +456,7 @@ export default function App() {
             ⌘K
           </span>
           <span className={detailClass}>{snapshot.detail}</span>
-          <span className="footer-brand">VEIRON</span>
+          <span className="footer-brand">VIREON</span>
         </footer>
         {!startupComplete ? (
           <StartupGate

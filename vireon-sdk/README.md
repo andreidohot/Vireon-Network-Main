@@ -1,6 +1,6 @@
-# @veiron/sdk
+# @vireon/sdk
 
-Public **TypeScript** client for Veiron **Mainnet Candidate / Prototype**.
+Public **TypeScript** client for Vireon **Mainnet Candidate / Prototype**.
 
 ## Scope
 
@@ -16,7 +16,7 @@ Network label: **not public live Mainnet**. See `docs/release/NETWORK_MATURITY.m
 ## Install (workspace)
 
 ```bash
-cd veiron-sdk
+cd vireon-sdk
 npm install
 npm run build
 ```
@@ -24,21 +24,21 @@ npm run build
 ## Quick start
 
 ```ts
-import { createVeironClient, poolBlockMaturity } from "@veiron/sdk";
+import { createVireonClient, poolBlockMaturity } from "@vireon/sdk";
 
-const veiron = createVeironClient({
+const vireon = createVireonClient({
   rpcUrl: "https://rpcnode.dohotstudio.com",
   poolUrl: "https://rpcnode.dohotstudio.com/pool",
 });
 
-const health = await veiron.health();
-const chain = await veiron.status();
-const pool = await veiron.poolStatus();
+const health = await vireon.health();
+const chain = await vireon.status();
+const pool = await vireon.poolStatus();
 
 console.log(health.network_id, chain.height, pool.connected_workers);
 
 // Maturity: immature until tip >= blockHeight + block_maturity_confirmations (default 12)
-const blocks = await veiron.poolBlocksWithMaturity();
+const blocks = await vireon.poolBlocksWithMaturity();
 for (const b of blocks) {
   console.log(b.height, b.maturity.label, b.maturity.remaining);
 }
@@ -72,7 +72,7 @@ for (const b of blocks) {
 
 ## Examples
 
-See `../veiron-examples/`.
+See `../vireon-examples/`.
 
 ## License
 

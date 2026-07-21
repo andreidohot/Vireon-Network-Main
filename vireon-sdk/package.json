@@ -1,7 +1,7 @@
 {
-    "name":  "@veiron/sdk",
+    "name":  "@vireon/sdk",
     "version":  "1.0.0",
-    "description":  "Veiron Network public RPC + pool client (Mainnet Candidate / Prototype)",
+    "description":  "Vireon Network public RPC + pool client (Mainnet Candidate / Prototype)",
     "type":  "module",
     "main":  "./dist/index.js",
     "types":  "./dist/index.d.ts",
@@ -18,14 +18,14 @@
     "scripts":  {
                     "build":  "tsc -p tsconfig.json",
                     "check":  "tsc -p tsconfig.json --noEmit",
-                    "test":  "node --experimental-vm-modules --test dist/**/*.test.js 2\u003e/dev/null || node --test test/*.test.mjs"
+                    "test":  "npm run build --silent && node --test test/*.test.mjs"
                 },
     "engines":  {
                     "node":  "\u003e=18"
                 },
     "license":  "Apache-2.0",
     "keywords":  [
-                     "veiron",
+                     "vireon",
                      "blockchain",
                      "rpc",
                      "mining-pool"

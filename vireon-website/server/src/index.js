@@ -3,7 +3,7 @@ import { env } from './config/env.js'
 import { prisma } from './prisma/client.js'
 
 const server = app.listen(env.PORT, () => {
-  console.log(`Veiron server listening on http://localhost:${env.PORT}`)
+  console.log(`Vireon server listening on http://localhost:${env.PORT}`)
 })
 
 async function shutdown() {

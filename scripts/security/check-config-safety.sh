@@ -28,7 +28,7 @@ config_files=()
 
 while IFS= read -r file; do
   [[ -n "$file" ]] && config_files+=("$file")
-done < <(find configs veiron-rpc-gateway/config veiron-devnet/config -type f -name "*.toml" 2>/dev/null | sort -u)
+done < <(find configs vireon-rpc-gateway/config vireon-devnet/config -type f -name "*.toml" 2>/dev/null | sort -u)
 
 for file in "${config_files[@]}"; do
   content="$(cat "$file")"
@@ -36,7 +36,7 @@ for file in "${config_files[@]}"; do
   if grep -Eq '^[[:space:]]*bind_host[[:space:]]*=[[:space:]]*"0\.0\.0\.0"' <<<"$content" && ! grep -Eq '^[[:space:]]*public_rpc_allowed[[:space:]]*=[[:space:]]*true' <<<"$content"; then
     issues+=("Unsafe RPC bind without public opt-in: $file")
   fi
-  if [[ "$file" == *mainnet-candidate*.toml ]] && grep -Eq '\.veiron-dev' <<<"$content"; then
+  if [[ "$file" == *mainnet-candidate*.toml ]] && grep -Eq '\.vireon-dev' <<<"$content"; then
     issues+=("Mainnet-candidate config uses devnet data path: $file")
   fi
   if [[ "$file" == *mainnet-candidate*.toml ]] && grep -Eiq '^[[:space:]]*(allow_reset|reset)[[:space:]]*=[[:space:]]*true[[:space:]]*$' <<<"$content"; then
@@ -56,11 +56,11 @@ done
 
 while IFS= read -r file; do
   [[ -z "$file" ]] && continue
-  if [[ "$file" == veiron-wallet/* ]]; then
+  if [[ "$file" == vireon-wallet/* ]]; then
     continue
   fi
   issues+=("Wallet material inside repository tree: $file")
-done < <(find . -path ./veiron-wallet -prune -o -type f \( -path "*/wallets/*" -o -name "*.wallet" -o -name "*.seed" -o -name "*.key" -o -name "*.pem" \) -print)
+done < <(find . -path ./vireon-wallet -prune -o -type f \( -path "*/wallets/*" -o -name "*.wallet" -o -name "*.seed" -o -name "*.key" -o -name "*.pem" \) -print)
 
 if (( ${#issues[@]} > 0 )); then
   printf 'Config safety check failed:\n' >&2

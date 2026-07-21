@@ -1,9 +1,9 @@
 [package]
-name = "veiron-node"
+name = "vireon-node"
 version = "1.0.0"
 edition = "2021"
 license = "Apache-2.0"
-description = "Draft private devnet CLI for Veiron Network"
+description = "Draft private devnet CLI for Vireon Network"
 
 [dependencies]
 atomic-write-file = "0.3"
@@ -17,7 +17,7 @@ serde_json = "1"
 thiserror = "1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "sync", "time"] }
 toml = "0.8"
-veiron-core = { path = "../veiron-core" }
+vireon-core = { path = "../vireon-core" }
 
 [dev-dependencies]
 tempfile = "3"

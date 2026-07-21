@@ -1,10 +1,10 @@
-# veiron-sdk-rust
+# vireon-sdk-rust
 
 Status: Prototype / Mainnet Candidate / not public Mainnet
 
-The native Rust SDK provides standalone Veiron account/signing logic plus async
+The native Rust SDK provides standalone Vireon account/signing logic plus async
 and optional blocking RPC/pool clients. It is distinct from the read-oriented
-TypeScript package in `veiron-sdk/` (`@veiron/sdk`).
+TypeScript package in `vireon-sdk/` (`@vireon/sdk`).
 
 ## Included
 
@@ -37,7 +37,7 @@ TypeScript package in `veiron-sdk/` (`@veiron/sdk`).
 ## Example
 
 ```rust
-use veiron_sdk_rust::{Amount, NetworkConfig, TransferBuilder, WalletAccount};
+use vireon_sdk_rust::{Amount, NetworkConfig, TransferBuilder, WalletAccount};
 
 let config = NetworkConfig::mainnet_candidate();
 let account = WalletAccount::generate(config.network, Default::default())?;
@@ -51,12 +51,12 @@ let tx = TransferBuilder::new(config.network)
 ```
 
 See `docs/API.md` for the method/type map and `docs/JS_PARITY.md` for parity
-with `@veiron/sdk`.
+with `@vireon/sdk`.
 
 ## Validation
 
 ```powershell
-cargo test -p veiron-sdk-rust --all-features
+cargo test -p vireon-sdk-rust --all-features
 ```
 
 Optional live candidate smoke tests remain ignored by default.

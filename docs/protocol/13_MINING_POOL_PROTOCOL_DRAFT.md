@@ -2,11 +2,11 @@
 
 Status: Draft / Mainnet Candidate / Prototype
 
-Veiron pooled mining is an off-chain coordination protocol. It does not modify FiroPoW 0.9.4, block headers, network difficulty, coinbase validity, supply, fees or fork choice.
+Vireon pooled mining is an off-chain coordination protocol. It does not modify FiroPoW 0.9.4, block headers, network difficulty, coinbase validity, supply, fees or fork choice.
 
 ## Work Flow
 
-1. The pool requests a canonical `veiron-mining-v1` template paying a dedicated pool address.
+1. The pool requests a canonical `vireon-mining-v1` template paying a dedicated pool address.
 2. A miner requests that job with its payout address and worker name.
 3. The pool returns the canonical template plus a worker-specific `share_difficulty_leading_zero_bits`.
 4. The miner searches the same nonce space and submits hashes meeting the lower share target.

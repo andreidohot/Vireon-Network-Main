@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Thin wrapper around veiron-browser-host --check-health for CI / cron.
+# Thin wrapper around vireon-browser-host --check-health for CI / cron.
 #
 # Usage:
 #   ./scripts/browser/check-health.sh
@@ -40,19 +40,19 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ $BUILD -eq 1 ]]; then
-  cargo build -q -p veiron-browser-host --release
+  cargo build -q -p vireon-browser-host --release
 fi
 
 HOST_BIN=""
 for c in \
-  "$REPO_ROOT/target/release/veiron-browser-host" \
-  "$REPO_ROOT/target/debug/veiron-browser-host"
+  "$REPO_ROOT/target/release/vireon-browser-host" \
+  "$REPO_ROOT/target/debug/vireon-browser-host"
 do
   if [[ -x "$c" ]]; then HOST_BIN="$c"; break; fi
 done
 if [[ -z "$HOST_BIN" ]]; then
-  cargo build -q -p veiron-browser-host
-  HOST_BIN="$REPO_ROOT/target/debug/veiron-browser-host"
+  cargo build -q -p vireon-browser-host
+  HOST_BIN="$REPO_ROOT/target/debug/vireon-browser-host"
 fi
 
 ARGS=(--check-health)
@@ -72,9 +72,9 @@ if [[ $CODE -ne 0 && -n "$WEBHOOK" ]]; then
   BODY="$(cat "$TMP" 2>/dev/null || echo '{}')"
   if command -v jq >/dev/null 2>&1; then
     PAYLOAD=$(jq -nc --argjson health "$BODY" --arg code "$CODE" \
-      '{text:"Veiron Mainnet Candidate health FAILED",code:($code|tonumber),health:$health}')
+      '{text:"Vireon Mainnet Candidate health FAILED",code:($code|tonumber),health:$health}')
   else
-    PAYLOAD="{\"text\":\"Veiron Mainnet Candidate health FAILED\",\"code\":$CODE}"
+    PAYLOAD="{\"text\":\"Vireon Mainnet Candidate health FAILED\",\"code\":$CODE}"
   fi
   curl -fsS -X POST -H "Content-Type: application/json" -d "$PAYLOAD" "$WEBHOOK" || true
 fi

@@ -168,7 +168,7 @@ pub async fn logs_export(app: AppHandle, service: String) -> AppResult<Option<St
         .dialog()
         .file()
         .set_title(format!("Export {service} logs"))
-        .set_file_name(format!("veiron-{service}.log"))
+        .set_file_name(format!("vireon-{service}.log"))
         .add_filter("Log files", &["log", "txt"])
         .blocking_save_file();
     let Some(path) = file_path else {
@@ -189,7 +189,7 @@ pub async fn explorer_open(path: String) -> AppResult<()> {
     let url = url::Url::parse(&base)?.join(if clean.is_empty() { "dashboard" } else { clean })?;
     if url.origin().ascii_serialization() != url::Url::parse(&rpc)?.origin().ascii_serialization() {
         return Err(crate::error::AppError::msg(
-            "Explorer path does not target the Veiron RPC endpoint",
+            "Explorer path does not target the Vireon RPC endpoint",
         ));
     }
     open::that(url.as_str()).map_err(|err| crate::error::AppError::msg(err.to_string()))?;
@@ -318,7 +318,7 @@ pub async fn settings_open_path(app: AppHandle, kind: String) -> AppResult<()> {
     });
     if !allowed {
         return Err(crate::error::AppError::msg(
-            "Refusing to open path outside Veiron data roots",
+            "Refusing to open path outside Vireon data roots",
         ));
     }
     app.opener()

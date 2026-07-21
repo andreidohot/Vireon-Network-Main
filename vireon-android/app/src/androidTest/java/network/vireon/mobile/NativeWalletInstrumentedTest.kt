@@ -1,4 +1,4 @@
-package network.veiron.mobile
+package network.vireon.mobile
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.json.JSONObject

@@ -8,7 +8,7 @@ use crate::constants::{
     MAX_TRANSACTIONS_PER_BLOCK, MAX_TRANSACTION_WIRE_BYTES, MEDIAN_TIME_PAST_WINDOW,
     MIN_BASE_FEE_ATOMIC, TARGET_TRANSACTIONS_PER_BLOCK,
 };
-use crate::errors::{Result, VeironError};
+use crate::errors::{Result, VireonError};
 use crate::hash_to_hex;
 use crate::network::Network;
 use crate::pow::FiroPow;
@@ -32,7 +32,7 @@ pub fn total_theoretical_emission() -> Result<Amount> {
     while reward > 0 {
         let epoch_total = reward
             .checked_mul(HALVING_INTERVAL_BLOCKS)
-            .ok_or(VeironError::AmountOverflow)?;
+            .ok_or(VireonError::AmountOverflow)?;
         total = total.checked_add(Amount::from_atomic(epoch_total))?;
         reward /= 2;
     }
@@ -196,19 +196,19 @@ pub fn expected_coinbase_amount(
 
 /// Structural coinbase rules shared by consensus (and callable from state helpers).
 pub fn validate_coinbase_structure(transactions: &[Transaction]) -> Result<&Transaction> {
-    let coinbase = transactions.first().ok_or(VeironError::MissingCoinbase)?;
+    let coinbase = transactions.first().ok_or(VireonError::MissingCoinbase)?;
     if !coinbase.is_coinbase() {
-        return Err(VeironError::CoinbaseNotFirst);
+        return Err(VireonError::CoinbaseNotFirst);
     }
     if coinbase.max_fee != Amount::ZERO || coinbase.priority_fee != Amount::ZERO {
-        return Err(VeironError::InvalidCoinbaseFee);
+        return Err(VireonError::InvalidCoinbaseFee);
     }
     if transactions
         .iter()
         .skip(1)
         .any(|transaction| transaction.is_coinbase())
     {
-        return Err(VeironError::DuplicateCoinbase);
+        return Err(VireonError::DuplicateCoinbase);
     }
     Ok(coinbase)
 }
@@ -222,13 +222,13 @@ pub fn validate_coinbase_amount(
     let coinbase = validate_coinbase_structure(transactions)?;
     let expected = expected_coinbase_amount(height, block_base_fee, transactions)?;
     if coinbase.amount != expected {
-        return Err(VeironError::InvalidCoinbaseAmount {
+        return Err(VireonError::InvalidCoinbaseAmount {
             expected: expected.as_atomic(),
             actual: coinbase.amount.as_atomic(),
         });
     }
     if coinbase.amount == Amount::ZERO {
-        return Err(VeironError::ZeroAmountTransaction);
+        return Err(VireonError::ZeroAmountTransaction);
     }
     Ok(expected)
 }
@@ -240,7 +240,7 @@ pub fn validate_coinbase_amount(
 pub fn validate_block_timestamp(previous: Option<&Block>, candidate: &Block) -> Result<()> {
     if let Some(prev) = previous {
         if candidate.header.timestamp <= prev.header.timestamp {
-            return Err(VeironError::InvalidTimestamp {
+            return Err(VireonError::InvalidTimestamp {
                 previous: prev.header.timestamp,
                 actual: candidate.header.timestamp,
             });
@@ -274,7 +274,7 @@ pub fn median_time_past(previous_blocks: &[Block]) -> Option<u64> {
 pub fn validate_median_time_past(previous_blocks: &[Block], candidate: &Block) -> Result<()> {
     if let Some(median) = median_time_past(previous_blocks) {
         if candidate.header.timestamp <= median {
-            return Err(VeironError::InvalidMedianTimePast {
+            return Err(VireonError::InvalidMedianTimePast {
                 median,
                 actual: candidate.header.timestamp,
             });
@@ -287,7 +287,7 @@ pub fn validate_median_time_past(previous_blocks: &[Block], candidate: &Block) -
 pub fn validate_block_not_too_far_in_future(timestamp: u64, now: u64) -> Result<()> {
     let max_allowed = now.saturating_add(MAX_FUTURE_BLOCK_DRIFT_SECONDS);
     if timestamp > max_allowed {
-        return Err(VeironError::InvalidFutureTimestamp {
+        return Err(VireonError::InvalidFutureTimestamp {
             now,
             actual: timestamp,
             max_drift_seconds: MAX_FUTURE_BLOCK_DRIFT_SECONDS,
@@ -311,10 +311,10 @@ pub fn validate_next_block(
     emitted_supply: Amount,
 ) -> Result<()> {
     if candidate.transactions.is_empty() {
-        return Err(VeironError::EmptyTransactions);
+        return Err(VireonError::EmptyTransactions);
     }
     if candidate.transactions.len() > MAX_TRANSACTIONS_PER_BLOCK {
-        return Err(VeironError::TooManyTransactions {
+        return Err(VireonError::TooManyTransactions {
             max: MAX_TRANSACTIONS_PER_BLOCK,
             actual: candidate.transactions.len(),
         });
@@ -323,7 +323,7 @@ pub fn validate_next_block(
     for transaction in &candidate.transactions {
         let wire_len = transaction.encode().len();
         if wire_len > MAX_TRANSACTION_WIRE_BYTES {
-            return Err(VeironError::TransactionTooLarge {
+            return Err(VireonError::TransactionTooLarge {
                 max: MAX_TRANSACTION_WIRE_BYTES,
                 actual: wire_len,
             });
@@ -333,11 +333,11 @@ pub fn validate_next_block(
         transaction.verify()?;
         let tx_hash = hash_to_hex(&transaction.tx_hash());
         if !seen_transaction_hashes.insert(tx_hash.clone()) {
-            return Err(VeironError::DuplicateTransactionHash(tx_hash));
+            return Err(VireonError::DuplicateTransactionHash(tx_hash));
         }
     }
     if candidate.header.network_id != expected_network.network_id() {
-        return Err(VeironError::InvalidNetwork {
+        return Err(VireonError::InvalidNetwork {
             expected: expected_network.network_id().to_owned(),
             actual: candidate.header.network_id.clone(),
         });
@@ -345,7 +345,7 @@ pub fn validate_next_block(
 
     let expected_height = previous.map_or(0, |block| block.header.height + 1);
     if candidate.header.height != expected_height {
-        return Err(VeironError::InvalidHeight {
+        return Err(VireonError::InvalidHeight {
             expected: expected_height,
             actual: candidate.header.height,
         });
@@ -358,7 +358,7 @@ pub fn validate_next_block(
 
     let expected_version = expected_block_version(expected_network, expected_height);
     if candidate.header.version != expected_version {
-        return Err(VeironError::InvalidBlockVersion {
+        return Err(VireonError::InvalidBlockVersion {
             expected: expected_version,
             actual: candidate.header.version,
             height: candidate.header.height,
@@ -367,7 +367,7 @@ pub fn validate_next_block(
 
     let expected_base_fee = next_base_fee(previous);
     if candidate.header.base_fee_atomic != expected_base_fee.as_atomic() {
-        return Err(VeironError::InvalidBaseFee {
+        return Err(VireonError::InvalidBaseFee {
             expected: expected_base_fee.as_atomic(),
             actual: candidate.header.base_fee_atomic,
         });
@@ -378,7 +378,7 @@ pub fn validate_next_block(
     if candidate.header.difficulty_leading_zero_bits < minimum_difficulty
         || candidate.header.difficulty_leading_zero_bits > maximum_difficulty
     {
-        return Err(VeironError::InvalidDifficultyAdjustment {
+        return Err(VireonError::InvalidDifficultyAdjustment {
             expected: next_difficulty_for_network(
                 expected_network,
                 previous_blocks,
@@ -395,7 +395,7 @@ pub fn validate_next_block(
             candidate.header.difficulty_leading_zero_bits,
         );
         if candidate.header.difficulty_leading_zero_bits != expected_difficulty {
-            return Err(VeironError::InvalidDifficultyAdjustment {
+            return Err(VireonError::InvalidDifficultyAdjustment {
                 expected: expected_difficulty,
                 actual: candidate.header.difficulty_leading_zero_bits,
             });
@@ -404,7 +404,7 @@ pub fn validate_next_block(
 
     let expected_previous_hash = previous.map_or(crate::crypto::Hash::zero(), |block| block.hash());
     if candidate.header.previous_hash != expected_previous_hash {
-        return Err(VeironError::InvalidPreviousHash {
+        return Err(VireonError::InvalidPreviousHash {
             expected: expected_previous_hash,
             actual: candidate.header.previous_hash,
         });
@@ -414,7 +414,7 @@ pub fn validate_next_block(
 
     let recomputed_merkle = candidate.recompute_merkle_root()?;
     if recomputed_merkle != candidate.header.merkle_root {
-        return Err(VeironError::InvalidMerkleRoot);
+        return Err(VireonError::InvalidMerkleRoot);
     }
 
     // Canonical PoW: FiroPoW 0.9.4 final_hash + mix_hash must meet difficulty.
@@ -434,7 +434,7 @@ pub fn validate_next_block(
     for transaction in &candidate.transactions {
         let transaction_network = transaction.network()?;
         if transaction_network != expected_network {
-            return Err(VeironError::InvalidNetwork {
+            return Err(VireonError::InvalidNetwork {
                 expected: expected_network.network_id().to_owned(),
                 actual: transaction_network.network_id().to_owned(),
             });
@@ -444,7 +444,7 @@ pub fn validate_next_block(
     let allowed_reward = block_reward(candidate.header.height);
     let updated_supply = emitted_supply.checked_add(allowed_reward)?;
     if updated_supply.as_atomic() > MAX_SUPPLY_ATOMIC {
-        return Err(VeironError::SupplyOverflow);
+        return Err(VireonError::SupplyOverflow);
     }
 
     Ok(())

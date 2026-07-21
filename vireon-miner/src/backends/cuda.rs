@@ -7,7 +7,7 @@
 //! ## Mining
 //! - Builds the epoch DAG directly in VRAM from the small Ethash light cache.
 //! - Runs FiroPoW search exclusively on CUDA devices; there is no CPU fallback.
-//! - Solutions are always re-validated by veiron-core before submit.
+//! - Solutions are always re-validated by vireon-core before submit.
 
 use super::cuda_driver;
 use super::traits::{
@@ -17,19 +17,19 @@ use super::traits::{
 use crate::{MinerError, Result};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
-#[cfg(veiron_cuda_linked)]
-use veiron_core::firopow;
-#[cfg(veiron_cuda_linked)]
-use veiron_core::firopow::mining_header_hash;
-#[cfg(veiron_cuda_linked)]
-use veiron_core::Hash;
+#[cfg(vireon_cuda_linked)]
+use vireon_core::firopow;
+#[cfg(vireon_cuda_linked)]
+use vireon_core::firopow::mining_header_hash;
+#[cfg(vireon_cuda_linked)]
+use vireon_core::Hash;
 
 // ---------------------------------------------------------------------------
 // Optional linked CUDA device-kernel FFI (firopow_cuda.cu)
 // ---------------------------------------------------------------------------
-#[cfg(veiron_cuda_linked)]
+#[cfg(vireon_cuda_linked)]
 #[repr(C)]
-struct VeironCudaDeviceInfo {
+struct VireonCudaDeviceInfo {
     index: i32,
     name: [u8; 256],
     total_mem: usize,
@@ -38,20 +38,20 @@ struct VeironCudaDeviceInfo {
     minor: i32,
 }
 
-#[cfg(veiron_cuda_linked)]
+#[cfg(vireon_cuda_linked)]
 #[repr(C)]
-struct VeironCudaMiner {
+struct VireonCudaMiner {
     _private: [u8; 0],
 }
 
-#[cfg(veiron_cuda_linked)]
+#[cfg(vireon_cuda_linked)]
 extern "C" {
-    fn veiron_cuda_available() -> i32;
-    fn veiron_cuda_device_info(index: i32, out: *mut VeironCudaDeviceInfo) -> i32;
-    fn veiron_cuda_miner_create(device_index: i32) -> *mut VeironCudaMiner;
-    fn veiron_cuda_miner_destroy(m: *mut VeironCudaMiner);
-    fn veiron_cuda_miner_build_dag(
-        m: *mut VeironCudaMiner,
+    fn vireon_cuda_available() -> i32;
+    fn vireon_cuda_device_info(index: i32, out: *mut VireonCudaDeviceInfo) -> i32;
+    fn vireon_cuda_miner_create(device_index: i32) -> *mut VireonCudaMiner;
+    fn vireon_cuda_miner_destroy(m: *mut VireonCudaMiner);
+    fn vireon_cuda_miner_build_dag(
+        m: *mut VireonCudaMiner,
         block_number: i32,
         light_host: *const u32,
         light_items: u32,
@@ -59,8 +59,8 @@ extern "C" {
         l1_words: u32,
         full_dataset_num_items_1024: i32,
     ) -> i32;
-    fn veiron_cuda_mine_firopow(
-        m: *mut VeironCudaMiner,
+    fn vireon_cuda_mine_firopow(
+        m: *mut VireonCudaMiner,
         block_number: i32,
         header_hash: *const u8,
         boundary: *const u8,
@@ -72,8 +72,8 @@ extern "C" {
         found_out: *mut i32,
         hashes_done_out: *mut u64,
     ) -> i32;
-    fn veiron_cuda_miner_copy_dag_item(m: *mut VeironCudaMiner, index: u32, out: *mut u8) -> i32;
-    fn veiron_cuda_device_kernels_linked() -> i32;
+    fn vireon_cuda_miner_copy_dag_item(m: *mut VireonCudaMiner, index: u32, out: *mut u8) -> i32;
+    fn vireon_cuda_device_kernels_linked() -> i32;
 }
 
 pub struct CudaGpuBackend {
@@ -83,14 +83,14 @@ pub struct CudaGpuBackend {
     ready: bool,
     cancel: AtomicBool,
     /// Opaque CUDA miner handles per selected device (device-kernel path only).
-    #[cfg(veiron_cuda_linked)]
-    miners: Vec<*mut VeironCudaMiner>,
-    #[cfg(veiron_cuda_linked)]
+    #[cfg(vireon_cuda_linked)]
+    miners: Vec<*mut VireonCudaMiner>,
+    #[cfg(vireon_cuda_linked)]
     dag_height: Option<u64>,
 }
 
 // SAFETY: miner handles used from single mining thread in product path.
-#[cfg(veiron_cuda_linked)]
+#[cfg(vireon_cuda_linked)]
 unsafe impl Send for CudaGpuBackend {}
 
 impl Default for CudaGpuBackend {
@@ -101,9 +101,9 @@ impl Default for CudaGpuBackend {
             devices: Vec::new(),
             ready: false,
             cancel: AtomicBool::new(false),
-            #[cfg(veiron_cuda_linked)]
+            #[cfg(vireon_cuda_linked)]
             miners: Vec::new(),
-            #[cfg(veiron_cuda_linked)]
+            #[cfg(vireon_cuda_linked)]
             dag_height: None,
         }
     }
@@ -111,11 +111,11 @@ impl Default for CudaGpuBackend {
 
 impl Drop for CudaGpuBackend {
     fn drop(&mut self) {
-        #[cfg(veiron_cuda_linked)]
+        #[cfg(vireon_cuda_linked)]
         {
             for m in self.miners.drain(..) {
                 if !m.is_null() {
-                    unsafe { veiron_cuda_miner_destroy(m) };
+                    unsafe { vireon_cuda_miner_destroy(m) };
                 }
             }
         }
@@ -124,11 +124,11 @@ impl Drop for CudaGpuBackend {
 
 impl CudaGpuBackend {
     fn device_kernels_available() -> bool {
-        #[cfg(veiron_cuda_linked)]
+        #[cfg(vireon_cuda_linked)]
         {
-            unsafe { veiron_cuda_device_kernels_linked() != 0 && veiron_cuda_available() > 0 }
+            unsafe { vireon_cuda_device_kernels_linked() != 0 && vireon_cuda_available() > 0 }
         }
-        #[cfg(not(veiron_cuda_linked))]
+        #[cfg(not(vireon_cuda_linked))]
         {
             false
         }
@@ -136,13 +136,13 @@ impl CudaGpuBackend {
 
     fn enumerate_devices() -> Result<Vec<MiningDevice>> {
         // 1) Prefer CUDA Runtime enum when kernels are linked (same stack as mine).
-        #[cfg(veiron_cuda_linked)]
+        #[cfg(vireon_cuda_linked)]
         {
-            let n = unsafe { veiron_cuda_available() };
+            let n = unsafe { vireon_cuda_available() };
             if n > 0 {
                 let mut out = Vec::with_capacity(n as usize);
                 for index in 0..n {
-                    let mut info = VeironCudaDeviceInfo {
+                    let mut info = VireonCudaDeviceInfo {
                         index: 0,
                         name: [0; 256],
                         total_mem: 0,
@@ -150,7 +150,7 @@ impl CudaGpuBackend {
                         major: 0,
                         minor: 0,
                     };
-                    if unsafe { veiron_cuda_device_info(index, &mut info) } != 0 {
+                    if unsafe { vireon_cuda_device_info(index, &mut info) } != 0 {
                         continue;
                     }
                     let name = {
@@ -190,13 +190,13 @@ impl CudaGpuBackend {
         cuda_driver::enumerate_cuda_devices()
     }
 
-    #[cfg(veiron_cuda_linked)]
+    #[cfg(vireon_cuda_linked)]
     fn ensure_device_miners(&mut self) -> Result<()> {
         if !self.miners.is_empty() {
             return Ok(());
         }
         for d in &self.devices {
-            let m = unsafe { veiron_cuda_miner_create(d.index as i32) };
+            let m = unsafe { vireon_cuda_miner_create(d.index as i32) };
             if m.is_null() {
                 return Err(MinerError::Gpu(format!(
                     "cudaSetDevice/create failed for {}",
@@ -208,7 +208,7 @@ impl CudaGpuBackend {
         Ok(())
     }
 
-    #[cfg(veiron_cuda_linked)]
+    #[cfg(vireon_cuda_linked)]
     fn ensure_dag_on_devices(&mut self, height: u64) -> Result<()> {
         self.ensure_device_miners()?;
         // Rebuild only when epoch may change (or first use).
@@ -231,8 +231,8 @@ impl CudaGpuBackend {
             for (index, handle) in handles.into_iter().enumerate() {
                 joins.push(scope.spawn(move || {
                     let rc = unsafe {
-                        veiron_cuda_miner_build_dag(
-                            handle as *mut VeironCudaMiner,
+                        vireon_cuda_miner_build_dag(
+                            handle as *mut VireonCudaMiner,
                             height as i32,
                             light_cache_ptr as *const u32,
                             view.light_cache_items,
@@ -268,7 +268,7 @@ impl CudaGpuBackend {
             for (index, miner) in self.miners.iter().enumerate() {
                 let mut actual = [0u8; 128];
                 let rc =
-                    unsafe { veiron_cuda_miner_copy_dag_item(*miner, sample, actual.as_mut_ptr()) };
+                    unsafe { vireon_cuda_miner_copy_dag_item(*miner, sample, actual.as_mut_ptr()) };
                 if rc != 0 || actual != expected {
                     return Err(MinerError::Gpu(format!(
                         "CUDA DAG parity failed on {} at item {sample} (rc={rc})",
@@ -284,7 +284,7 @@ impl CudaGpuBackend {
         Ok(())
     }
 
-    #[cfg(veiron_cuda_linked)]
+    #[cfg(vireon_cuda_linked)]
     fn mine_device_batch(&mut self, job: &MiningJob) -> Result<Option<MiningSolution>> {
         self.ensure_dag_on_devices(job.block.header.height)?;
         let header = mining_header_hash(&job.block);
@@ -314,8 +314,8 @@ impl CudaGpuBackend {
                     let mut found = 0i32;
                     let mut hashes_done = 0u64;
                     let rc = unsafe {
-                        veiron_cuda_mine_firopow(
-                            handle as *mut VeironCudaMiner,
+                        vireon_cuda_mine_firopow(
+                            handle as *mut VireonCudaMiner,
                             job.block.header.height as i32,
                             header_bytes.as_ptr(),
                             boundary.as_ptr(),
@@ -370,7 +370,7 @@ impl CudaGpuBackend {
     }
 }
 
-#[cfg(any(veiron_cuda_linked, test))]
+#[cfg(any(vireon_cuda_linked, test))]
 fn partition_nonce_range(start_nonce: u64, total: u32, devices: usize) -> Vec<(u64, u32)> {
     let devices = devices.max(1);
     let base = total / devices as u32;
@@ -431,7 +431,7 @@ impl MiningBackend for CudaGpuBackend {
         self.metrics.active_devices = self.devices.len();
         self.cancel.store(false, Ordering::SeqCst);
 
-        #[cfg(veiron_cuda_linked)]
+        #[cfg(vireon_cuda_linked)]
         self.ensure_device_miners()?;
         Ok(())
     }
@@ -442,9 +442,9 @@ impl MiningBackend for CudaGpuBackend {
         }
         self.cancel.store(false, Ordering::SeqCst);
 
-        #[cfg(veiron_cuda_linked)]
+        #[cfg(vireon_cuda_linked)]
         return self.mine_device_batch(_job);
-        #[cfg(not(veiron_cuda_linked))]
+        #[cfg(not(vireon_cuda_linked))]
         Err(MinerError::Gpu(
             "CUDA device kernels are not linked; CPU fallback is disabled".into(),
         ))
@@ -454,7 +454,7 @@ impl MiningBackend for CudaGpuBackend {
         if !self.ready {
             self.initialize(BackendConfig::default())?;
         }
-        #[cfg(veiron_cuda_linked)]
+        #[cfg(vireon_cuda_linked)]
         self.ensure_dag_on_devices(job.block.header.height)?;
         let started = Instant::now();
         let mut hashes = 0u64;
@@ -490,7 +490,7 @@ impl MiningBackend for CudaGpuBackend {
     }
 }
 
-#[cfg(veiron_cuda_linked)]
+#[cfg(vireon_cuda_linked)]
 fn slug(name: &str) -> String {
     name.chars()
         .map(|c| {
@@ -505,13 +505,13 @@ fn slug(name: &str) -> String {
 
 /// True when CUDA driver reports at least one NVIDIA GPU.
 #[allow(dead_code)]
-#[cfg(veiron_cuda_linked)]
+#[cfg(vireon_cuda_linked)]
 pub fn cuda_runtime_present() -> bool {
-    cuda_driver::cuda_driver_available() || unsafe { veiron_cuda_available() > 0 }
+    cuda_driver::cuda_driver_available() || unsafe { vireon_cuda_available() > 0 }
 }
 
 #[allow(dead_code)]
-#[cfg(not(veiron_cuda_linked))]
+#[cfg(not(vireon_cuda_linked))]
 pub fn cuda_runtime_present() -> bool {
     cuda_driver::cuda_driver_available()
 }

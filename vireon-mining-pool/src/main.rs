@@ -3,15 +3,15 @@ use clap::Parser;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use tokio::net::TcpListener;
-use veiron_mining_pool::{router, PoolConfig, PoolState, PoolStore};
+use vireon_mining_pool::{router, PoolConfig, PoolState, PoolStore};
 
 #[derive(Debug, Parser)]
 #[command(
-    name = "veiron-mining-pool",
-    about = "Veiron pooled mining coordinator prototype"
+    name = "vireon-mining-pool",
+    about = "Vireon pooled mining coordinator prototype"
 )]
 struct Cli {
-    #[arg(long, default_value = "veiron-mining-pool/config.toml")]
+    #[arg(long, default_value = "vireon-mining-pool/config.toml")]
     config: PathBuf,
     #[arg(long)]
     check_config: bool,
@@ -20,7 +20,7 @@ struct Cli {
 #[tokio::main]
 async fn main() {
     if let Err(error) = run().await {
-        eprintln!("veiron-mining-pool error: {error}");
+        eprintln!("vireon-mining-pool error: {error}");
         std::process::exit(1);
     }
 }
@@ -43,7 +43,7 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let address: SocketAddr = format!("{}:{}", config.bind_host, config.bind_port).parse()?;
     let listener = TcpListener::bind(address).await?;
     println!(
-        "veiron-mining-pool listening on http://{address} ({})",
+        "vireon-mining-pool listening on http://{address} ({})",
         config.status_label
     );
     serve(

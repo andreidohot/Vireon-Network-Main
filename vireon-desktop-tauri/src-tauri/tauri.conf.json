@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Veiron Control Center",
+  "productName": "Vireon Control Center",
   "version": "1.0.0",
-  "identifier": "network.veiron.control-center",
+  "identifier": "network.vireon.control-center",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Veiron Control Center",
+        "title": "Vireon Control Center",
         "width": 1600,
         "height": 900,
         "minWidth": 980,
@@ -42,13 +42,13 @@
       "icons/icon.ico"
     ],
     "category": "Utility",
-    "shortDescription": "Veiron Mainnet Candidate Control Center",
-    "longDescription": "Wallet, CUDA-only FiroPoW 0.9.4 GPU miner and chain visibility for Veiron Network via VPS RPC or local stack. Cross-platform Tauri shell for Windows and Linux.",
+    "shortDescription": "Vireon Mainnet Candidate Control Center",
+    "longDescription": "Wallet, CUDA-only FiroPoW 0.9.4 GPU miner and chain visibility for Vireon Network via VPS RPC or local stack. Cross-platform Tauri shell for Windows and Linux.",
     "resources": [
       "resources/**/*"
     ],
     "externalBin": [
-      "binaries/veiron-keystore-helper"
+      "binaries/vireon-keystore-helper"
     ],
     "windows": {
       "nsis": {

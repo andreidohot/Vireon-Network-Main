@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use std::process::{Command, Output};
 
 fn host_bin() -> PathBuf {
-    PathBuf::from(env!("CARGO_BIN_EXE_veiron-browser-host"))
+    PathBuf::from(env!("CARGO_BIN_EXE_vireon-browser-host"))
 }
 
 /// Live public-RPC tests should not hard-fail CI when the candidate gateway is down.
@@ -157,7 +157,7 @@ fn print_info_json_has_service() {
     let value: serde_json::Value = serde_json::from_str(&stdout).expect("info json parses");
     assert_eq!(
         value.get("service").and_then(|v| v.as_str()),
-        Some("veiron-browser-host")
+        Some("vireon-browser-host")
     );
     assert_eq!(
         value.get("network_id").and_then(|v| v.as_str()),

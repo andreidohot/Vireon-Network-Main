@@ -33,22 +33,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      HEALTH_WEBHOOK_URL: ${{ secrets.VEIRON_HEALTH_WEBHOOK_URL }}
+      HEALTH_WEBHOOK_URL: ${{ secrets.VIREON_HEALTH_WEBHOOK_URL }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
 
       - name: Cache cargo
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@42dc69e1aa15d09112580998cf2ef0119e2e91ae
         with:
           workspaces: "."
           cache-on-failure: true
 
-      - name: Build veiron-browser-host
-        run: cargo build -p veiron-browser-host --release
+      - name: Build vireon-browser-host
+        run: cargo build -p vireon-browser-host --release
 
       - name: Run health check
         env:
@@ -67,7 +67,7 @@ jobs:
             ARGS+=(--max-indexer-lag "${MAX_LAG:-0}")
           fi
           set +e
-          ./target/release/veiron-browser-host "${ARGS[@]}" | tee health.json
+          ./target/release/vireon-browser-host "${ARGS[@]}" | tee health.json
           CODE=${PIPESTATUS[0]}
           set -e
           if [ "$CODE" -ne 0 ]; then
@@ -77,7 +77,7 @@ jobs:
 
       - name: Upload health report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: candidate-health-report
           path: health.json
@@ -93,5 +93,5 @@ jobs:
             --arg repo "${{ github.repository }}" \
             --arg run "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             --arg status "failed" \
-            '{text:"Veiron Mainnet Candidate health FAILED",repo:$repo,run_url:$run,status:$status,health:$health}')
+            '{text:"Vireon Mainnet Candidate health FAILED",repo:$repo,run_url:$run,status:$status,health:$health}')
           curl -fsS -X POST -H "Content-Type: application/json" -d "$PAYLOAD" "$HEALTH_WEBHOOK_URL"

@@ -2,7 +2,7 @@ param([switch]$Help)
 
 if ($Help -or $args -contains "--help" -or $args -contains "-h") {
     Write-Host "Usage: scripts/local/stop-all.ps1"
-    Write-Host "Stops local managed Veiron processes if they are running."
+    Write-Host "Stops local managed Vireon processes if they are running."
     exit 0
 }
 
@@ -11,7 +11,7 @@ if ($Help -or $args -contains "--help" -or $args -contains "-h") {
 Stop-NodeProcess
 Stop-ManagedProcess "rpc"
 Stop-ExplorerProcess
-Stop-WorkspaceBinaryProcess "veiron-rpc-gateway"
+Stop-WorkspaceBinaryProcess "vireon-rpc-gateway"
 
 Write-Host "Managed local processes stopped."
 Write-Host "Logs remain under $script:LogsDir"

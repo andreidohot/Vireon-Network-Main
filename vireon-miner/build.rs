@@ -1,6 +1,6 @@
 //! Build CUDA FiroPoW library when `gpu-cuda` is enabled and `nvcc` + MSVC (`cl.exe`) are available.
 //!
-//! Release builds set `VEIRON_REQUIRE_CUDA=1` and fail unless the real CUDA
+//! Release builds set `VIREON_REQUIRE_CUDA=1` and fail unless the real CUDA
 //! FiroPoW kernel can be compiled and linked. Stub builds are diagnostic only;
 //! they can enumerate devices but cannot mine.
 
@@ -13,10 +13,10 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-env-changed=CUDA_PATH");
     println!("cargo:rerun-if-env-changed=NVCC");
-    println!("cargo:rerun-if-env-changed=VEIRON_FORCE_CUDA");
-    println!("cargo:rerun-if-env-changed=VEIRON_CUDA_ARCH");
-    println!("cargo:rustc-check-cfg=cfg(veiron_cuda_linked)");
-    println!("cargo:rustc-check-cfg=cfg(veiron_cuda_stub)");
+    println!("cargo:rerun-if-env-changed=VIREON_FORCE_CUDA");
+    println!("cargo:rerun-if-env-changed=VIREON_CUDA_ARCH");
+    println!("cargo:rustc-check-cfg=cfg(vireon_cuda_linked)");
+    println!("cargo:rustc-check-cfg=cfg(vireon_cuda_stub)");
 
     let cuda_feature = env::var("CARGO_FEATURE_GPU_CUDA").is_ok();
     if !cuda_feature {
@@ -29,7 +29,7 @@ fn main() {
     if !cu.is_file() {
         require_cuda_or_continue("CUDA kernel source is missing");
         println!("cargo:warning=CUDA source missing at {}", cu.display());
-        println!("cargo:rustc-cfg=veiron_cuda_stub");
+        println!("cargo:rustc-cfg=vireon_cuda_stub");
         return;
     }
 
@@ -40,7 +40,7 @@ fn main() {
     let Some(nvcc) = nvcc else {
         require_cuda_or_continue("nvcc was not found; install the CUDA Toolkit");
         println!("cargo:warning=nvcc not found - CUDA mining is unavailable (install CUDA Toolkit). Device enumeration may still work.");
-        println!("cargo:rustc-cfg=veiron_cuda_stub");
+        println!("cargo:rustc-cfg=vireon_cuda_stub");
         return;
     };
 
@@ -49,15 +49,15 @@ fn main() {
         println!(
             "cargo:warning=cl.exe (MSVC) not on PATH - nvcc cannot compile device kernels. Open 'x64 Native Tools Command Prompt for VS' or install Visual Studio C++ build tools, then rebuild."
         );
-        println!("cargo:rustc-cfg=veiron_cuda_stub");
+        println!("cargo:rustc-cfg=vireon_cuda_stub");
         return;
     }
 
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
     let lib_name = if target_os == "windows" {
-        "veiron_pow_cuda.lib"
+        "vireon_pow_cuda.lib"
     } else {
-        "libveiron_pow_cuda.a"
+        "libvireon_pow_cuda.a"
     };
     let obj_ext = if target_os == "windows" { "obj" } else { "o" };
     let obj = out_dir.join(format!("firopow_cuda.{obj_ext}"));
@@ -77,7 +77,7 @@ fn main() {
         .arg(&obj);
 
     // RTX 20xx = sm_75, RTX 30xx = sm_86, RTX 40xx = sm_89; PTX for forward compat.
-    if let Ok(arch) = env::var("VEIRON_CUDA_ARCH") {
+    if let Ok(arch) = env::var("VIREON_CUDA_ARCH") {
         cmd.arg(format!("-arch={arch}"));
     } else {
         cmd.arg("-gencode=arch=compute_75,code=sm_75");
@@ -102,13 +102,13 @@ fn main() {
                 out.status,
                 short.replace('\n', " | ")
             );
-            println!("cargo:rustc-cfg=veiron_cuda_stub");
+            println!("cargo:rustc-cfg=vireon_cuda_stub");
             return;
         }
         Err(e) => {
             require_cuda_or_continue(&format!("failed to launch nvcc: {e}"));
             println!("cargo:warning=failed to run nvcc ({e}) - CUDA mining is unavailable");
-            println!("cargo:rustc-cfg=veiron_cuda_stub");
+            println!("cargo:rustc-cfg=vireon_cuda_stub");
             return;
         }
     }
@@ -121,7 +121,7 @@ fn main() {
                 .status();
             if lib.is_file() {
                 println!("cargo:rustc-link-search=native={}", out_dir.display());
-                println!("cargo:rustc-link-lib=static=veiron_pow_cuda");
+                println!("cargo:rustc-link-lib=static=vireon_pow_cuda");
             } else {
                 println!("cargo:rustc-link-arg={}", obj.display());
             }
@@ -136,7 +136,7 @@ fn main() {
         let ar = env::var("AR").unwrap_or_else(|_| "ar".into());
         let _ = Command::new(ar).arg("crs").arg(&lib).arg(&obj).status();
         println!("cargo:rustc-link-search=native={}", out_dir.display());
-        println!("cargo:rustc-link-lib=static=veiron_pow_cuda");
+        println!("cargo:rustc-link-lib=static=vireon_pow_cuda");
         // Keep the Linux miner portable: the NVIDIA display driver does not
         // necessarily install the CUDA runtime shared object used at build time.
         println!("cargo:rustc-link-lib=static=cudart_static");
@@ -148,12 +148,12 @@ fn main() {
         }
     }
 
-    println!("cargo:rustc-cfg=veiron_cuda_linked");
+    println!("cargo:rustc-cfg=vireon_cuda_linked");
     println!("cargo:warning=CUDA FiroPoW device kernels linked successfully");
 }
 
 fn require_cuda_or_continue(reason: &str) {
-    if env::var("VEIRON_REQUIRE_CUDA").as_deref() == Ok("1") {
+    if env::var("VIREON_REQUIRE_CUDA").as_deref() == Ok("1") {
         panic!("CUDA release build requirement failed: {reason}");
     }
 }

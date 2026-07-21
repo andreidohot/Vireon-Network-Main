@@ -1,4 +1,4 @@
-use crate::protocol::errors::{Result, VeironError};
+use crate::protocol::errors::{Result, VireonError};
 use crate::protocol::network::Network;
 use crate::protocol::signing::PublicKey;
 use crate::protocol::standards::{
@@ -24,31 +24,31 @@ impl Address {
 
     pub fn parse(input: &str) -> Result<Self> {
         if input != input.to_lowercase() {
-            return Err(VeironError::InvalidAddress(
+            return Err(VireonError::InvalidAddress(
                 "address must use lowercase canonical encoding".to_owned(),
             ));
         }
         let (hrp, data, variant) = bech32::decode(input)
-            .map_err(|error| VeironError::InvalidAddress(error.to_string()))?;
+            .map_err(|error| VireonError::InvalidAddress(error.to_string()))?;
         let network = Network::from_address_prefix(&hrp).ok_or_else(|| {
-            VeironError::InvalidAddress(format!("unsupported address prefix {hrp}"))
+            VireonError::InvalidAddress(format!("unsupported address prefix {hrp}"))
         })?;
         if variant != Variant::Bech32m {
-            return Err(VeironError::InvalidAddress(
+            return Err(VireonError::InvalidAddress(
                 "address must use Bech32m checksum".to_owned(),
             ));
         }
 
         let bytes = Vec::<u8>::from_base32(&data)
-            .map_err(|error| VeironError::InvalidAddress(error.to_string()))?;
+            .map_err(|error| VireonError::InvalidAddress(error.to_string()))?;
         if bytes.len() != ADDRESS_PAYLOAD_SIZE {
-            return Err(VeironError::InvalidAddress(format!(
+            return Err(VireonError::InvalidAddress(format!(
                 "expected {ADDRESS_PAYLOAD_SIZE} payload bytes, got {}",
                 bytes.len()
             )));
         }
         if bytes[0] != ADDRESS_VERSION {
-            return Err(VeironError::InvalidAddress(format!(
+            return Err(VireonError::InvalidAddress(format!(
                 "unsupported address version {}",
                 bytes[0]
             )));
@@ -105,7 +105,7 @@ impl fmt::Display for Address {
 }
 
 impl FromStr for Address {
-    type Err = VeironError;
+    type Err = VireonError;
 
     fn from_str(s: &str) -> Result<Self> {
         Self::parse(s)

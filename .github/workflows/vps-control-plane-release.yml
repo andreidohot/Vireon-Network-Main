@@ -26,10 +26,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           ref: ${{ inputs.tag || github.ref }}
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
         with:
           components: clippy,rustfmt
 
@@ -39,7 +39,7 @@ jobs:
       - name: Verify requested tag
         run: |
           set -euo pipefail
-          VERSION="$(tr -d '[:space:]' < veiron-release/vps-control-plane/VERSION)"
+          VERSION="$(tr -d '[:space:]' < vireon-release/vps-control-plane/VERSION)"
           case "$RELEASE_TAG" in
             "vps-control-v${VERSION}-rc."*) ;;
             *) echo "Tag $RELEASE_TAG does not match VERSION $VERSION" >&2; exit 1 ;;
@@ -58,6 +58,10 @@ jobs:
           cargo test --workspace --locked
           cargo clippy --workspace --all-targets --locked -- -D warnings
 
+      - name: Validate Docker control plane
+        working-directory: vireon-release/vps-control-plane
+        run: ./scripts/validate-stack.sh --require-docker
+
       - name: Build VPS control-plane bundle
         run: bash scripts/release/build-vps-control-plane-bundle.sh
 
@@ -65,15 +69,15 @@ jobs:
         run: |
           set -euo pipefail
           cd release-artifacts
-          sha256sum --check veiron-vps-control-linux-x86_64.tar.gz.sha256
-          tar -tzf veiron-vps-control-linux-x86_64.tar.gz > vps-control-contents.txt
+          sha256sum --check vireon-docker-control-plane.tar.gz.sha256
+          tar -tzf vireon-docker-control-plane.tar.gz > vps-control-contents.txt
           for required in \
-            veiron-vps-control/bin/veiron-node \
-            veiron-vps-control/bin/veiron-rpc-gateway \
-            veiron-vps-control/bin/veiron-indexer \
-            veiron-vps-control/bin/veiron-vps-admin \
-            veiron-vps-control/bin/veiron-mining-pool \
-            veiron-vps-control/vps-control-plane/install.sh; do
+            Cargo.toml \
+            Cargo.lock \
+            vireon-release/vps-control-plane/compose.yaml \
+            vireon-release/vps-control-plane/installer.compose.yaml \
+            vireon-release/vps-control-plane/docker/Dockerfile \
+            vireon-release/vps-control-plane/scripts/install-docker-stack.sh; do
             grep -Fxq "$required" vps-control-contents.txt || {
               echo "Missing required bundle entry: $required" >&2
               exit 1
@@ -81,10 +85,10 @@ jobs:
           done
 
       - name: Publish VPS control-plane prerelease
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
         with:
           tag_name: ${{ env.RELEASE_TAG }}
-          name: Veiron VPS Control Plane ${{ env.RELEASE_TAG }}
+          name: Vireon VPS Control Plane ${{ env.RELEASE_TAG }}
           prerelease: true
           draft: false
           generate_release_notes: true
@@ -93,7 +97,7 @@ jobs:
 
             This is not a Mainnet Live declaration. Verify the SHA-256 file before installation. The optional mining-pool coordinator remains a prototype and does not store payout signing keys.
           files: |
-            release-artifacts/veiron-vps-control-linux-x86_64.tar.gz
-            release-artifacts/veiron-vps-control-linux-x86_64.tar.gz.sha256
+            release-artifacts/vireon-docker-control-plane.tar.gz
+            release-artifacts/vireon-docker-control-plane.tar.gz.sha256
             release-artifacts/vps-control-contents.txt
           fail_on_unmatched_files: true

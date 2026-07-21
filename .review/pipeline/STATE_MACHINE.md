@@ -1,6 +1,6 @@
 # Issue state machine (GitHub labels)
 
-Repo: `andreidohot/veiron-network`
+Repo: `andreidohot/vireon-network`
 
 ## Status labels (exactly one active status preferred)
 

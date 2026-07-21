@@ -1,4 +1,4 @@
-# Veiron Release
+# Vireon Release
 
 Release process assets, candidate manifests, checksums and deployment bundles.
 

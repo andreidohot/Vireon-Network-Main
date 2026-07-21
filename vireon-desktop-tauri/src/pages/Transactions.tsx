@@ -47,7 +47,7 @@ export function Transactions() {
       return;
     }
     try {
-      const result = await window.veiron.explorer.lookup(String(height));
+      const result = await window.vireon.explorer.lookup(String(height));
       if (result.kind === "block" && result.data) {
         setBlockDetail(normalizeBlock(result.data as unknown as DesktopBlock));
       }
@@ -60,7 +60,7 @@ export function Transactions() {
     setSelectedHash(tx.hash);
     setEnriched(null);
     try {
-      const result = await window.veiron.explorer.lookup(tx.hash);
+      const result = await window.vireon.explorer.lookup(tx.hash);
       if (result.kind === "transaction" && (result.raw || result.data)) {
         const merged = normalizeTx({
           ...tx,

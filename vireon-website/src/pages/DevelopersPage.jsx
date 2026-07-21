@@ -14,7 +14,7 @@ export default function DevelopersPage() {
       <PageHero
         eyebrow="Developers"
         title="A builder surface for apps, games, contracts and digital products."
-        text="Developer content makes Veiron feel like a platform, not just a coin website. SDKs, contract standards and examples become real as the core matures."
+        text="Developer content makes Vireon feel like a platform, not just a coin website. SDKs, contract standards and examples become real as the core matures."
       />
       <section className="px-5 py-20">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">

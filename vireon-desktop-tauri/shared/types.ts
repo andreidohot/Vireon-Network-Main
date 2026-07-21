@@ -128,7 +128,7 @@ export interface NetworkSnapshot {
   miner_updated_at_unix_seconds: number | null;
   /** Configured product backend. Legacy values are migrated to CUDA. */
   miner_backend_mode: string | null;
-  /** Active backend name reported by veiron-miner metrics */
+  /** Active backend name reported by vireon-miner metrics */
   miner_active_backend: string | null;
   local_peer_id: string | null;
   p2p_listen_addresses: string[];
@@ -251,7 +251,7 @@ export interface ExplorerLookupResult {
   message?: string;
 }
 
-/** Device row from `veiron-miner devices --json`. */
+/** Device row from `vireon-miner devices --json`. */
 export interface MiningDeviceInfo {
   id: string;
   backend: "gpu-cuda" | string;
@@ -280,9 +280,9 @@ export type ThemeId =
   | "midnight"
   | "high-contrast"
   /** @deprecated prefer "dark" */
-  | "veiron-dark"
+  | "vireon-dark"
   /** @deprecated prefer "midnight" */
-  | "veiron-midnight";
+  | "vireon-midnight";
 export type DensityId = "comfortable" | "compact";
 export type LanguageId = "en" | "ro";
 export type AccentId = "cyan" | "gold" | "emerald";
@@ -316,7 +316,7 @@ export interface AppSettings {
   /** Default compute backend; only NVIDIA CUDA is supported. */
   default_miner_backend: "cuda";
   default_gpu_intensity: number;
-  /** Selected CUDA device ids from veiron-miner devices (empty = all CUDA GPUs). */
+  /** Selected CUDA device ids from vireon-miner devices (empty = all CUDA GPUs). */
   default_gpu_devices: string[];
   default_pool_url: string;
   /** Multi-pool list for Pool Control page (https base URLs). */
@@ -471,7 +471,7 @@ export interface RuntimeHealth {
   issues: string[];
 }
 
-export interface VeironBridge {
+export interface VireonBridge {
   network: {
     snapshot(): Promise<NetworkSnapshot>;
     addSeed(seed: string): Promise<string>;

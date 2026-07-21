@@ -84,14 +84,14 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: |
-            veiron-desktop-tauri/package-lock.json
-            veiron-explorer/package-lock.json
+            vireon-desktop-tauri/package-lock.json
+            vireon-explorer/package-lock.json
 
       - name: Verify tag matches desktop version
         shell: bash
         run: |
           set -euo pipefail
-          DESKTOP_VERSION="$(node -e "const j=require('./veiron-desktop-tauri/package.json'); process.stdout.write(j.version)")"
+          DESKTOP_VERSION="$(node -e "const j=require('./vireon-desktop-tauri/package.json'); process.stdout.write(j.version)")"
           case "$RELEASE_TAG" in
             "v${DESKTOP_VERSION}-candidate."*) ;;
             *)
@@ -156,7 +156,7 @@ jobs:
           if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             gh release create "$RELEASE_TAG" \
               --verify-tag \
-              --title "Veiron $RELEASE_TAG" \
+              --title "Vireon $RELEASE_TAG" \
               --notes-file release-notes.md \
               --prerelease \
               || gh release view "$RELEASE_TAG" >/dev/null

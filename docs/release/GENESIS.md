@@ -10,7 +10,7 @@ Canonical files:
 
 Deterministic genesis inputs:
 - network ID: `veiron-mainnet-candidate`
-- human name: `Veiron Mainnet Candidate`
+- human name: `Vireon Mainnet Candidate`
 - address prefix: `vire`
 - timestamp: `1720000000`
 - difficulty leading zero bits: `16`
@@ -41,8 +41,8 @@ Safety rules:
 Operator workflow:
 
 ```powershell
-cargo run -p veiron-node -- --config configs/mainnet-candidate.toml print-genesis-hash
-cargo run -p veiron-node -- --config configs/mainnet-candidate.toml export-genesis-review --output docs/release/GENESIS_REVIEW.mainnet-candidate.json
-cargo run -p veiron-node -- --config configs/mainnet-candidate.toml approve-genesis --review-file docs/release/GENESIS_REVIEW.mainnet-candidate.json --approved-by <name> --output docs/release/GENESIS_APPROVAL.mainnet-candidate.json
-cargo run -p veiron-node -- --config configs/mainnet-candidate.toml genesis-approval-status
+cargo run -p vireon-node -- --config configs/mainnet-candidate.toml print-genesis-hash
+cargo run -p vireon-node -- --config configs/mainnet-candidate.toml export-genesis-review --output docs/release/GENESIS_REVIEW.mainnet-candidate.json
+cargo run -p vireon-node -- --config configs/mainnet-candidate.toml approve-genesis --review-file docs/release/GENESIS_REVIEW.mainnet-candidate.json --approved-by <name> --output docs/release/GENESIS_APPROVAL.mainnet-candidate.json
+cargo run -p vireon-node -- --config configs/mainnet-candidate.toml genesis-approval-status
 ```

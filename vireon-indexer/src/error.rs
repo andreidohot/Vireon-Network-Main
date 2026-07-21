@@ -8,9 +8,9 @@ pub enum IndexerError {
     #[error("JSON error: {0}")]
     Json(#[from] serde_json::Error),
     #[error("node error: {0}")]
-    Node(#[from] veiron_node::NodeError),
+    Node(#[from] vireon_node::NodeError),
     #[error("core error: {0}")]
-    Core(#[from] veiron_core::VeironError),
+    Core(#[from] vireon_core::VireonError),
     #[error("chain index is not initialized at {0}")]
     IndexNotInitialized(PathBuf),
     #[error("invalid index file at {path}: {message}")]

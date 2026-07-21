@@ -3,7 +3,7 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$repo_root"
-expected_repository="andreidohot/veiron-network"
+expected_repository="andreidohot/vireon-network"
 workflow="vps-control-plane-release.yml"
 sync_only=false
 if [[ "${1:-}" == "--sync-only" ]]; then sync_only=true; shift; fi
@@ -15,7 +15,7 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
 fi
 command -v gh >/dev/null || { echo "GitHub CLI is required" >&2; exit 1; }
 [[ "$(git branch --show-current)" == main ]] || { echo "VPS releases are allowed only from main" >&2; exit 1; }
-git remote get-url origin | grep -Eq 'github\.com[/:]andreidohot/veiron-network(\.git)?$' || {
+git remote get-url origin | grep -Eq 'github\.com[/:]andreidohot/vireon-network(\.git)?$' || {
   echo "origin must point to $expected_repository" >&2
   exit 1
 }
@@ -45,7 +45,7 @@ if [[ "$sync_only" == true ]]; then
   exit 0
 fi
 
-version="$(tr -d '[:space:]' < veiron-release/vps-control-plane/VERSION)"
+version="$(tr -d '[:space:]' < vireon-release/vps-control-plane/VERSION)"
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Invalid VERSION: $version" >&2; exit 1; }
 prefix="vps-control-v${version}-rc."
 existing_head_tag="$(git tag --points-at HEAD --list "${prefix}*" | head -n1)"
@@ -56,7 +56,7 @@ fi
 next="$(git ls-remote --tags origin "${prefix}*" | sed -n "s|.*refs/tags/${prefix}\([0-9][0-9]*\)$|\1|p" | sort -n | tail -n1)"
 next="$(( ${next:-0} + 1 ))"
 tag="${prefix}${next}"
-git tag -a "$tag" -m "Veiron VPS Control Plane $tag"
+git tag -a "$tag" -m "Vireon VPS Control Plane $tag"
 if ! git push origin "$tag"; then git tag -d "$tag"; exit 1; fi
 
 run_id=""

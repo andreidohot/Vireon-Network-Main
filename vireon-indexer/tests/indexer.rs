@@ -1,18 +1,18 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use tempfile::tempdir;
-use veiron_core::{Address, Network, PrivateKey};
-use veiron_indexer::{
+use vireon_core::{Address, Network, PrivateKey};
+use vireon_indexer::{
     default_index_dir, ensure_index_matches_chain, find_address, find_block, find_transaction,
     index_devnet, indexer_status, load_index, reset_index, IndexerError,
 };
-use veiron_node::{default_miner_address, init_devnet, mine_dev_blocks, send_dev_tx, storage};
+use vireon_node::{default_miner_address, init_devnet, mine_dev_blocks, send_dev_tx, storage};
 
 fn write_devnet_config(path: &Path) {
     let content = r#"
 network = "devnet"
 network_id = "veiron-devnet"
-human_name = "Veiron Devnet"
+human_name = "Vireon Devnet"
 status_label = "Draft / Private Devnet"
 block_time_seconds = 60
 difficulty_leading_zero_bits = 4
@@ -24,7 +24,7 @@ initial_block_reward = "19.02587519"
 default_rpc_port = 8787
 default_p2p_port = 18787
 max_mempool_transactions = 8
-genesis_config_path = "veiron-devnet/config/genesis-devnet.json"
+genesis_config_path = "vireon-devnet/config/genesis-devnet.json"
 chain_magic_hex = "56444556"
 allow_mainnet_candidate = false
 "#;
@@ -34,9 +34,9 @@ allow_mainnet_candidate = false
 
 fn setup_paths() -> (tempfile::TempDir, PathBuf, PathBuf, PathBuf) {
     let temp_dir = tempdir().expect("tempdir");
-    let config_path = temp_dir.path().join("veiron-devnet/config/devnet.toml");
-    let data_dir = temp_dir.path().join(".veiron-dev/chain");
-    let index_dir = temp_dir.path().join(".veiron-dev/indexer");
+    let config_path = temp_dir.path().join("vireon-devnet/config/devnet.toml");
+    let data_dir = temp_dir.path().join(".vireon-dev/chain");
+    let index_dir = temp_dir.path().join(".vireon-dev/indexer");
     write_devnet_config(&config_path);
     (temp_dir, config_path, data_dir, index_dir)
 }
@@ -47,7 +47,7 @@ fn index_empty_chain_safely() {
     let error = index_devnet(&data_dir, &index_dir).expect_err("empty chain should fail safely");
     assert!(matches!(
         error,
-        IndexerError::Node(veiron_node::NodeError::ChainNotInitialized(_))
+        IndexerError::Node(vireon_node::NodeError::ChainNotInitialized(_))
     ));
 }
 
@@ -221,7 +221,7 @@ fn invalid_chain_data_is_handled_safely() {
     let error = index_devnet(&data_dir, &index_dir).expect_err("invalid chain must fail");
     assert!(matches!(
         error,
-        IndexerError::Node(veiron_node::NodeError::InvalidChainFile { .. })
+        IndexerError::Node(vireon_node::NodeError::InvalidChainFile { .. })
     ));
 }
 
@@ -229,5 +229,5 @@ fn invalid_chain_data_is_handled_safely() {
 fn default_index_directory_is_outside_tracked_source_folders() {
     let path = default_index_dir();
     let path_text = path.to_string_lossy().to_lowercase();
-    assert!(!path_text.contains("veiron-indexer/src"));
+    assert!(!path_text.contains("vireon-indexer/src"));
 }

@@ -69,7 +69,7 @@ function AdminCard({ title, value, hint, icon: Icon }) {
 }
 
 function LoginScreen({ onLogin }) {
-  const [email, setEmail] = useState('admin@veiron.network')
+  const [email, setEmail] = useState('admin@vireon.network')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -98,7 +98,7 @@ function LoginScreen({ onLogin }) {
       <form onSubmit={submit} className="glass-panel w-full max-w-md rounded-lg p-7">
         <Logo />
         <p className="mt-8 text-sm font-bold uppercase tracking-[0.26em] text-ionSoft/70">Admin Panel</p>
-        <h1 className="mt-3 text-4xl font-black text-white">Sign in to Veiron Ops.</h1>
+        <h1 className="mt-3 text-4xl font-black text-white">Sign in to Vireon Ops.</h1>
         <div className="mt-8 grid gap-4">
           <input className="rounded-lg border border-line bg-void/70 px-4 py-3 text-sm outline-none focus:border-ionSoft" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email" />
           <input className="rounded-lg border border-line bg-void/70 px-4 py-3 text-sm outline-none focus:border-ionSoft" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" type="password" />
@@ -499,7 +499,7 @@ function AdminSection({ title, text, error, children }) {
   return (
     <div className="grid gap-5">
       <div>
-        <p className="text-sm font-bold uppercase tracking-[0.3em] text-ionSoft/70">Veiron Admin</p>
+        <p className="text-sm font-bold uppercase tracking-[0.3em] text-ionSoft/70">Vireon Admin</p>
         <h1 className="mt-3 text-4xl font-black text-white">{title}</h1>
         <p className="mt-3 max-w-3xl text-frost/62">{text}</p>
       </div>

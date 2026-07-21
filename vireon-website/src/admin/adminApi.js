@@ -1,13 +1,13 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000'
-const TOKEN_KEY = 'veiron_admin_access_token'
-const DEV_USER_KEY = 'veiron_admin_dev_user'
-const DEV_STATE_KEY = 'veiron_admin_dev_state'
+const TOKEN_KEY = 'vireon_admin_access_token'
+const DEV_USER_KEY = 'vireon_admin_dev_user'
+const DEV_STATE_KEY = 'vireon_admin_dev_state'
 
 export const devBypassEnabled = import.meta.env.DEV && import.meta.env.VITE_ADMIN_DEV_BYPASS !== 'false'
 
 export const devUser = {
   id: 'dev-superadmin',
-  email: 'dev@veiron.local',
+  email: 'dev@vireon.local',
   role: 'superadmin',
   isActive: true,
   lastLogin: new Date().toISOString(),
@@ -19,20 +19,20 @@ const now = () => new Date().toISOString()
 function defaultDevState() {
   return {
     users: [
-      { id: 'dev-user-1', email: 'dev@veiron.local', role: 'superadmin', isActive: true, createdAt: now(), lastLogin: now() },
-      { id: 'dev-user-2', email: 'editor@veiron.local', role: 'content_editor', isActive: true, createdAt: now(), lastLogin: null },
-      { id: 'dev-user-3', email: 'operator@veiron.local', role: 'network_operator', isActive: true, createdAt: now(), lastLogin: null },
+      { id: 'dev-user-1', email: 'dev@vireon.local', role: 'superadmin', isActive: true, createdAt: now(), lastLogin: now() },
+      { id: 'dev-user-2', email: 'editor@vireon.local', role: 'content_editor', isActive: true, createdAt: now(), lastLogin: null },
+      { id: 'dev-user-3', email: 'operator@vireon.local', role: 'network_operator', isActive: true, createdAt: now(), lastLogin: null },
     ],
     content: [
-      { id: 'dev-content-1', pageSlug: 'home', sectionKey: 'hero', lang: 'en', contentJson: { title: 'Veiron Core', text: 'Development preview content block.' }, updatedAt: now() },
+      { id: 'dev-content-1', pageSlug: 'home', sectionKey: 'hero', lang: 'en', contentJson: { title: 'Vireon Core', text: 'Development preview content block.' }, updatedAt: now() },
       { id: 'candidate-content-2', pageSlug: 'status', sectionKey: 'readiness', lang: 'en', contentJson: { mode: 'mainnet_candidate', honest: true }, updatedAt: now() },
     ],
     networkParams: [
-      { key: 'block_time_seconds', value: 60, updatedBy: 'dev-user-1', updatedByEmail: 'dev@veiron.local', updatedAt: now() },
-      { key: 'max_supply', value: '60000000', updatedBy: 'dev-user-1', updatedByEmail: 'dev@veiron.local', updatedAt: now() },
-      { key: 'halving_interval', value: 1576800, updatedBy: 'dev-user-1', updatedByEmail: 'dev@veiron.local', updatedAt: now() },
-      { key: 'current_reward', value: '19.02587519', updatedBy: 'dev-user-1', updatedByEmail: 'dev@veiron.local', updatedAt: now() },
-      { key: 'difficulty_target', value: 'PoW', updatedBy: 'dev-user-1', updatedByEmail: 'dev@veiron.local', updatedAt: now() },
+      { key: 'block_time_seconds', value: 60, updatedBy: 'dev-user-1', updatedByEmail: 'dev@vireon.local', updatedAt: now() },
+      { key: 'max_supply', value: '60000000', updatedBy: 'dev-user-1', updatedByEmail: 'dev@vireon.local', updatedAt: now() },
+      { key: 'halving_interval', value: 1576800, updatedBy: 'dev-user-1', updatedByEmail: 'dev@vireon.local', updatedAt: now() },
+      { key: 'current_reward', value: '19.02587519', updatedBy: 'dev-user-1', updatedByEmail: 'dev@vireon.local', updatedAt: now() },
+      { key: 'difficulty_target', value: 'PoW', updatedBy: 'dev-user-1', updatedByEmail: 'dev@vireon.local', updatedAt: now() },
     ],
     roadmap: [
       { id: 'dev-roadmap-1', phase: 'Phase 0', title: 'Website and source truth', description: 'Public interface, CMS and honest candidate status.', status: 'active', order: 0 },
@@ -41,11 +41,11 @@ function defaultDevState() {
     ],
     faq: [
       { id: 'dev-faq-1', question: 'Is this admin connected to a real DB?', contentJson: { answer: 'Not in dev bypass mode. This is local mock data so UI work is never blocked.' }, order: 0, lang: 'en', createdAt: now(), updatedAt: now() },
-      { id: 'candidate-faq-2', question: 'Is Veiron mainnet live?', contentJson: { answer: 'No. The current network is a Mainnet Candidate and must pass launch gates before public release.' }, order: 1, lang: 'en', createdAt: now(), updatedAt: now() },
+      { id: 'candidate-faq-2', question: 'Is Vireon mainnet live?', contentJson: { answer: 'No. The current network is a Mainnet Candidate and must pass launch gates before public release.' }, order: 1, lang: 'en', createdAt: now(), updatedAt: now() },
     ],
     audit: [
-      { id: 'dev-audit-1', userId: 'dev-user-1', userEmail: 'dev@veiron.local', action: 'dev.login', entity: 'admin', entityId: 'dev-panel', diffJson: { mode: 'dev_bypass' }, createdAt: now() },
-      { id: 'dev-audit-2', userId: 'dev-user-1', userEmail: 'dev@veiron.local', action: 'content.previewed', entity: 'content_blocks', entityId: 'dev-content-1', diffJson: { source: 'local_mock' }, createdAt: now() },
+      { id: 'dev-audit-1', userId: 'dev-user-1', userEmail: 'dev@vireon.local', action: 'dev.login', entity: 'admin', entityId: 'dev-panel', diffJson: { mode: 'dev_bypass' }, createdAt: now() },
+      { id: 'dev-audit-2', userId: 'dev-user-1', userEmail: 'dev@vireon.local', action: 'content.previewed', entity: 'content_blocks', entityId: 'dev-content-1', diffJson: { source: 'local_mock' }, createdAt: now() },
     ],
   }
 }
@@ -319,7 +319,7 @@ export async function adminFetch(path, options = {}) {
 }
 
 export async function login(email, password) {
-  if (devBypassEnabled && email === 'dev@veiron.local') {
+  if (devBypassEnabled && email === 'dev@vireon.local') {
     return setDevUser(true)
   }
 

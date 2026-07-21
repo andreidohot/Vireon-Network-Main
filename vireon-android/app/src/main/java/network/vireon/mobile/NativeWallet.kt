@@ -1,4 +1,4 @@
-package network.veiron.mobile
+package network.vireon.mobile
 
 import android.os.Build
 
@@ -19,13 +19,13 @@ object NativeWallet {
     private fun ensureLoaded() {
         if (loaded) return
         try {
-            System.loadLibrary("veiron_mobile_core")
+            System.loadLibrary("vireon_mobile_core")
             loaded = true
         } catch (error: UnsatisfiedLinkError) {
             val abis = Build.SUPPORTED_ABIS.joinToString().ifBlank { "unknown" }
             throw IllegalStateException(
-                "Veiron native wallet engine is unavailable for device ABI(s) [$abis]. " +
-                    "Install a verified APK containing lib/<abi>/libveiron_mobile_core.so. " +
+                "Vireon native wallet engine is unavailable for device ABI(s) [$abis]. " +
+                    "Install a verified APK containing lib/<abi>/libvireon_mobile_core.so. " +
                     "Native loader: ${error.message}",
                 error
             )

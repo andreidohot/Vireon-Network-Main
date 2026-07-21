@@ -28,18 +28,18 @@ describe('auth routes', () => {
 
   it('logs in and sets an httpOnly refresh cookie', async () => {
     authMocks.loginWithPassword.mockResolvedValue({
-      user: { id: 'user-1', email: 'admin@veiron.network', role: 'superadmin', isActive: true },
+      user: { id: 'user-1', email: 'admin@vireon.network', role: 'superadmin', isActive: true },
       accessToken: 'access-token',
       refreshToken: 'refresh-token',
     })
 
     const response = await request(app)
       .post('/auth/login')
-      .send({ email: 'admin@veiron.network', password: 'Password123!' })
+      .send({ email: 'admin@vireon.network', password: 'Password123!' })
       .expect(200)
 
     expect(response.body.accessToken).toBe('access-token')
-    expect(response.headers['set-cookie'].join(';')).toContain('veiron_refresh_token=refresh-token')
+    expect(response.headers['set-cookie'].join(';')).toContain('vireon_refresh_token=refresh-token')
     expect(response.headers['set-cookie'].join(';')).toContain('HttpOnly')
   })
 
@@ -48,7 +48,7 @@ describe('auth routes', () => {
 
     await request(app)
       .post('/auth/login')
-      .send({ email: 'admin@veiron.network', password: 'Password123!' })
+      .send({ email: 'admin@vireon.network', password: 'Password123!' })
       .expect(401)
   })
 
@@ -61,7 +61,7 @@ describe('auth routes', () => {
   it('logs out and clears the refresh cookie', async () => {
     await request(app)
       .post('/auth/logout')
-      .set('Cookie', ['veiron_refresh_token=refresh-token'])
+      .set('Cookie', ['vireon_refresh_token=refresh-token'])
       .expect(204)
 
     expect(authMocks.logoutSession).toHaveBeenCalledWith('refresh-token')

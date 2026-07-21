@@ -1,12 +1,12 @@
-# Veiron Mining Pool
+# Vireon Mining Pool
 
 **Status: Mainnet Candidate / Prototype. Not a live public mining pool.**
 
-`veiron-mining-pool` coordinates miners without changing Veiron consensus. It obtains canonical block templates from RPC, lowers only the off-chain share target, validates every submitted hash, and forwards a candidate only when it also satisfies the real network target.
+`vireon-mining-pool` coordinates miners without changing Vireon consensus. It obtains canonical block templates from RPC, lowers only the off-chain share target, validates every submitted hash, and forwards a candidate only when it also satisfies the real network target.
 
 Implemented:
 
-- HTTP work and share protocol `veiron-pool-v1`;
+- HTTP work and share protocol `vireon-pool-v1`;
 - address and worker-name validation;
 - duplicate, stale, malformed and low-difficulty share rejection;
 - per-worker variable difficulty with bounded targets and in-flight assignment safety;
@@ -25,14 +25,14 @@ Payout batches are accounting instructions. A separate offline/operator wallet m
 ## Run Locally
 
 ```powershell
-Copy-Item veiron-mining-pool/config.example.toml veiron-mining-pool/config.toml
-New-Item -ItemType Directory -Force .veiron-local/mining-pool
+Copy-Item vireon-mining-pool/config.example.toml vireon-mining-pool/config.toml
+New-Item -ItemType Directory -Force .vireon-local/mining-pool
 $token = -join ((1..64) | ForEach-Object { '{0:x}' -f (Get-Random -Maximum 16) })
-Set-Content -NoNewline .veiron-local/mining-pool/admin.token $token
-cargo run -p veiron-mining-pool -- --config veiron-mining-pool/config.toml
+Set-Content -NoNewline .vireon-local/mining-pool/admin.token $token
+cargo run -p vireon-mining-pool -- --config vireon-mining-pool/config.toml
 ```
 
-Configure `veiron-miner` with a pool source:
+Configure `vireon-miner` with a pool source:
 
 ```toml
 miner_address = "vire1..."
@@ -53,7 +53,7 @@ worker_name = "desktop-01"
 timeout_seconds = 10
 ```
 
-Run `cargo run -p veiron-miner -- --config PATH mine`.
+Run `cargo run -p vireon-miner -- --config PATH mine`.
 
 ## API
 

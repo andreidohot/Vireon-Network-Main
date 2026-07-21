@@ -31,7 +31,7 @@ function Get-DefaultRepo {
   } finally {
     Pop-Location
   }
-  return "andreidohot/veiron-network"
+  return "andreidohot/vireon-network"
 }
 
 function Ensure-Dir([string]$Path) {

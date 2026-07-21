@@ -13,7 +13,7 @@ export default function EcosystemPage() {
       <PageHero
         eyebrow="Product ecosystem"
         title="Wallet, explorer, Passport, SDK and marketplace as one ownership stack."
-        text="Veiron's product layer is planned around users, developers, miners and creators, with the chain used for settlement and proofs instead of raw data storage."
+        text="Vireon's product layer is planned around users, developers, miners and creators, with the chain used for settlement and proofs instead of raw data storage."
       />
       <section className="px-5 py-20">
         <div className="mx-auto max-w-7xl">

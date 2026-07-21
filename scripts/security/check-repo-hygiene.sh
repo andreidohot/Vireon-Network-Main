@@ -13,8 +13,14 @@ cd "$repo_root"
 issues=()
 while IFS= read -r file; do
   [[ -z "$file" ]] && continue
-  if grep -Eq '(^|/)\.veiron-(dev|testnet|mainnet|local)(/|$)|(^|/)(target|target-msvc|node_modules|logs|devnet-data|node-data)(/|$)|(^|/)chain\.jsonl$|\.log$' <<<"$file"; then
+  if grep -Eq '(^|/)\.(veiron|vireon)-(dev|testnet|mainnet|local)(/|$)|(^|/)(target|target-msvc|node_modules|logs|devnet-data|node-data|\.artifacts|coverage)(/|$)|(^|/)chain\.jsonl$|\.(log|pid|tmp|bak|orig|rej|db|sqlite|exe|dll|msi|AppImage|deb|rpm|apk|aab)$' <<<"$file"; then
     issues+=("Forbidden tracked or unignored artifact: $file")
+  fi
+  if [[ "$file" == .review/pipeline/runs/* || "$file" == .review/pipeline/worktrees/* ]] && [[ "$file" != .review/pipeline/runs/.gitkeep ]]; then
+    issues+=("Forbidden local pipeline artifact: $file")
+  fi
+  if [[ "$file" == vireon-release/vps-control-plane/state/* && "$file" != vireon-release/vps-control-plane/state/config/generated/.gitkeep && "$file" != vireon-release/vps-control-plane/state/secrets/.gitkeep ]]; then
+    issues+=("Forbidden control-plane runtime state: $file")
   fi
 done < <((git ls-files; git ls-files --others --exclude-standard) | sort -u)
 

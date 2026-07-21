@@ -36,7 +36,7 @@ try {
 }
 
 if (-not $BodyFile) {
-  $tmp = Join-Path $env:TEMP "veiron-pr-$Number.md"
+  $tmp = Join-Path $env:TEMP "vireon-pr-$Number.md"
   @"
 ## Summary
 Implements fix for #$Number.

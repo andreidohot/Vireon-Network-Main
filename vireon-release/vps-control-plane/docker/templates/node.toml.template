@@ -1,7 +1,7 @@
 network = "mainnet-candidate"
-network_name = "veiron-mainnet"
+network_name = "vireon-mainnet"
 network_id = "veiron-mainnet-candidate"
-human_name = "Veiron Mainnet Candidate"
+human_name = "Vireon Mainnet Candidate"
 status_label = "Planned / Mainnet Candidate"
 block_time_seconds = 60
 difficulty_leading_zero_bits = 16

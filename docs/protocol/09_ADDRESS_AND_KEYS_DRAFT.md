@@ -66,17 +66,17 @@ The current draft implementation separates environments at the address layer:
 ## Phase 4C Draft Wallet CLI Note
 
 The current local prototype now includes a Rust wallet CLI for private-devnet use only:
-- wallet files are stored under the user home `.veiron-dev/wallets/` by default;
-- signed transactions are stored under the user home `.veiron-dev/signed-txs/` by default;
+- wallet files are stored under the user home `.vireon-dev/wallets/` by default;
+- signed transactions are stored under the user home `.vireon-dev/signed-txs/` by default;
 - mnemonic-derived wallets now use the frozen BIP39 plus SLIP-0010 rule above;
-- future testnet and mainnet-candidate wallet material must stay under `.veiron-testnet/` and `.veiron-mainnet/` respectively;
+- future testnet and mainnet-candidate wallet material must stay under `.vireon-testnet/` and `.vireon-mainnet/` respectively;
 - no encrypted keystore or browser-extension flow exists;
 - private key storage remains Draft / Devnet-only / Prototype and must not be treated as production-safe.
 
 ## Documentation Rule
 
 Until broader launch packaging work is complete:
-- refer to addresses as Veiron addresses using the frozen Bech32m plus ed25519 launch standard;
+- refer to addresses as Vireon addresses using the frozen Bech32m plus ed25519 launch standard;
 - keep readiness language honest and avoid calling the wallet or network live;
 - treat the mnemonic and derivation rule as frozen, but keep wallet packaging and secret-storage UX as separate follow-up work.
 

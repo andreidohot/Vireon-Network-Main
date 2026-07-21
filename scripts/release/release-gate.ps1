@@ -14,7 +14,7 @@ $cargoShim = Join-Path $env:USERPROFILE ".cargo\bin\cargo.exe"
 $originalCargoTargetDir = $env:CARGO_TARGET_DIR
 $originalPath = $env:PATH
 $rustToolchainBin = Join-Path $env:USERPROFILE ".rustup\toolchains\stable-x86_64-pc-windows-msvc\bin"
-$tempCargoTargetDir = Join-Path ([System.IO.Path]::GetTempPath()) ("veiron-release-gate-target-" + [System.Guid]::NewGuid().ToString("N"))
+$tempCargoTargetDir = Join-Path ([System.IO.Path]::GetTempPath()) ("vireon-release-gate-target-" + [System.Guid]::NewGuid().ToString("N"))
 if (Test-Path $cargoShim) {
   $cargo = $cargoShim
   $cargoArgsPrefix = @("+stable-x86_64-pc-windows-msvc")
@@ -52,16 +52,16 @@ function Invoke-NativeChecked {
   }
 }
 
-Write-Host "Running Veiron G1 security and release gate (Mainnet Candidate rehearsal only)..."
+Write-Host "Running Vireon G1 security and release gate (Mainnet Candidate rehearsal only)..."
 Write-Host "This is NOT a public Mainnet launch approval. See docs/release/NETWORK_MATURITY.md"
 
 try {
   foreach ($buildArtifact in @(
     (Join-Path $repoRoot "target"),
     (Join-Path $repoRoot "target-msvc"),
-    (Join-Path $repoRoot "veiron-explorer\node_modules"),
-    (Join-Path $repoRoot "veiron-website\node_modules"),
-    (Join-Path $repoRoot "veiron-website\server\node_modules")
+    (Join-Path $repoRoot "vireon-explorer\node_modules"),
+    (Join-Path $repoRoot "vireon-website\node_modules"),
+    (Join-Path $repoRoot "vireon-website\server\node_modules")
   )) {
     if (Test-Path $buildArtifact) {
       Remove-Item -LiteralPath $buildArtifact -Recurse -Force -ErrorAction SilentlyContinue
@@ -71,6 +71,7 @@ try {
   & (Join-Path $repoRoot "scripts\security\check-secrets.ps1")
   & (Join-Path $repoRoot "scripts\security\check-repo-hygiene.ps1")
   & (Join-Path $repoRoot "scripts\security\check-config-safety.ps1")
+  & (Join-Path $repoRoot "scripts\security\check-workflow-pinning.ps1")
 
   Assert-PathExists "configs/mainnet-candidate.toml" "Mainnet-candidate config"
   Assert-PathExists "docs/release/MAINNET_CANDIDATE_CHECKLIST.md" "Mainnet-candidate checklist"
@@ -85,8 +86,8 @@ try {
   Invoke-NativeChecked $cargo @cargoArgsPrefix clippy --workspace --all-targets --locked -- -D warnings
   Invoke-NativeChecked $cargo @cargoArgsPrefix build --workspace --release --locked
 
-  if (Test-Path "veiron-explorer\package.json") {
-    Push-Location veiron-explorer
+  if (Test-Path "vireon-explorer\package.json") {
+    Push-Location vireon-explorer
     try {
       Invoke-NativeChecked "npm.cmd" "ci"
       Invoke-NativeChecked "npm.cmd" "run" "build"
@@ -99,9 +100,9 @@ try {
     Remove-Item -LiteralPath $tempCargoTargetDir -Recurse -Force -ErrorAction SilentlyContinue
   }
   foreach ($nodeModules in @(
-    (Join-Path $repoRoot "veiron-explorer\node_modules"),
-    (Join-Path $repoRoot "veiron-website\node_modules"),
-    (Join-Path $repoRoot "veiron-website\server\node_modules")
+    (Join-Path $repoRoot "vireon-explorer\node_modules"),
+    (Join-Path $repoRoot "vireon-website\node_modules"),
+    (Join-Path $repoRoot "vireon-website\server\node_modules")
   )) {
     if (Test-Path $nodeModules) {
       Remove-Item -LiteralPath $nodeModules -Recurse -Force -ErrorAction SilentlyContinue

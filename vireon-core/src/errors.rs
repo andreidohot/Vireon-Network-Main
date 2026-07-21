@@ -2,10 +2,10 @@ use crate::crypto::Hash;
 use std::error::Error;
 use std::fmt;
 
-pub type Result<T> = std::result::Result<T, VeironError>;
+pub type Result<T> = std::result::Result<T, VireonError>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum VeironError {
+pub enum VireonError {
     AmountOverflow,
     AmountParse(String),
     TooManyDecimals {
@@ -113,7 +113,7 @@ pub enum VeironError {
     InvalidGenesis(String),
 }
 
-impl fmt::Display for VeironError {
+impl fmt::Display for VireonError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::AmountOverflow => write!(f, "amount overflow"),
@@ -248,4 +248,4 @@ impl fmt::Display for VeironError {
     }
 }
 
-impl Error for VeironError {}
+impl Error for VireonError {}

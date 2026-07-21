@@ -2,7 +2,7 @@
 
 Status: **FiroPoW 0.9.4 implemented; independent security review still required**
 
-Veiron PoW version 1 is FiroPoW 0.9.4, a ProgPoW-family memory-hard algorithm.
+Vireon PoW version 1 is FiroPoW 0.9.4, a ProgPoW-family memory-hard algorithm.
 The implementation is GPU-oriented and uses a large epoch DAG intended to make
 memory bandwidth a material part of mining cost. This is a stronger
 commodity-GPU orientation than the previous Blake3 leading-zero prototype, but
@@ -10,7 +10,7 @@ it is not a guarantee that specialized hardware can never be built.
 
 ## Trust boundaries
 
-- `veiron-core` is the consensus source of truth.
+- `vireon-core` is the consensus source of truth.
 - CUDA may search nonces but cannot define acceptance rules.
 - Every CUDA solution is revalidated by canonical host code before submission.
 - Every node independently validates the block's `mix_hash`, `final_hash`,

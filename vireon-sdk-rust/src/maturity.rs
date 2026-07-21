@@ -1,6 +1,6 @@
 //! Pool block maturity helpers.
 //!
-//! Same rule as `veiron-mining-pool` and the public TypeScript `@veiron/sdk`:
+//! Same rule as `vireon-mining-pool` and the public TypeScript `@vireon/sdk`:
 //! a block is mature when `tip_height >= block_height + required_confirmations`.
 
 /// Progress of a pool-found block toward maturity.

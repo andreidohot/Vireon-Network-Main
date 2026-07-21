@@ -15,7 +15,7 @@ pub fn resource_root() -> Option<PathBuf> {
 }
 
 pub fn find_workspace_root() -> AppResult<PathBuf> {
-    if let Ok(configured) = std::env::var("VEIRON_WORKSPACE_ROOT") {
+    if let Ok(configured) = std::env::var("VIREON_WORKSPACE_ROOT") {
         let path = PathBuf::from(configured);
         if is_workspace(&path) || has_operator_script(&path) {
             return Ok(path);
@@ -60,13 +60,13 @@ pub fn find_workspace_root() -> AppResult<PathBuf> {
     }
 
     Err(AppError::msg(
-        "Veiron workspace could not be located. Set VEIRON_WORKSPACE_ROOT or run from the monorepo / packaged resources.",
+        "Vireon workspace could not be located. Set VIREON_WORKSPACE_ROOT or run from the monorepo / packaged resources.",
     ))
 }
 
 fn monorepo_from_manifest() -> Option<PathBuf> {
     let from_crate = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    // veiron-desktop-tauri/src-tauri -> veiron-desktop-tauri -> monorepo
+    // vireon-desktop-tauri/src-tauri -> vireon-desktop-tauri -> monorepo
     if let Some(parent) = from_crate.parent() {
         if is_workspace(parent) {
             return Some(parent.to_path_buf());
@@ -107,20 +107,60 @@ pub fn local_root(workspace: &Path) -> PathBuf {
                     .unwrap_or_else(|| ".".into())
             });
             return PathBuf::from(local_app_data)
-                .join("Veiron")
+                .join("Vireon")
                 .join("ControlCenter")
-                .join(".veiron-local");
+                .join(".vireon-local");
         }
-        return user_data_dir().join(".veiron-local");
+        return user_data_dir().join(".vireon-local");
     }
-    workspace.join(".veiron-local")
+    workspace.join(".vireon-local")
 }
 
 pub fn user_data_dir() -> PathBuf {
     dirs::data_dir()
         .unwrap_or_else(|| PathBuf::from("."))
-        .join("Veiron")
+        .join("Vireon")
         .join("ControlCenter")
+}
+
+/// Preserve the previous Veiron profile as a rollback source while copying it
+/// into the Vireon location on first launch. Existing Vireon files always win.
+pub fn migrate_legacy_user_data() -> AppResult<()> {
+    let Some(base) = dirs::data_dir() else {
+        return Ok(());
+    };
+    let legacy = base.join("Veiron").join("ControlCenter");
+    let current = user_data_dir();
+    if legacy.exists() {
+        copy_missing_tree(&legacy, &current)?;
+    }
+
+    if let Ok(workspace) = find_workspace_root() {
+        let old_local = workspace.join(".veiron-local");
+        let new_local = workspace.join(".vireon-local");
+        if old_local.exists() {
+            copy_missing_tree(&old_local, &new_local)?;
+        }
+    }
+    Ok(())
+}
+
+fn copy_missing_tree(source: &Path, destination: &Path) -> AppResult<()> {
+    if source.is_file() {
+        if !destination.exists() {
+            if let Some(parent) = destination.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+            std::fs::copy(source, destination)?;
+        }
+        return Ok(());
+    }
+    std::fs::create_dir_all(destination)?;
+    for entry in std::fs::read_dir(source)? {
+        let entry = entry?;
+        copy_missing_tree(&entry.path(), &destination.join(entry.file_name()))?;
+    }
+    Ok(())
 }
 
 pub fn settings_path() -> PathBuf {
@@ -132,43 +172,43 @@ fn is_workspace(candidate: &Path) -> bool {
         || candidate
             .join("scripts")
             .join("local")
-            .join("veiron-local.ps1")
+            .join("vireon-local.ps1")
             .exists()
         || candidate
             .join("scripts")
             .join("local")
             .join("start-all.sh")
             .exists()
-        || candidate.join("veiron-core").join("Cargo.toml").exists()
+        || candidate.join("vireon-core").join("Cargo.toml").exists()
 }
 
 fn has_operator_script(candidate: &Path) -> bool {
-    candidate.join("veiron.ps1").exists() || candidate.join("veiron.sh").exists()
+    candidate.join("vireon.ps1").exists() || candidate.join("vireon.sh").exists()
 }
 
 fn has_bundled_node(candidate: &Path) -> bool {
     let binary = if cfg!(windows) {
-        "veiron-node.exe"
+        "vireon-node.exe"
     } else {
-        "veiron-node"
+        "vireon-node"
     };
     candidate.join("bin").join(binary).exists()
 }
 
 fn has_bundled_miner(candidate: &Path) -> bool {
     let binary = if cfg!(windows) {
-        "veiron-miner.exe"
+        "vireon-miner.exe"
     } else {
-        "veiron-miner"
+        "vireon-miner"
     };
     candidate.join("bin").join(binary).exists()
 }
 
 pub fn keystore_helper_path(_workspace: &Path) -> PathBuf {
     let binary = if cfg!(windows) {
-        "veiron-keystore-helper.exe"
+        "vireon-keystore-helper.exe"
     } else {
-        "veiron-keystore-helper"
+        "vireon-keystore-helper"
     };
 
     // 1) Next to the running executable (externalBin install layout)

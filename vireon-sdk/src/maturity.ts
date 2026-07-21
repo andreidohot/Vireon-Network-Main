@@ -1,5 +1,5 @@
 /**
- * Pool block maturity helper — same rule as veiron-mining-pool:
+ * Pool block maturity helper — same rule as vireon-mining-pool:
  * mature when tipHeight >= blockHeight + requiredConfirmations.
  */
 export interface MaturityProgress {

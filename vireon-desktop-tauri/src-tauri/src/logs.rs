@@ -9,14 +9,14 @@ fn candidate_local_roots() -> Vec<PathBuf> {
     let mut roots = Vec::new();
     if let Ok(workspace) = find_workspace_root() {
         roots.push(local_root(&workspace));
-        roots.push(workspace.join(".veiron-local"));
+        roots.push(workspace.join(".vireon-local"));
     }
     if let Ok(app_data) = std::env::var("LOCALAPPDATA") {
         roots.push(
             PathBuf::from(app_data)
-                .join("Veiron")
+                .join("Vireon")
                 .join("ControlCenter")
-                .join(".veiron-local"),
+                .join(".vireon-local"),
         );
     }
     roots
@@ -54,7 +54,7 @@ pub fn recent(service: &str, lines: Option<usize>) -> AppResult<String> {
         ));
     }
 
-    // Full structured activity stream written by veiron-miner (every action).
+    // Full structured activity stream written by vireon-miner (every action).
     if service == "miner-activity" {
         let paths: Vec<PathBuf> = roots
             .iter()
@@ -88,7 +88,7 @@ pub fn recent(service: &str, lines: Option<usize>) -> AppResult<String> {
     let combined = format!("{main}\n{err}").trim().to_string();
     if combined.is_empty() && service == "miner" {
         return Ok(
-            "No miner.log yet. Click Start to launch veiron-miner; console updates every 1-2s while mining."
+            "No miner.log yet. Click Start to launch vireon-miner; console updates every 1-2s while mining."
                 .to_owned(),
         );
     }

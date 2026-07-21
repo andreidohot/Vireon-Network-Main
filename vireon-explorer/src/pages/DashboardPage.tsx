@@ -82,7 +82,7 @@ export function DashboardPage() {
     <>
       <PageHeader
         title="Explorer Dashboard"
-        description="Local prototype visibility for Veiron chain status, indexed state and recent block activity."
+        description="Local prototype visibility for Vireon chain status, indexed state and recent block activity."
       />
 
       {error ? <ErrorPanel message={error} /> : null}

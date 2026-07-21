@@ -9,7 +9,7 @@ export function PageHeader({ title, description }: PageHeaderProps) {
   return (
     <header className="page-header">
       <div className="page-header-copy">
-        <div className="page-kicker">Veiron Network Explorer</div>
+        <div className="page-kicker">Vireon Network Explorer</div>
         <h1 className="page-title">{title}</h1>
         <p className="page-description">{description}</p>
       </div>

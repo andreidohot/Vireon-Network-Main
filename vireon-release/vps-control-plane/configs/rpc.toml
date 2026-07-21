@@ -2,16 +2,16 @@ bind_host = "127.0.0.1"
 bind_port = 10787
 network = "mainnet-candidate"
 network_id = "veiron-mainnet-candidate"
-human_name = "Veiron Mainnet Candidate"
+human_name = "Vireon Mainnet Candidate"
 status_label = "Planned / Mainnet Candidate"
 address_prefix = "vire"
-chain_data_path = "/var/lib/veiron/.veiron-mainnet/chain"
-indexer_data_path = "/var/lib/veiron/.veiron-mainnet/indexer"
-mempool_data_path = "/var/lib/veiron/.veiron-mainnet/mempool"
+chain_data_path = "/var/lib/vireon/.vireon-mainnet/chain"
+indexer_data_path = "/var/lib/vireon/.vireon-mainnet/indexer"
+mempool_data_path = "/var/lib/vireon/.vireon-mainnet/mempool"
 public_rpc_allowed = false
 access_mode = "public-submit"
 # Required for solo miners (desktop/CLI) and the local pool upstream.
-# Public HTTPS exposes /mining/* via reverse proxy (see nginx/veiron.conf + health-check.sh).
+# Public HTTPS never exposes mining routes; the optional pool uses a separate private RPC.
 # Without this flag, public-submit no longer registers mining routes (gateway default).
 expose_mining_endpoints = true
 max_mempool_transactions = 4096

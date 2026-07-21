@@ -19,41 +19,41 @@ Set-Location $RepoRoot
 
 $plan = [ordered]@{
     A = @{
-        Title = "feat(sdk): veiron-sdk-rust L1 client"
+        Title = "feat(sdk): vireon-sdk-rust L1 client"
         Paths = @(
-            "veiron-sdk-rust"
+            "vireon-sdk-rust"
             "Cargo.toml"
             "Cargo.lock"
             "docs/api/04_SDK_CLIENT_V0.md"
             "docs/api/README.md"
         )
-        Test = "cargo test -p veiron-sdk-rust --all-features"
+        Test = "cargo test -p vireon-sdk-rust --all-features"
     }
     B = @{
-        Title = "feat(wallet): route CLI RPC through veiron-sdk-rust"
+        Title = "feat(wallet): route CLI RPC through vireon-sdk-rust"
         Paths = @(
-            "veiron-sdk-rust"
+            "vireon-sdk-rust"
             "Cargo.toml"
-            "veiron-wallet/Cargo.toml"
-            "veiron-wallet/src/rpc.rs"
+            "vireon-wallet/Cargo.toml"
+            "vireon-wallet/src/rpc.rs"
             "docs/api/04_SDK_CLIENT_V0.md"
             "docs/api/README.md"
         )
-        Test = "cargo test -p veiron-sdk-rust --all-features; cargo test -p veiron-wallet --tests"
+        Test = "cargo test -p vireon-sdk-rust --all-features; cargo test -p vireon-wallet --tests"
         Note = "Self-testable worktree includes SDK. After A merges, land only wallet paths."
     }
     C = @{
         Title = "feat(browser): native messaging host + extension"
         Paths = @(
-            "veiron-sdk-rust"
-            "veiron-browser"
+            "vireon-sdk-rust"
+            "vireon-browser"
             "Cargo.toml"
             "docs/architecture/07_BROWSER_EXTENSION_AND_NATIVE_HOST.md"
             "docs/architecture/README.md"
             "docs/api/04_SDK_CLIENT_V0.md"
             "docs/api/README.md"
         )
-        Test = "cargo test -p veiron-sdk-rust --all-features; cargo test -p veiron-browser-host"
+        Test = "cargo test -p vireon-sdk-rust --all-features; cargo test -p vireon-browser-host"
         Note = "Self-testable worktree includes SDK. After A merges, land only browser paths."
     }
     D = @{
@@ -66,18 +66,18 @@ $plan = [ordered]@{
             "docs/operator/UNCOMMITTED_SPLIT_PLAN.md"
             "README.md"
         )
-        Test = "cargo test -p veiron-browser-host --test cli_print_tip"
+        Test = "cargo test -p vireon-browser-host --test cli_print_tip"
     }
     E = @{
-        Title = "feat(desktop-tauri): consume veiron-sdk-rust"
+        Title = "feat(desktop-tauri): consume vireon-sdk-rust"
         Paths = @(
-            "veiron-sdk-rust"
+            "vireon-sdk-rust"
             "Cargo.toml"
-            "veiron-desktop-tauri"
+            "vireon-desktop-tauri"
             "docs/api/04_SDK_CLIENT_V0.md"
             "docs/api/README.md"
         )
-        Test = "cargo test -p veiron-sdk-rust --all-features; cd veiron-desktop-tauri/src-tauri; cargo test --lib"
+        Test = "cargo test -p vireon-sdk-rust --all-features; cd vireon-desktop-tauri/src-tauri; cargo test --lib"
         Note = "Self-testable with SDK. Exclude binaries/node_modules/target. After A merges, land tauri delta only."
     }
 }
@@ -116,4 +116,4 @@ if ($Pr -eq "All") {
 
 Write-Host ""
 Write-Host "Before any PR: git fetch origin; git rebase origin/main" -ForegroundColor Magenta
-Write-Host "Exclude by default: electron, android assets, miner GPU, veiron-release, .review, pipeline" -ForegroundColor DarkGray
+Write-Host "Exclude by default: electron, android assets, miner GPU, vireon-release, .review, pipeline" -ForegroundColor DarkGray

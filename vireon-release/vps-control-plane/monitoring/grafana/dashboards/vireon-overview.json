@@ -14,11 +14,11 @@
       "id": 1,
       "datasource": {
         "type": "prometheus",
-        "uid": "veiron-prometheus"
+        "uid": "vireon-prometheus"
       },
       "targets": [
         {
-          "expr": "probe_success{instance=\"http://veiron-rpc:10787/health\"}",
+          "expr": "probe_success{instance=\"http://vireon-rpc:10787/health\"}",
           "refId": "A"
         }
       ],
@@ -65,11 +65,11 @@
       "id": 2,
       "datasource": {
         "type": "prometheus",
-        "uid": "veiron-prometheus"
+        "uid": "vireon-prometheus"
       },
       "targets": [
         {
-          "expr": "probe_success{instance=\"http://veiron-control:10788/health\"}",
+          "expr": "probe_success{instance=\"http://vireon-control:10788/health\"}",
           "refId": "A"
         }
       ],
@@ -86,7 +86,7 @@
       "id": 3,
       "datasource": {
         "type": "prometheus",
-        "uid": "veiron-prometheus"
+        "uid": "vireon-prometheus"
       },
       "targets": [
         {
@@ -113,11 +113,11 @@
       "id": 4,
       "datasource": {
         "type": "prometheus",
-        "uid": "veiron-prometheus"
+        "uid": "vireon-prometheus"
       },
       "targets": [
         {
-          "expr": "time() - veiron_backup_last_success_unixtime",
+          "expr": "time() - vireon_backup_last_success_unixtime",
           "refId": "A"
         }
       ],
@@ -139,7 +139,7 @@
       "id": 5,
       "datasource": {
         "type": "prometheus",
-        "uid": "veiron-prometheus"
+        "uid": "vireon-prometheus"
       },
       "targets": [
         {
@@ -166,7 +166,7 @@
       "id": 6,
       "datasource": {
         "type": "prometheus",
-        "uid": "veiron-prometheus"
+        "uid": "vireon-prometheus"
       },
       "targets": [
         {
@@ -189,15 +189,15 @@
     },
     {
       "type": "logs",
-      "title": "Veiron logs",
+      "title": "Vireon logs",
       "id": 7,
       "datasource": {
         "type": "loki",
-        "uid": "veiron-loki"
+        "uid": "vireon-loki"
       },
       "targets": [
         {
-          "expr": "{project=\"veiron-network\"}",
+          "expr": "{project=\"vireon-network\"}",
           "refId": "A"
         }
       ],
@@ -212,7 +212,7 @@
   "refresh": "15s",
   "schemaVersion": 41,
   "tags": [
-    "veiron",
+    "vireon",
     "docker",
     "mainnet-candidate"
   ],
@@ -224,7 +224,7 @@
     "to": "now"
   },
   "timezone": "browser",
-  "title": "Veiron Docker Overview",
-  "uid": "veiron-docker-overview",
+  "title": "Vireon Docker Overview",
+  "uid": "vireon-docker-overview",
   "version": 1
 }

@@ -1,4 +1,4 @@
-/* Veiron Control Plane — operator UI (observed data only) */
+/* Vireon Control Plane — operator UI (observed data only) */
 const $ = (id) => document.getElementById(id);
 
 const titles = {

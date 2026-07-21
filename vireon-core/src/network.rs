@@ -22,9 +22,9 @@ impl Network {
 
     pub const fn human_name(self) -> &'static str {
         match self {
-            Self::Devnet => "Veiron Devnet",
-            Self::Testnet => "Veiron Testnet",
-            Self::MainnetCandidate => "Veiron Mainnet Candidate",
+            Self::Devnet => "Vireon Devnet",
+            Self::Testnet => "Vireon Testnet",
+            Self::MainnetCandidate => "Vireon Mainnet Candidate",
         }
     }
 
@@ -38,9 +38,9 @@ impl Network {
 
     pub const fn default_data_root(self) -> &'static str {
         match self {
-            Self::Devnet => ".veiron-dev",
-            Self::Testnet => ".veiron-testnet",
-            Self::MainnetCandidate => ".veiron-mainnet",
+            Self::Devnet => ".vireon-dev",
+            Self::Testnet => ".vireon-testnet",
+            Self::MainnetCandidate => ".vireon-mainnet",
         }
     }
 
@@ -62,8 +62,8 @@ impl Network {
 
     pub const fn genesis_config_path(self) -> &'static str {
         match self {
-            Self::Devnet => "veiron-devnet/config/genesis-devnet.json",
-            Self::Testnet => "veiron-devnet/config/genesis-testnet.json",
+            Self::Devnet => "vireon-devnet/config/genesis-devnet.json",
+            Self::Testnet => "vireon-devnet/config/genesis-testnet.json",
             Self::MainnetCandidate => "configs/genesis.mainnet-candidate.toml",
         }
     }
@@ -151,14 +151,14 @@ impl fmt::Display for Network {
 }
 
 impl FromStr for Network {
-    type Err = crate::VeironError;
+    type Err = crate::VireonError;
 
     fn from_str(value: &str) -> Result<Self, Self::Err> {
         match value {
             "devnet" | "veiron-devnet" => Ok(Self::Devnet),
             "testnet" | "veiron-testnet" => Ok(Self::Testnet),
             "mainnet-candidate" | "veiron-mainnet-candidate" => Ok(Self::MainnetCandidate),
-            _ => Err(crate::VeironError::InvalidNetwork {
+            _ => Err(crate::VireonError::InvalidNetwork {
                 expected: "mainnet-candidate (devnet and testnet are internal test profiles)"
                     .to_owned(),
                 actual: value.to_owned(),

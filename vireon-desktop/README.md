@@ -1,17 +1,17 @@
-# Veiron Desktop
+# Vireon Desktop
 
 Status: Draft / Mainnet Candidate / Prototype / Not Mainnet Live
 
 Native Windows 11 wallet and operator control-center prototype. It presents wallet, transaction signing, node validation, RPC, indexer, mining, explorer status, logs and backups through one application while retaining separate auditable Rust sidecars internally.
 
-Recovery phrases are held in memory only and are never written by the app. Signed transactions are submitted directly and are not saved by the desktop app. Public wallet metadata contains no secret material and lives under `%LOCALAPPDATA%\Veiron\Desktop`.
+Recovery phrases are held in memory only and are never written by the app. Signed transactions are submitted directly and are not saved by the desktop app. Public wallet metadata contains no secret material and lives under `%LOCALAPPDATA%\Vireon\Desktop`.
 
 ```powershell
-cargo run -p veiron-desktop
-cargo build -p veiron-desktop --release
+cargo run -p vireon-desktop
+cargo build -p vireon-desktop --release
 ```
 
-The source build uses the workspace scripts. The Windows package includes release sidecars for node, RPC, indexer and miner, so end users do not need Rust or Cargo. Runtime chain, mempool, index, miner and log data is stored under `%LOCALAPPDATA%\Veiron\ControlCenter\.veiron-local`; wallet secrets remain in Windows Credential Manager.
+The source build uses the workspace scripts. The Windows package includes release sidecars for node, RPC, indexer and miner, so end users do not need Rust or Cargo. Runtime chain, mempool, index, miner and log data is stored under `%LOCALAPPDATA%\Vireon\ControlCenter\.vireon-local`; wallet secrets remain in Windows Credential Manager.
 
 ## Control Center areas
 
@@ -29,10 +29,10 @@ The source build uses the workspace scripts. The Windows package includes releas
 
 The native UI uses `services.rs` as its data-adapter boundary. It reads real localhost RPC, indexer, P2P and miner state. It does not generate market prices, pool shares, GPU telemetry, fiat valuations or production claims when those data sources do not exist.
 
-Veiron is PoW. The application does not invent staking or delegated validator rights; a running full node independently validates the chain.
+Vireon is PoW. The application does not invent staking or delegated validator rights; a running full node independently validates the chain.
 Every running full node is shown as a `Full Validator`: it has equal authority to verify and reject invalid genesis, PoW, blocks, transactions, supply and state. No stake, license or central permission grants additional consensus rights.
 
-Only one local Veiron stack may own the candidate RPC and P2P ports. Startup fails with the owning process and path when another source or packaged installation already uses `10787` or `20787`, preventing the desktop, node and miner from silently reading different chains.
+Only one local Vireon stack may own the candidate RPC and P2P ports. Startup fails with the owning process and path when another source or packaged installation already uses `10787` or `20787`, preventing the desktop, node and miner from silently reading different chains.
 
 ## Windows packages
 
@@ -42,4 +42,4 @@ Only one local Veiron stack may own the candidate RPC and P2P ports. Startup fai
 
 This produces a portable ZIP and, when Inno Setup 6 is installed, a per-user Windows installer under `release-artifacts/`. Code signing and automatic updates remain separate release gates.
 
-The installer contains explicit network, persistent-data and wallet-safety steps. Chain, mempool, index, logs, backups and the P2P identity are retained under `%LOCALAPPDATA%\Veiron\ControlCenter\.veiron-local` during upgrades and uninstall. No public seed node is bundled in the current candidate package.
+The installer contains explicit network, persistent-data and wallet-safety steps. Chain, mempool, index, logs, backups and the P2P identity are retained under `%LOCALAPPDATA%\Vireon\ControlCenter\.vireon-local` during upgrades and uninstall. No public seed node is bundled in the current candidate package.

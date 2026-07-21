@@ -1,5 +1,5 @@
 [package]
-name = "veiron-rpc-gateway"
+name = "vireon-rpc-gateway"
 version = "1.0.0"
 edition = "2021"
 license = "Apache-2.0"
@@ -17,11 +17,11 @@ thiserror = "1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "net"] }
 toml = "0.8"
 tower-http = { version = "0.6", features = ["cors", "fs", "limit"] }
-veiron-core = { path = "../veiron-core" }
-veiron-indexer = { path = "../veiron-indexer" }
-veiron-node = { path = "../veiron-node" }
+vireon-core = { path = "../vireon-core" }
+vireon-indexer = { path = "../vireon-indexer" }
+vireon-node = { path = "../vireon-node" }
 
 [dev-dependencies]
 tower = { version = "0.5", features = ["util"] }
 tempfile = "3"
-veiron-miner = { path = "../veiron-miner" }
+vireon-miner = { path = "../vireon-miner" }

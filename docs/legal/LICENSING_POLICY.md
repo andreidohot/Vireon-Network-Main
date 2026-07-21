@@ -1,15 +1,15 @@
-# Veiron Licensing Policy
+# Vireon Licensing Policy
 
 Status: Draft / Accepted Repository Policy
 
 Purpose:
-- define the current Veiron licensing direction explicitly;
+- define the current Vireon licensing direction explicitly;
 - separate protocol-layer licensing from proprietary business-layer licensing;
 - avoid accidental public claims that the entire repository already ships under one blanket open-source license.
 
 ## Scope
 
-This document sets the current accepted licensing direction for the Veiron repository and future package split.
+This document sets the current accepted licensing direction for the Vireon repository and future package split.
 
 It does not replace:
 - legal review;
@@ -22,14 +22,14 @@ It does not replace:
 ### Open-Source Protocol And Infrastructure Components
 
 The following components are intended to be open-source under `Apache-2.0` unless a later explicit decision changes that policy:
-- `veiron-core`
-- `veiron-node`
-- `veiron-miner`
-- `veiron-indexer`
-- `veiron-rpc-gateway`
-- `veiron-sdk-rust`
-- `veiron-contracts`
-- cryptographic and signing parts of `veiron-wallet`
+- `vireon-core`
+- `vireon-node`
+- `vireon-miner`
+- `vireon-indexer`
+- `vireon-rpc-gateway`
+- `vireon-sdk-rust`
+- `vireon-contracts`
+- cryptographic and signing parts of `vireon-wallet`
 
 Reasoning:
 - protocol trust requires public reviewability;
@@ -40,11 +40,11 @@ Reasoning:
 ### Proprietary Or Controlled Business-Layer Components
 
 The following components remain proprietary or controlled by project policy unless explicitly relicensed later:
-- `veiron-website`
+- `vireon-website`
 - website admin panel and related business CMS layers
-- `veiron-marketplace` backend and related commercial business logic
-- `veiron-infra`
-- `veiron-ops`
+- `vireon-marketplace` backend and related commercial business logic
+- `vireon-infra`
+- `vireon-ops`
 - internal operational and deployment details
 
 Reasoning:

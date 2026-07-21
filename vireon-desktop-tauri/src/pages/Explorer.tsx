@@ -47,7 +47,7 @@ export function Explorer() {
   const [dialogBlock, setDialogBlock] = useState<DesktopBlock | null>(null);
   const [dialogTx, setDialogTx] = useState<DesktopTransaction | null>(null);
 
-  const openExternal = (path = explorerPath(query)) => window.veiron.explorer.open(path);
+  const openExternal = (path = explorerPath(query)) => window.vireon.explorer.open(path);
 
   const runLookup = useCallback(
     async (raw?: string) => {
@@ -63,7 +63,7 @@ export function Explorer() {
       setDialogBlock(null);
       setDialogTx(null);
       try {
-        const result = (await window.veiron.explorer.lookup(q)) as ExplorerLookupResult;
+        const result = (await window.vireon.explorer.lookup(q)) as ExplorerLookupResult;
         setLookup(result);
         if (result.kind === "block" && result.data) {
           setDialogBlock(normalizeBlock(result.data as unknown as DesktopBlock));

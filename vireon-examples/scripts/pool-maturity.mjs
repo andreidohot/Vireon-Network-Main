@@ -2,11 +2,11 @@
  * Explain pool block maturity vs chain tip (why blocks stay "immature").
  * Usage: node scripts/pool-maturity.mjs
  */
-import { createVeironClient } from "../../veiron-sdk/dist/index.js";
+import { createVireonClient } from "../../vireon-sdk/dist/index.js";
 
-const client = createVeironClient({
-  rpcUrl: process.env.VEIRON_RPC_URL ?? "https://rpcnode.dohotstudio.com",
-  poolUrl: process.env.VEIRON_POOL_URL ?? "https://rpcnode.dohotstudio.com/pool"
+const client = createVireonClient({
+  rpcUrl: process.env.VIREON_RPC_URL ?? "https://rpcnode.dohotstudio.com",
+  poolUrl: process.env.VIREON_POOL_URL ?? "https://rpcnode.dohotstudio.com/pool"
 });
 
 const chain = await client.status();

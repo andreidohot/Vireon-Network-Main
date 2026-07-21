@@ -1,14 +1,14 @@
 [package]
-name = "veiron-sdk-rust"
+name = "vireon-sdk-rust"
 version = "1.0.0"
 edition = "2021"
 license = "Apache-2.0"
-description = "Standalone Veiron Network Rust client SDK for Mainnet Candidate (RPC, wallet, transfers, public pool)"
+description = "Standalone Vireon Network Rust client SDK for Mainnet Candidate (RPC, wallet, transfers, public pool)"
 readme = "README.md"
-repository = "https://github.com/andreidohot/veiron-network"
-homepage = "https://github.com/andreidohot/veiron-network/tree/main/veiron-sdk-rust"
-documentation = "https://docs.rs/veiron-sdk-rust"
-keywords = ["blockchain", "veiron", "rpc", "sdk", "client"]
+repository = "https://github.com/andreidohot/vireon-network"
+homepage = "https://github.com/andreidohot/vireon-network/tree/main/vireon-sdk-rust"
+documentation = "https://docs.rs/vireon-sdk-rust"
+keywords = ["blockchain", "vireon", "rpc", "sdk", "client"]
 categories = ["api-bindings", "cryptography", "network-programming"]
 exclude = ["target/"]
 
@@ -22,7 +22,7 @@ blocking = ["native", "reqwest/blocking"]
 wasm = []
 
 [dependencies]
-# Protocol stack (addresses, txs, keys) â€” vendored; no veiron-core dependency.
+# Protocol stack (addresses, txs, keys) -- vendored; no vireon-core dependency.
 bech32 = "0.9"
 bip39 = { version = "2", features = ["rand"] }
 blake3 = "1"

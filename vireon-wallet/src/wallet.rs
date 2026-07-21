@@ -10,15 +10,15 @@ use crate::storage::{
 use serde::Serialize;
 use std::fs;
 use std::path::{Path, PathBuf};
-use veiron_core::{
+use vireon_core::{
     generate_mnemonic, hash_to_hex, launch_address_standard, launch_key_derivation_policy,
     launch_signing_standard, launch_wallet_seed_standard, next_base_fee, Address, Amount, Chain,
     MnemonicWordCount, Network, PrivateKey, Transaction, WalletDerivationPath,
 };
-use veiron_node::storage;
+use vireon_node::storage;
 
 pub const DEFAULT_RPC_BASE_URL: &str = "https://rpcnode.dohotstudio.com";
-pub const DEFAULT_MAINNET_DATA_DIR: &str = ".veiron-mainnet/chain";
+pub const DEFAULT_MAINNET_DATA_DIR: &str = ".vireon-mainnet/chain";
 pub const DEFAULT_DEVNET_DATA_DIR: &str = DEFAULT_MAINNET_DATA_DIR;
 
 pub fn default_rpc_base_url_for_network(network: Network) -> String {
@@ -257,7 +257,7 @@ pub fn wallet_status(
 
     Ok(WalletStatus {
         mode: format!("{} / Prototype", active_status_label),
-        protocol_parameters_id: veiron_core::launch_protocol_parameters(active_network)
+        protocol_parameters_id: vireon_core::launch_protocol_parameters(active_network)
             .parameters_id,
         active_network_id: active_network.network_id().to_owned(),
         active_network_name,
@@ -304,7 +304,7 @@ pub fn sign_tx(
     let wallet_network = wallet.network()?;
     if recipient.network() != wallet_network {
         return Err(WalletError::Core(
-            veiron_core::VeironError::InvalidNetwork {
+            vireon_core::VireonError::InvalidNetwork {
                 expected: wallet_network.network_id().to_owned(),
                 actual: recipient.network().network_id().to_owned(),
             },
@@ -385,7 +385,7 @@ pub fn submit_tx(rpc_base_url: &str, tx_file: &Path) -> WalletResult<SubmittedTx
 pub fn load_chain(chain_data_dir: &Path) -> WalletResult<Chain> {
     let blocks = storage::load_blocks(chain_data_dir)?;
     let first_block = blocks.first().ok_or_else(|| {
-        veiron_node::NodeError::ChainNotInitialized(storage::chain_file_path(chain_data_dir))
+        vireon_node::NodeError::ChainNotInitialized(storage::chain_file_path(chain_data_dir))
     })?;
     let mut chain = Chain::new(first_block.network()?);
     for block in blocks {
@@ -394,7 +394,7 @@ pub fn load_chain(chain_data_dir: &Path) -> WalletResult<Chain> {
     Ok(chain)
 }
 
-fn next_account_nonce(blocks: &[veiron_core::Block], address: &str) -> u64 {
+fn next_account_nonce(blocks: &[vireon_core::Block], address: &str) -> u64 {
     // Prefer ledger sequential state when the chain rebuilds cleanly; fall back to scan.
     if let Some(first) = blocks.first() {
         if let Ok(network) = first.network() {
@@ -409,14 +409,14 @@ fn next_account_nonce(blocks: &[veiron_core::Block], address: &str) -> u64 {
         .filter(|transaction| transaction.from.as_deref() == Some(address))
         .map(|transaction| transaction.nonce)
         .max()
-        .map_or(veiron_core::FIRST_ACCOUNT_NONCE, |nonce| nonce + 1)
+        .map_or(vireon_core::FIRST_ACCOUNT_NONCE, |nonce| nonce + 1)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use tempfile::tempdir;
-    use veiron_core::{devnet_genesis_with_difficulty, Address, Network, WalletDerivationPath};
+    use vireon_core::{devnet_genesis_with_difficulty, Address, Network, WalletDerivationPath};
 
     const TEST_MNEMONIC: &str =
         "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
@@ -437,7 +437,7 @@ mod tests {
         assert_eq!(created.mnemonic.split_whitespace().count(), 24);
         assert_eq!(
             created.wallet_seed_standard_id,
-            "veiron-wallet-bip39-slip10-v1"
+            "vireon-wallet-bip39-slip10-v1"
         );
         assert_eq!(created.derivation_path, "m/44'/7330'/0'/0'/0'");
     }
@@ -491,7 +491,7 @@ mod tests {
         let temp = tempdir().expect("tempdir");
         let wallet_dir = temp.path().join("wallets");
         let signed_tx_dir = temp.path().join("signed");
-        let data_dir = temp.path().join(".veiron-dev/chain");
+        let data_dir = temp.path().join(".vireon-dev/chain");
         let wallet = create_dev_wallet(&wallet_dir, Network::Devnet).expect("wallet");
         let recipient =
             create_dev_wallet(&temp.path().join("recipient"), Network::Devnet).expect("recipient");
@@ -517,7 +517,7 @@ mod tests {
         let temp = tempdir().expect("tempdir");
         let wallet_dir = temp.path().join("wallets");
         let signed_tx_dir = temp.path().join("signed");
-        let data_dir = temp.path().join(".veiron-dev/chain");
+        let data_dir = temp.path().join(".vireon-dev/chain");
         let wallet = create_dev_wallet(&wallet_dir, Network::Devnet).expect("wallet");
         let recipient =
             create_dev_wallet(&temp.path().join("recipient"), Network::Devnet).expect("recipient");
@@ -542,7 +542,7 @@ mod tests {
         let temp = tempdir().expect("tempdir");
         let wallet_dir = temp.path().join("wallets");
         let signed_tx_dir = temp.path().join("signed");
-        let data_dir = temp.path().join(".veiron-dev/chain");
+        let data_dir = temp.path().join(".vireon-dev/chain");
         let wallet = create_dev_wallet(&wallet_dir, Network::Devnet).expect("wallet");
         let recipient =
             create_dev_wallet(&temp.path().join("recipient"), Network::Devnet).expect("recipient");
@@ -571,7 +571,7 @@ mod tests {
         let error = verify_tx(Path::new(&signed.path)).expect_err("tamper must fail");
         assert!(matches!(
             error,
-            WalletError::Core(veiron_core::VeironError::InvalidSignature(_))
+            WalletError::Core(vireon_core::VireonError::InvalidSignature(_))
         ));
     }
 
@@ -580,7 +580,7 @@ mod tests {
         let temp = tempdir().expect("tempdir");
         let wallet_dir = temp.path().join("wallets");
         let signed_tx_dir = temp.path().join("signed");
-        let data_dir = temp.path().join(".veiron-dev/chain");
+        let data_dir = temp.path().join(".vireon-dev/chain");
         let wallet = create_dev_wallet(&wallet_dir, Network::Devnet).expect("wallet");
         let genesis = devnet_genesis_with_difficulty(&wallet.address, 4).expect("genesis");
         storage::append_block(&data_dir, &genesis).expect("append");
@@ -596,7 +596,7 @@ mod tests {
         .expect_err("invalid address must fail");
         assert!(matches!(
             error,
-            WalletError::Core(veiron_core::VeironError::InvalidAddress(_))
+            WalletError::Core(vireon_core::VireonError::InvalidAddress(_))
         ));
     }
 
@@ -628,13 +628,13 @@ mod tests {
         assert_eq!(status.active_status_label, Network::Devnet.status_label());
         assert_eq!(
             status.address_standard_id,
-            "veiron-address-bech32m-ed25519-v1"
+            "vireon-address-bech32m-ed25519-v1"
         );
-        assert_eq!(status.signature_standard_id, "veiron-signature-ed25519-v1");
-        assert_eq!(status.key_derivation_policy_id, "veiron-key-ed25519-v1");
+        assert_eq!(status.signature_standard_id, "vireon-signature-ed25519-v1");
+        assert_eq!(status.key_derivation_policy_id, "vireon-key-ed25519-v1");
         assert_eq!(
             status.wallet_seed_standard_id,
-            "veiron-wallet-bip39-slip10-v1"
+            "vireon-wallet-bip39-slip10-v1"
         );
     }
 
@@ -654,13 +654,13 @@ mod tests {
         let info = export_public_info(&wallet_dir).expect("public info");
         assert_eq!(
             info.address_standard_id,
-            "veiron-address-bech32m-ed25519-v1"
+            "vireon-address-bech32m-ed25519-v1"
         );
-        assert_eq!(info.signature_standard_id, "veiron-signature-ed25519-v1");
-        assert_eq!(info.key_derivation_policy_id, "veiron-key-ed25519-v1");
+        assert_eq!(info.signature_standard_id, "vireon-signature-ed25519-v1");
+        assert_eq!(info.key_derivation_policy_id, "vireon-key-ed25519-v1");
         assert_eq!(
             info.wallet_seed_standard_id,
-            "veiron-wallet-bip39-slip10-v1"
+            "vireon-wallet-bip39-slip10-v1"
         );
         assert_eq!(info.key_origin, "bip39-mnemonic-import");
         assert_eq!(

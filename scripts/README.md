@@ -17,9 +17,9 @@ Status: Draft
 | `browser/register-health-task.ps1` | Windows Scheduled Task for periodic probe + logs |
 | `browser/print-epic-pr-paths.ps1` | Print suggested git paths for SDK/browser/health PR split (no stage) |
 | `browser/prepare-clean-pr-worktree.ps1` | Create clean worktree from origin/main + copy PR files (no commit) |
-| `browser/verify-pr-worktrees.ps1` | Run cargo/health checks against existing `../veiron-pr-{a,b,c,d}` worktrees |
+| `browser/verify-pr-worktrees.ps1` | Run cargo/health checks against existing `../vireon-pr-{a,b,c,d}` worktrees |
 
 Ops doc: `docs/operator/CHAIN_HEALTH.md`  
 CI: `.github/workflows/candidate-chain-health.yml`
 
-See `veiron-browser/README.md`.
+See `vireon-browser/README.md`.

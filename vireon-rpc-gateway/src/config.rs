@@ -3,7 +3,7 @@ use http::HeaderValue;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
-use veiron_core::Network;
+use vireon_core::Network;
 
 #[derive(Clone, Copy, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
@@ -12,6 +12,7 @@ pub enum RpcAccessMode {
     Local,
     PublicRead,
     PublicSubmit,
+    PrivateMining,
 }
 
 impl RpcAccessMode {
@@ -23,12 +24,10 @@ impl RpcAccessMode {
         matches!(self, Self::Local)
     }
 
-    /// Mining routes are Local-only by default (audit A-H01).
-    /// Non-local modes require explicit `expose_mining_endpoints = true`
-    /// and must stay on loopback behind a reviewed TLS reverse proxy. Public
-    /// prototype exposure requires dedicated rate limits and abuse monitoring.
+    /// Mining routes are enabled only for local or isolated private-mining
+    /// profiles. A private-mining listener must never publish a host port.
     pub const fn default_exposes_mining(self) -> bool {
-        matches!(self, Self::Local)
+        matches!(self, Self::Local | Self::PrivateMining)
     }
 }
 
@@ -75,14 +74,14 @@ impl RpcConfig {
         config.chain_data_path = normalize_configured_path(&config.chain_data_path);
         if config.indexer_data_path.trim().is_empty() {
             config.indexer_data_path =
-                veiron_indexer::default_index_dir_for_network(config.network)
+                vireon_indexer::default_index_dir_for_network(config.network)
                     .display()
                     .to_string();
         } else {
             config.indexer_data_path = normalize_configured_path(&config.indexer_data_path);
         }
         if config.mempool_data_path.trim().is_empty() {
-            config.mempool_data_path = veiron_node::default_mempool_dir(config.network)
+            config.mempool_data_path = vireon_node::default_mempool_dir(config.network)
                 .display()
                 .to_string();
         } else {
@@ -92,7 +91,7 @@ impl RpcConfig {
             config.explorer_static_path = normalize_configured_path(&config.explorer_static_path);
         }
         if let Some(local_root) =
-            std::env::var_os("VEIRON_LOCAL_ROOT").filter(|value| !value.is_empty())
+            std::env::var_os("VIREON_LOCAL_ROOT").filter(|value| !value.is_empty())
         {
             let local_root = PathBuf::from(local_root);
             config.chain_data_path = local_root.join("chain").display().to_string();
@@ -201,10 +200,10 @@ impl RpcConfig {
         // Public bind + mining is a high-risk footgun unless operators know.
         if self.mining_endpoints_enabled()
             && self.bind_host == "0.0.0.0"
-            && self.access_mode != RpcAccessMode::Local
+            && self.access_mode != RpcAccessMode::PrivateMining
         {
             return Err(RpcError::Config(
-                "expose_mining_endpoints cannot be true when bind_host is 0.0.0.0 outside local mode; bind loopback behind a reviewed TLS reverse proxy".to_owned(),
+                "public RPC profiles cannot expose mining endpoints on 0.0.0.0; use private-mining on an un-published container network".to_owned(),
             ));
         }
         Ok(())

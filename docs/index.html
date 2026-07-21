@@ -3,23 +3,23 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="Veiron Network technical documentation." />
+  <meta name="description" content="Vireon Network technical documentation." />
   <meta name="theme-color" content="#01080d" />
-  <title>Veiron Network Documentation</title>
+  <title>Vireon Network Documentation</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/andreidohot/Veiron-Network-Main/main/veiron-desktop-tauri/public/logo-mark.png" />
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/andreidohot/Vireon-Network-Main/main/vireon-desktop-tauri/public/logo-mark.png" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css" />
   <link rel="stylesheet" href="./assets/docs.css" />
 </head>
 <body>
   <div id="app">
     <div class="boot-screen">
-      <div class="boot-logo"><img src="https://raw.githubusercontent.com/andreidohot/Veiron-Network-Main/main/veiron-desktop-tauri/public/logo-mark.png" alt="Veiron" /></div>
-      <strong>VEIRON NETWORK</strong>
+      <div class="boot-logo"><img src="https://raw.githubusercontent.com/andreidohot/Vireon-Network-Main/main/vireon-desktop-tauri/public/logo-mark.png" alt="Vireon" /></div>
+      <strong>VIREON NETWORK</strong>
       <span>Loading documentation interface…</span>
     </div>
   </div>
@@ -29,15 +29,15 @@
       name: `
         <span class="docs-brand">
           <span class="docs-brand-frame">
-            <img src="https://raw.githubusercontent.com/andreidohot/Veiron-Network-Main/main/veiron-desktop-tauri/public/logo-mark.png" alt="Veiron" />
+            <img src="https://raw.githubusercontent.com/andreidohot/Vireon-Network-Main/main/vireon-desktop-tauri/public/logo-mark.png" alt="Vireon" />
           </span>
           <span class="docs-brand-copy">
-            <strong>VEIRON</strong>
+            <strong>VIREON</strong>
             <small>NETWORK DOCS</small>
           </span>
         </span>`,
       nameLink: '#/',
-      repo: 'andreidohot/Veiron-Network-Main',
+      repo: 'andreidohot/Vireon-Network-Main',
       homepage: 'README.md',
       loadSidebar: true,
       loadNavbar: true,
@@ -51,7 +51,7 @@
       executeScript: false,
       notFoundPage: '_404.md',
       search: {
-        placeholder: 'Search Veiron docs',
+        placeholder: 'Search Vireon docs',
         noData: 'No matching document found.',
         depth: 5
       },
@@ -66,7 +66,7 @@
         crossChapter: true
       },
       plugins: [
-        function veironChrome(hook) {
+        function vireonChrome(hook) {
           hook.afterEach(function(html) {
             return `
               <section class="candidate-banner">

@@ -1,4 +1,4 @@
-# Veiron FiroPoW CUDA mining
+# Vireon FiroPoW CUDA mining
 
 Status: **Implemented / Mainnet Candidate**
 
@@ -20,7 +20,7 @@ Status: **Implemented / Mainnet Candidate**
 | Multi-GPU | Exact contiguous nonce partitions, one concurrent dispatch per selected GPU |
 | Metrics | Actual completed hashes returned by the CUDA kernel |
 | Startup validation | GPU DAG items 0, middle, and last compared with canonical core output |
-| Solution validation | `veiron-core` recomputes `mix_hash` and `final_hash` before submission |
+| Solution validation | `vireon-core` recomputes `mix_hash` and `final_hash` before submission |
 
 Work buffers and the VRAM DAG persist across batches. They are not allocated for
 every dispatch. Startup reports `building_dag` so the Control Center does not

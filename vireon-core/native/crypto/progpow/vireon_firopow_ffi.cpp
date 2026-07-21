@@ -1,4 +1,4 @@
-// Veiron FFI for FiroPoW 0.9.4 (ProgPoW period_length=1).
+// Vireon FFI for FiroPoW 0.9.4 (ProgPoW period_length=1).
 // Apache-2.0 ethash/progpow vendored from firoorg/firo.
 #include <crypto/progpow/include/ethash/ethash.hpp>
 #include <crypto/progpow/include/ethash/progpow.hpp>
@@ -14,7 +14,7 @@
 
 extern "C" {
 
-struct veiron_firopow_result {
+struct vireon_firopow_result {
     uint8_t final_hash[32];
     uint8_t mix_hash[32];
 };
@@ -52,7 +52,7 @@ static ethash::hash256 load_h256(const uint8_t* b) {
     return h;
 }
 
-int veiron_firopow_revision(char* out, int out_len) {
+int vireon_firopow_revision(char* out, int out_len) {
     const char* rev = progpow::revision;
     if (!out || out_len <= 0)
         return (int)std::strlen(rev);
@@ -64,28 +64,28 @@ int veiron_firopow_revision(char* out, int out_len) {
     return n;
 }
 
-int veiron_firopow_period_length(void) {
+int vireon_firopow_period_length(void) {
     return progpow::period_length;
 }
 
-int veiron_firopow_epoch_length(void) {
+int vireon_firopow_epoch_length(void) {
     return ETHASH_EPOCH_LENGTH;
 }
 
-int veiron_firopow_epoch_number(int block_number) {
+int vireon_firopow_epoch_number(int block_number) {
     return ethash::get_epoch_number(block_number);
 }
 
-void veiron_keccak256(const uint8_t* data, size_t len, uint8_t out[32]) {
+void vireon_keccak256(const uint8_t* data, size_t len, uint8_t out[32]) {
     auto h = ethash::keccak256(data, len);
     std::memcpy(out, h.bytes, 32);
 }
 
-int veiron_firopow_hash(
+int vireon_firopow_hash(
     int block_number,
     const uint8_t header_hash[32],
     uint64_t nonce,
-    veiron_firopow_result* out
+    vireon_firopow_result* out
 ) {
     if (!header_hash || !out)
         return -1;
@@ -105,7 +105,7 @@ int veiron_firopow_hash(
     }
 }
 
-int veiron_firopow_verify(
+int vireon_firopow_verify(
     int block_number,
     const uint8_t header_hash[32],
     const uint8_t mix_hash[32],
@@ -126,14 +126,14 @@ int veiron_firopow_verify(
     }
 }
 
-int veiron_firopow_search_light(
+int vireon_firopow_search_light(
     int block_number,
     const uint8_t header_hash[32],
     const uint8_t boundary[32],
     uint64_t start_nonce,
     size_t iterations,
     uint64_t* found_nonce,
-    veiron_firopow_result* out
+    vireon_firopow_result* out
 ) {
     if (!header_hash || !boundary || !found_nonce || !out)
         return -1;
@@ -156,7 +156,7 @@ int veiron_firopow_search_light(
 
 // Multi-threaded immutable light-context search for tests/genesis one-shots.
 // threads<=0 => hardware concurrency. cancel_flag optional: non-null and *cancel!=0 aborts.
-int veiron_firopow_search_mt(
+int vireon_firopow_search_mt(
     int block_number,
     const uint8_t header_hash[32],
     const uint8_t boundary[32],
@@ -165,7 +165,7 @@ int veiron_firopow_search_mt(
     int threads,
     const int* cancel_flag,
     uint64_t* found_nonce,
-    veiron_firopow_result* out,
+    vireon_firopow_result* out,
     uint64_t* hashes_done
 ) {
     if (!header_hash || !boundary || !found_nonce || !out)
@@ -192,7 +192,7 @@ int veiron_firopow_search_mt(
         std::atomic<bool> found{false};
         std::atomic<uint64_t> done{0};
         uint64_t win_nonce = 0;
-        veiron_firopow_result win{};
+        vireon_firopow_result win{};
         std::mutex win_mu;
 
         auto worker = [&](int tid) {
@@ -260,7 +260,7 @@ int veiron_firopow_search_mt(
 }
 
 // Ensure full DAG context exists for epoch (pre-warm for mining).
-int veiron_firopow_prewarm_full(int block_number) {
+int vireon_firopow_prewarm_full(int block_number) {
     try {
         int epoch = ethash::get_epoch_number(block_number);
         return get_full_ctx(epoch) ? 0 : -1;
@@ -270,13 +270,13 @@ int veiron_firopow_prewarm_full(int block_number) {
 }
 
 // Dataset size helpers for GPU planners.
-uint64_t veiron_firopow_full_dataset_bytes(int block_number) {
+uint64_t vireon_firopow_full_dataset_bytes(int block_number) {
     int epoch = ethash::get_epoch_number(block_number);
     int items = ethash::calculate_full_dataset_num_items(epoch);
     return ethash::get_full_dataset_size(items);
 }
 
-int veiron_firopow_light_cache_items(int block_number) {
+int vireon_firopow_light_cache_items(int block_number) {
     int epoch = ethash::get_epoch_number(block_number);
     return ethash::calculate_light_cache_num_items(epoch);
 }
@@ -284,7 +284,7 @@ int veiron_firopow_light_cache_items(int block_number) {
 /// Export the small, immutable epoch light cache and ProgPoW L1 cache.
 /// CUDA miners use this view to build the full DAG directly in VRAM instead of
 /// materialising ~1 GiB on the host and copying it over PCIe.
-int veiron_firopow_export_light_cache(
+int vireon_firopow_export_light_cache(
     int block_number,
     const uint32_t** light_out,
     uint32_t* light_items_out,
@@ -312,7 +312,7 @@ int veiron_firopow_export_light_cache(
     }
 }
 
-int veiron_firopow_dataset_item_1024(
+int vireon_firopow_dataset_item_1024(
     int block_number,
     uint32_t index,
     uint8_t out[128]
@@ -338,7 +338,7 @@ int veiron_firopow_dataset_item_1024(
 /// - dag_out: hash1024 items (full_dataset_num_items entries, 128 bytes each)
 /// - l1_out: ProgPoW L1 cache words (l1_cache_num_items uint32_t)
 /// - full_dataset_num_items_out: number of hash1024 items
-int veiron_firopow_export_full_dag(
+int vireon_firopow_export_full_dag(
     int block_number,
     const uint8_t** dag_out,
     uint64_t* dag_bytes_out,

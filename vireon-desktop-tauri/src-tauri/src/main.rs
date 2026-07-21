@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    veiron_desktop_tauri_lib::run()
+    vireon_desktop_tauri_lib::run()
 }

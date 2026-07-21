@@ -2,7 +2,7 @@ use crate::error::{NodeError, NodeResult};
 use serde::Serialize;
 use std::fs;
 use std::path::Path;
-use veiron_core::{
+use vireon_core::{
     hash_to_hex, initial_base_fee, Address, Amount, Hash, Network, PrivateKey, Transaction,
 };
 
@@ -81,6 +81,6 @@ pub fn format_verified_transaction(transaction: &Transaction) -> String {
     )
 }
 
-fn node_input_error(error: veiron_core::VeironError) -> NodeError {
+fn node_input_error(error: vireon_core::VireonError) -> NodeError {
     NodeError::Input(error.to_string())
 }

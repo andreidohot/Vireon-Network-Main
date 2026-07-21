@@ -9,9 +9,9 @@ export default function PassportPage() {
   return (
     <>
       <PageHero
-        eyebrow="Veiron Passport"
+        eyebrow="Vireon Passport"
         title="A proof layer for identity, access, ownership and reputation."
-        text="Veiron Passport is planned as a human-friendly proof surface for licenses, achievements, creator drops, authenticity and app access without forcing public KYC."
+        text="Vireon Passport is planned as a human-friendly proof surface for licenses, achievements, creator drops, authenticity and app access without forcing public KYC."
       >
         <div className="flex flex-col gap-3 sm:flex-row">
           <span className="inline-flex items-center justify-center gap-2 rounded-full bg-ionHot px-6 py-3 font-bold text-void shadow-ion">
@@ -48,7 +48,7 @@ export default function PassportPage() {
             <Sparkles className="text-ionHot" />
             <h2 className="mt-6 text-4xl font-black text-white">Passport is the product story.</h2>
             <p className="mt-5 leading-8 text-frost/65">
-              For a crypto project like Veiron, Passport gives normal users a reason to care: proof of ownership, proof of access, proof of authenticity and proof of progress.
+              For a crypto project like Vireon, Passport gives normal users a reason to care: proof of ownership, proof of access, proof of authenticity and proof of progress.
             </p>
             <div className="mt-7 inline-flex rounded-full border border-ionSoft/25 px-4 py-2 text-sm font-bold text-ionSoft">
               Connect Wallet: Coming Soon

@@ -1,9 +1,9 @@
 [package]
-name = "veiron-indexer"
+name = "vireon-indexer"
 version = "1.0.0"
 edition = "2021"
 license = "Apache-2.0"
-description = "Draft local indexer for the Veiron private devnet"
+description = "Draft local indexer for the Vireon private devnet"
 
 [dependencies]
 atomic-write-file = "0.3"
@@ -12,8 +12,8 @@ dirs = "5"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "1"
-veiron-core = { path = "../veiron-core" }
-veiron-node = { path = "../veiron-node" }
+vireon-core = { path = "../vireon-core" }
+vireon-node = { path = "../vireon-node" }
 
 [dev-dependencies]
 tempfile = "3"

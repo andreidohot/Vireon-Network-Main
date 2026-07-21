@@ -1,11 +1,11 @@
-# Probe Mainnet Candidate chain via veiron-browser-host one-shots.
+# Probe Mainnet Candidate chain via vireon-browser-host one-shots.
 #
 # Usage:
 #   .\scripts\browser\probe-chain.ps1
 #   .\scripts\browser\probe-chain.ps1 -Local
 #   .\scripts\browser\probe-chain.ps1 -Strict
 #   .\scripts\browser\probe-chain.ps1 -Watch -IntervalSec 15 -Strict
-#   .\scripts\browser\probe-chain.ps1 -Strict -WebhookUrl $env:VEIRON_HEALTH_WEBHOOK_URL
+#   .\scripts\browser\probe-chain.ps1 -Strict -WebhookUrl $env:VIREON_HEALTH_WEBHOOK_URL
 
 [CmdletBinding()]
 param(
@@ -28,27 +28,27 @@ $ErrorActionPreference = "Stop"
 $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..\..")
 Set-Location $RepoRoot
 
-if ([string]::IsNullOrWhiteSpace($WebhookUrl) -and $env:VEIRON_HEALTH_WEBHOOK_URL) {
-    $WebhookUrl = $env:VEIRON_HEALTH_WEBHOOK_URL
+if ([string]::IsNullOrWhiteSpace($WebhookUrl) -and $env:VIREON_HEALTH_WEBHOOK_URL) {
+    $WebhookUrl = $env:VIREON_HEALTH_WEBHOOK_URL
 }
 
 if ($Build) {
-    Write-Host "Building veiron-browser-host..."
-    cargo build -q -p veiron-browser-host
+    Write-Host "Building vireon-browser-host..."
+    cargo build -q -p vireon-browser-host
 }
 
 $binCandidates = @(
-    (Join-Path $RepoRoot "target\debug\veiron-browser-host.exe"),
-    (Join-Path $RepoRoot "target\release\veiron-browser-host.exe")
+    (Join-Path $RepoRoot "target\debug\vireon-browser-host.exe"),
+    (Join-Path $RepoRoot "target\release\vireon-browser-host.exe")
 )
 $HostBin = $binCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
 if (-not $HostBin) {
     Write-Host "Host binary missing; building..."
-    cargo build -q -p veiron-browser-host
-    $HostBin = Join-Path $RepoRoot "target\debug\veiron-browser-host.exe"
+    cargo build -q -p vireon-browser-host
+    $HostBin = Join-Path $RepoRoot "target\debug\vireon-browser-host.exe"
 }
 if (-not (Test-Path $HostBin)) {
-    throw "Could not find veiron-browser-host.exe"
+    throw "Could not find vireon-browser-host.exe"
 }
 
 function Invoke-Host {
@@ -64,7 +64,7 @@ function Invoke-Host {
     & $HostBin @all
     $code = $LASTEXITCODE
     if (-not $AllowNonZero -and $code -ne 0) {
-        throw "veiron-browser-host failed ($code): $($HostArgs -join ' ')"
+        throw "vireon-browser-host failed ($code): $($HostArgs -join ' ')"
     }
     return $code
 }
@@ -77,7 +77,7 @@ function Send-Webhook {
     if ([string]::IsNullOrWhiteSpace($WebhookUrl)) { return }
     try {
         $payload = @{
-            text   = "Veiron Mainnet Candidate health FAILED"
+            text   = "Vireon Mainnet Candidate health FAILED"
             code   = $Code
             health = $Body
             host   = $env:COMPUTERNAME
@@ -92,7 +92,7 @@ function Send-Webhook {
 
 function Invoke-ProbeOnce {
     if (-not $Quiet) {
-        Write-Host "=== Veiron chain probe (Mainnet Candidate) $(Get-Date -Format o) ===" -ForegroundColor Cyan
+        Write-Host "=== Vireon chain probe (Mainnet Candidate) $(Get-Date -Format o) ===" -ForegroundColor Cyan
         Write-Host "host: $HostBin"
         if ($Local) { Write-Host "rpc:  local loopback" }
         elseif ($Rpc) { Write-Host "rpc:  $Rpc" }

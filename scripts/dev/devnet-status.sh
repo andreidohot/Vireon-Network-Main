@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cargo run -p veiron-node -- status
+cargo run -p vireon-node -- status

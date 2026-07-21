@@ -50,10 +50,10 @@ export function Node() {
   const [seedAddress, setSeedAddress] = useState("");
   const logsRef = useRef<HTMLPreElement>(null);
 
-  const loadLogs = async () => setLogs(await window.veiron.logs.recent(logService, 220));
+  const loadLogs = async () => setLogs(await window.vireon.logs.recent(logService, 220));
 
   // Do not double-hammer RPC: App.tsx already polls. Only extra refresh when opening Node,
-  // plus a slow cadence aligned with VPS-friendly settings (vps-fix.md).
+  // plus a slow cadence aligned with VPS-friendly settings.
   useEffect(() => {
     void refresh();
     const remote = !isLocalRpc(settings.rpc_url);
@@ -104,7 +104,7 @@ export function Node() {
 
   const addSeed = async () => {
     try {
-      const message = await window.veiron.network.addSeed(seedAddress);
+      const message = await window.vireon.network.addSeed(seedAddress);
       setSeedAddress("");
       setNotice({ error: false, text: message });
     } catch (error) {
@@ -552,7 +552,7 @@ export function Node() {
           <button className="button" type="button" onClick={() => void loadLogs()}>
             Refresh
           </button>
-          <button className="button" type="button" onClick={() => window.veiron.logs.export(logService)}>
+          <button className="button" type="button" onClick={() => window.vireon.logs.export(logService)}>
             Export
           </button>
         </div>

@@ -2,7 +2,7 @@
 
 Status: Draft / Mainnet Candidate / Prototype
 
-Veiron repository rule: never commit secrets.
+Vireon repository rule: never commit secrets.
 
 Forbidden in repository history or working files:
 - `.env`
@@ -22,7 +22,7 @@ Operational rules:
 - wallet files stay local only, outside repository folders;
 - use GitHub Secrets for CI credentials when CI needs external access;
 - keep RPC bound to localhost by default;
-- do not place `.veiron-dev/`, `.veiron-testnet/` or `.veiron-mainnet/` inside commits.
+- do not place `.vireon-dev/`, `.vireon-testnet/` or `.vireon-mainnet/` inside commits.
 
 Verification commands:
 

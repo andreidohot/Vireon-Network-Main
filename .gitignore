@@ -30,23 +30,23 @@ node_modules/
 dist/
 *.tsbuildinfo
 release-artifacts/
-/veiron-release/apps/windows/
-/veiron-release/apps/linux/
-/veiron-release/apps/android/
-/veiron-release/apps/vps/
-veiron-release/apps/**/*.exe
-veiron-release/apps/**/*.msi
-veiron-release/apps/**/*.zip
-veiron-release/apps/**/*.AppImage
-veiron-release/apps/**/*.deb
-veiron-release/apps/**/*.pacman
-veiron-release/apps/**/*.apk
-veiron-release/apps/**/*.aab
-veiron-desktop/installer/stage/
-veiron-android/.gradle/
-veiron-android/local.properties
-veiron-android/**/build/
-veiron-android/app/src/main/jniLibs/
+/vireon-release/apps/windows/
+/vireon-release/apps/linux/
+/vireon-release/apps/android/
+/vireon-release/apps/vps/
+vireon-release/apps/**/*.exe
+vireon-release/apps/**/*.msi
+vireon-release/apps/**/*.zip
+vireon-release/apps/**/*.AppImage
+vireon-release/apps/**/*.deb
+vireon-release/apps/**/*.pacman
+vireon-release/apps/**/*.apk
+vireon-release/apps/**/*.aab
+vireon-desktop/installer/stage/
+vireon-android/.gradle/
+vireon-android/local.properties
+vireon-android/**/build/
+vireon-android/app/src/main/jniLibs/
 
 # Local runtime data
 logs/
@@ -54,19 +54,25 @@ logs/
 *.pid
 node-data/
 devnet-data/
+.vireon-dev/
+.vireon-testnet/
+.vireon-mainnet/
+.vireon-local/
+# Legacy runtime data remains readable during the non-destructive brand migration.
 .veiron-dev/
 .veiron-testnet/
 .veiron-mainnet/
 .veiron-local/
-veiron-miner/config.toml
-veiron-mining-pool/config.toml
-veiron-devnet/data/*
-!veiron-devnet/data/README.md
+vireon-miner/config.toml
+vireon-mining-pool/config.toml
+vireon-devnet/data/*
+!vireon-devnet/data/README.md
 
 # Editor and OS noise
 .vscode/
 .idea/
 .cache/
+**/.artifacts/
 tmp/
 *.tmp
 .tmp-firo/
@@ -96,9 +102,11 @@ Desktop.ini
 /docs/internal/
 /TASK_MASTER.md
 /COMMANDS.md
-/info_and_taks/*
+/info_and_task/
 .env
-
+.vireon-local/
+scripts/
+scripts/release/*
 # Misc local outputs
 rpc-gateway.log
 rpc-gateway.err.log

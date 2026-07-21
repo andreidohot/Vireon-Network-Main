@@ -1,4 +1,4 @@
-# Veiron Documentation Inventory
+# Vireon Documentation Inventory
 
 Status: Generated audit inventory
 
@@ -10,31 +10,31 @@ public Markdown reader; it does not change the historical content itself.
 
 | Class | Documents |
 |---|---:|
-| Component reference | 15 |
-| Historical | 7 |
+| Component reference | 24 |
+| Historical | 2 |
 | Internal | 10 |
-| Public | 110 |
-| **Total** | **142** |
+| Public | 116 |
+| **Total** | **152** |
 
 ## Complete inventory
 
 | Path | Class | Status | Title |
 |---|---|---|---|
-| `.review/pipeline/AGENTS.md` | Component reference | Not stated | Multi-agent personas (GitHub-scoped) |
-| `.review/pipeline/ORCHESTRATOR.md` | Component reference | Not stated | Orchestrator (host session) |
-| `.review/pipeline/README.md` | Component reference | Not stated | Veiron multi-agent pipeline |
-| `.review/pipeline/STATE_MACHINE.md` | Component reference | Not stated | Issue state machine (GitHub labels) |
+| `.github/CUM-FACI-RELEASE.md` | Component reference | Not stated | Cum creezi un tag si un release Vireon |
+| `.github/README.md` | Component reference | Not stated | Vireon Network |
 | `.vscode/README.md` | Component reference | Draft | VS Code |
-| `AGENTS.md` | Internal | Not stated | Veiron Workspace Rules |
-| `audicopilot.md` | Historical | Not stated | AuditCopilot Report |
-| `COMMANDS.md` | Component reference | Draft / Mainnet Candidate / Prototype | Veiron Network Commands |
+| `AGENTS.md` | Internal | Not stated | Vireon Workspace Rules |
+| `docs/_404.md` | Public | Not stated | Documentation route not found |
+| `docs/_coverpage.md` | Public | Not stated | Vireon Network |
+| `docs/_navbar.md` | Public | Not stated | (missing title) |
+| `docs/_sidebar.md` | Public | Not stated | (missing title) |
 | `docs/api/00_RPC_GATEWAY_OVERVIEW.md` | Public | Implemented / Mainnet Candidate / public prototype exposure | RPC Gateway Overview |
 | `docs/api/01_RPC_ENDPOINTS_DRAFT.md` | Public | Implemented / Mainnet Candidate / route availability depends on profile | RPC Endpoints |
 | `docs/api/02_RPC_RESPONSE_MODELS.md` | Public | Implemented / Mainnet Candidate | RPC Response Models |
 | `docs/api/03_MINING_POOL_API_DRAFT.md` | Public | Draft / Mainnet Candidate / Prototype | Mining Pool API |
-| `docs/api/04_SDK_CLIENT_V0.md` | Public | Prototype / Mainnet Candidate | Veiron SDK Client (v0) |
+| `docs/api/04_SDK_CLIENT_V0.md` | Public | Prototype / Mainnet Candidate | Vireon SDK Client (v0) |
 | `docs/api/README.md` | Public | Current API index / Mainnet Candidate (where noted) | API Docs |
-| `docs/architecture/00_SYSTEM_OVERVIEW.md` | Public | Mainnet Candidate architecture / mixed implementation maturity | Veiron System Overview |
+| `docs/architecture/00_SYSTEM_OVERVIEW.md` | Public | Mainnet Candidate architecture / mixed implementation maturity | Vireon System Overview |
 | `docs/architecture/01_BASE_LAYER.md` | Public | Implemented / Mainnet Candidate / production hardening incomplete | Base Layer |
 | `docs/architecture/02_EXECUTION_LAYER.md` | Public | Planned / Research / not implemented | Execution Layer |
 | `docs/architecture/03_PRODUCT_LAYER.md` | Public | Mainnet Candidate / mixed implementation maturity | Product Layer |
@@ -43,23 +43,24 @@ public Markdown reader; it does not change the historical content itself.
 | `docs/architecture/06_CLIENT_PLATFORM_DIRECTION.md` | Public | Draft / Planned / Prototype | Client Platform Direction |
 | `docs/architecture/07_BROWSER_EXTENSION_AND_NATIVE_HOST.md` | Public | Prototype / Mainnet Candidate / not store-ready | Browser Extension and Native Host |
 | `docs/architecture/README.md` | Public | Current reference / Mainnet Candidate | Architecture Docs |
-| `docs/DOCUMENTATION_INVENTORY.md` | Public | Generated audit inventory | Veiron Documentation Inventory |
-| `docs/DOCUMENTATION_POLICY.md` | Public | Accepted workspace policy | Veiron Documentation Policy |
+| `docs/DOCUMENTATION_INVENTORY.md` | Public | Generated audit inventory | Vireon Documentation Inventory |
+| `docs/DOCUMENTATION_POLICY.md` | Public | Accepted workspace policy | Vireon Documentation Policy |
 | `docs/engineering/WORKSPACE_AND_LINTS.md` | Public | Draft / engineering hygiene | Workspace Scope and Rust Lint Policy |
 | `docs/internal/README.md` | Internal | Draft | Internal Docs |
-| `docs/legal/LICENSING_POLICY.md` | Public | Draft / Accepted Repository Policy | Veiron Licensing Policy |
+| `docs/legal/LICENSING_POLICY.md` | Public | Draft / Accepted Repository Policy | Vireon Licensing Policy |
 | `docs/legal/README.md` | Public | Draft | Legal Docs |
+| `docs/migration/VIREON_BRAND_MIGRATION.md` | Public | Mainnet Candidate compatibility policy | Vireon Brand Migration |
 | `docs/mining/CUDA_AND_ASIC_RESISTANCE.md` | Public | **FiroPoW 0.9.4 implemented; independent security review still required** | CUDA and ASIC-resistance model |
-| `docs/mining/GPU_MINING.md` | Public | **Implemented / Mainnet Candidate** | Veiron FiroPoW CUDA mining |
-| `docs/mining/README.md` | Public | Not stated | Veiron mining |
+| `docs/mining/GPU_MINING.md` | Public | **Implemented / Mainnet Candidate** | Vireon FiroPoW CUDA mining |
+| `docs/mining/README.md` | Public | Not stated | Vireon mining |
 | `docs/operator/CHAIN_HEALTH.md` | Public | Prototype / Mainnet Candidate — **not** Mainnet Live. | Chain health monitoring (Mainnet Candidate) |
 | `docs/operator/COMMANDS.md` | Public | Draft / Mainnet Candidate / Prototype | Operator Commands |
-| `docs/operator/LINUX_DESKTOP.md` | Public | **1.0.0 Mainnet Candidate / Prototype** (not public Mainnet) | Linux Desktop - Veiron Control Center |
+| `docs/operator/LINUX_DESKTOP.md` | Public | **1.0.0 Mainnet Candidate / Prototype** (not public Mainnet) | Linux Desktop - Vireon Control Center |
 | `docs/operator/LOCAL_RUNBOOK.md` | Public | Draft / Mainnet Candidate / Prototype | Local Runbook |
 | `docs/operator/MINING_TROUBLESHOOTING.md` | Public | Not stated | Mining troubleshooting (Mainnet Candidate) |
 | `docs/operator/TROUBLESHOOTING.md` | Public | Draft / Mainnet Candidate / Prototype | Troubleshooting |
-| `docs/protocol/00_PROTOCOL_OVERVIEW.md` | Public | Implemented / Mainnet Candidate / not public Mainnet | Veiron Protocol Overview |
-| `docs/protocol/01_CHAIN_PARAMETERS.md` | Public | Implemented / Mainnet Candidate | Veiron Chain Parameters |
+| `docs/protocol/00_PROTOCOL_OVERVIEW.md` | Public | Implemented / Mainnet Candidate / not public Mainnet | Vireon Protocol Overview |
+| `docs/protocol/01_CHAIN_PARAMETERS.md` | Public | Implemented / Mainnet Candidate | Vireon Chain Parameters |
 | `docs/protocol/02_VIRE_UNITS_AND_SUPPLY.md` | Public | Implemented / Mainnet Candidate | VIRE Units And Supply |
 | `docs/protocol/03_EMISSION_AND_HALVING.md` | Public | Implemented candidate emission / allocation policy incomplete | Emission And Halving |
 | `docs/protocol/04_BLOCK_STRUCTURE.md` | Public | Implemented candidate structure / stable serialization freeze pending | Block Structure |
@@ -70,7 +71,7 @@ public Markdown reader; it does not change the historical content itself.
 | `docs/protocol/09_ADDRESS_AND_KEYS_DRAFT.md` | Public | Draft | Address And Keys Draft |
 | `docs/protocol/10_DEVNET_SCOPE.md` | Public | Internal test profiles / not product networks | Internal Devnet and Test Profiles |
 | `docs/protocol/11_IMPLEMENTATION_PHASES.md` | Public | Current phase map / historical phase details live in project memory | Protocol Implementation and Maturity Phases |
-| `docs/protocol/12_P2P_NETWORKING_DRAFT.md` | Public | Draft / Mainnet Candidate / Prototype | Veiron P2P Networking |
+| `docs/protocol/12_P2P_NETWORKING_DRAFT.md` | Public | Draft / Mainnet Candidate / Prototype | Vireon P2P Networking |
 | `docs/protocol/12_UPGRADE_ACTIVATION_POLICY.md` | Public | Implemented / Mainnet Candidate | Upgrade Activation Policy |
 | `docs/protocol/13_CHECKPOINT_POLICY.md` | Public | Implemented / Mainnet Candidate | Checkpoint Policy |
 | `docs/protocol/13_MINING_POOL_PROTOCOL_DRAFT.md` | Public | Draft / Mainnet Candidate / Prototype | Mining Pool Protocol |
@@ -81,8 +82,6 @@ public Markdown reader; it does not change the historical content itself.
 | `docs/release/GENESIS.md` | Public | Draft / Mainnet Candidate / Prototype | Mainnet Candidate Genesis |
 | `docs/release/MAINNET_CANDIDATE_CHECKLIST.md` | Public | **Draft / Mainnet Candidate / Prototype — not public Mainnet** | Mainnet Candidate Checklist (G2) |
 | `docs/release/NETWORK_MATURITY.md` | Public | **Draft / Mainnet Candidate / Prototype — not a public live Mainnet** | Network Maturity and Release Readiness |
-| `docs/release/PROJECT_AUDIT_2026-07-17.md` | Historical | Not stated | Veiron Project Audit — 2026-07-17 |
-| `docs/release/PROJECT_AUDIT_COMPLETE_2026-07-17.md` | Historical | Not stated | Veiron Network — Audit complet al proiectului |
 | `docs/release/RELEASE_GATE.md` | Public | **Draft / Mainnet Candidate / Prototype** | Release Gate (G1) |
 | `docs/roadmap/README.md` | Public | Draft | Roadmap Docs |
 | `docs/security/MINING_POOL_RISKS.md` | Public | Draft / Mainnet Candidate / Prototype | Mining Pool Security Risks |
@@ -90,19 +89,22 @@ public Markdown reader; it does not change the historical content itself.
 | `docs/security/README.md` | Public | Current Mainnet Candidate security index | Security Docs |
 | `docs/security/SECRET_HANDLING.md` | Public | Draft / Mainnet Candidate / Prototype | Secret Handling |
 | `docs/security/SECURITY_GATE.md` | Public | Draft / Mainnet Candidate / Prototype | Security Gate |
-| `docs/source-info/README.md` | Public | Canonical documentation set | Veiron Source Information |
-| `docs/source-info/VEIRON_00_CITESTE_PRIMUL_DECIZII_DESCHISE.md` | Public | Canonical read-first register | Veiron 00 — Read First: Decisions and Critical Gaps |
-| `docs/source-info/VEIRON_01_SOURCE_INFO_MASTER.md` | Public | Canonical identity and launch-facts summary | Veiron 01 — Source Information Master |
-| `docs/source-info/VEIRON_02_ARCHITECTURE_AND_PRODUCT_LAYERS.md` | Public | Canonical architecture summary | Veiron 02 — Architecture and Product Layers |
-| `docs/source-info/VEIRON_03_ROADMAP_AND_STRUCTURE.md` | Public | Canonical maturity-gated roadmap summary | Veiron 03 — Roadmap and Repository Structure |
-| `docs/source-info/VEIRON_04_AGENTS_AND_GOVERNANCE.md` | Public | Accepted workspace governance | Veiron 04 — Change and Documentation Governance |
-| `docs/source-info/VEIRON_05_DECIZII_RECOMANDATE.md` | Public | Canonical decision summary | Veiron 05 — Accepted Decisions and Recommendations |
-| `docs/tokenomics/00_TOKENOMICS_OVERVIEW.md` | Public | Implemented candidate economics / allocation policy incomplete | Veiron Tokenomics Overview |
+| `docs/SETUP.md` | Public | Not stated | Install the Tauri-style Vireon documentation theme |
+| `docs/source-info/README.md` | Public | Canonical documentation set | Vireon Source Information |
+| `docs/source-info/VIREON_00_CITESTE_PRIMUL_DECIZII_DESCHISE.md` | Public | Canonical read-first register | Vireon 00 — Read First: Decisions and Critical Gaps |
+| `docs/source-info/VIREON_01_SOURCE_INFO_MASTER.md` | Public | Canonical identity and launch-facts summary | Vireon 01 — Source Information Master |
+| `docs/source-info/VIREON_02_ARCHITECTURE_AND_PRODUCT_LAYERS.md` | Public | Canonical architecture summary | Vireon 02 — Architecture and Product Layers |
+| `docs/source-info/VIREON_03_ROADMAP_AND_STRUCTURE.md` | Public | Canonical maturity-gated roadmap summary | Vireon 03 — Roadmap and Repository Structure |
+| `docs/source-info/VIREON_04_AGENTS_AND_GOVERNANCE.md` | Public | Accepted workspace governance | Vireon 04 — Change and Documentation Governance |
+| `docs/source-info/VIREON_05_DECIZII_RECOMANDATE.md` | Public | Canonical decision summary | Vireon 05 — Accepted Decisions and Recommendations |
+| `docs/tokenomics/00_TOKENOMICS_OVERVIEW.md` | Public | Implemented candidate economics / allocation policy incomplete | Vireon Tokenomics Overview |
 | `docs/tokenomics/01_SUPPLY_AND_REWARD_MATH.md` | Public | Implemented candidate arithmetic / allocation policy incomplete | Supply And Reward Math |
 | `docs/tokenomics/02_FEES_DRAFT.md` | Public | Transfer fee model implemented / contract gas unresolved | Transfer Fees and Contract Gas |
 | `docs/tokenomics/03_PUBLIC_CLAIMS_RULES.md` | Public | Accepted public-communication policy | Public Claims Rules |
 | `docs/tokenomics/README.md` | Public | Current reference / Mainnet Candidate | Tokenomics Docs |
 | `docs/whitepaper/README.md` | Public | Draft | Whitepaper Docs |
+| `info_and_task/VIRE_HALVING_AND_BURN_POLICY.md` | Component reference | Not stated | Vireon Network — Politica oficială de Halving și Burn VIRE |
+| `info_and_task/VIREON_MAINNET_TASK_MASTER.md` | Component reference | Not stated | VIREON NETWORK — MAINNET TASK MASTER |
 | `memory/CHANGELOG_DRAFT.md` | Internal | Not stated | Changelog Draft |
 | `memory/DECISIONS.md` | Internal | Draft | Decisions |
 | `memory/NEXT_STEPS.md` | Internal | Draft | Next Steps |
@@ -110,55 +112,63 @@ public Markdown reader; it does not change the historical content itself.
 | `memory/PROJECT_MEMORY.md` | Internal | Draft | Project Memory |
 | `memory/README.md` | Internal | Not stated | Memory |
 | `memory/SESSION_LOG.md` | Internal | Not stated | Session Log |
-| `MIGRATION_STATUS.md` | Historical | Not stated | Veiron status — VPS public network + desktop |
-| `README.md` | Public | Not stated | Veiron Network Workspace |
-| `RUST_CODE_ANALYSIS_REPORT.md` | Historical | Not stated | Rust / Monorepo Code Analysis Report |
+| `README.md` | Public | Not stated | Vireon Network |
 | `scripts/README.md` | Component reference | Draft | Scripts |
-| `scripts/update/README.md` | Component reference | Implemented / Mainnet Candidate | Veiron Update Policy |
-| `shared/brand/README.md` | Public | Not stated | Veiron brand assets |
+| `scripts/update/README.md` | Component reference | Implemented / Mainnet Candidate | Vireon Update Policy |
+| `shared/brand/README.md` | Public | Not stated | Vireon brand assets |
 | `shared/constants/README.md` | Public | Draft | Shared Constants |
 | `shared/README.md` | Public | Draft | Shared |
 | `shared/schemas/README.md` | Public | Draft | Shared Schemas |
 | `shared/test-vectors/README.md` | Public | Draft | Test Vectors |
 | `shared/types/README.md` | Public | Draft | Shared Types |
-| `TASK_MASTER.md` | Internal | Draft / Official Execution Guide | Veiron Network Task Master |
-| `veiron-android/README.md` | Public | **Mainnet Candidate / Prototype / not public mainnet** | Veiron Mobile for Android |
-| `veiron-benchmarks/README.md` | Public | Draft | veiron-benchmarks |
-| `veiron-browser/README.md` | Public | Prototype / Mainnet Candidate / not store-ready | veiron-browser |
-| `veiron-community/README.md` | Public | Draft | veiron-community |
-| `veiron-contracts/README.md` | Public | Draft | veiron-contracts |
-| `veiron-core/README.md` | Public | Implemented / Mainnet Candidate / not public Mainnet | veiron-core |
-| `veiron-desktop-tauri/MIGRATION.md` | Component reference | Not stated | Desktop Control Center — Tauri (product path) |
-| `veiron-desktop-tauri/README.md` | Public | Not stated | Veiron Control Center |
-| `veiron-desktop-tauri/src-tauri/resources/README.md` | Component reference | Not stated | Packaged runtime resources |
-| `veiron-desktop/README.md` | Public | Draft / Mainnet Candidate / Prototype / Not Mainnet Live | Veiron Desktop |
-| `veiron-devnet/data/README.md` | Component reference | Draft / Private Devnet / Runtime-only | veiron-devnet/data |
-| `veiron-devnet/README.md` | Public | Draft / Private Devnet / Prototype | veiron-devnet |
-| `veiron-examples/README.md` | Public | Not stated | veiron-examples |
-| `veiron-explorer/README.md` | Public | Draft / Mainnet Candidate / Prototype / Not Live Mainnet | veiron-explorer |
-| `veiron-faucet/README.md` | Public | Draft | veiron-faucet |
-| `veiron-governance/README.md` | Public | Draft | veiron-governance |
-| `veiron-indexer/README.md` | Public | Draft / Mainnet Candidate / Prototype | veiron-indexer |
-| `veiron-infra/README.md` | Public | Draft | veiron-infra |
-| `veiron-marketplace/README.md` | Public | Draft | veiron-marketplace |
-| `veiron-miner/kernels/README.md` | Component reference | Not stated | CUDA FiroPoW kernel |
-| `veiron-miner/README.md` | Public | Not stated | Veiron CUDA Miner |
-| `veiron-mining-pool/README.md` | Public | Mainnet Candidate / Prototype. Not a live public mining pool.** | Veiron Mining Pool |
-| `veiron-monitoring/README.md` | Public | Draft | veiron-monitoring |
-| `veiron-node/README.md` | Public | Mainnet Candidate / Prototype / not public Mainnet | veiron-node |
-| `veiron-ops/README.md` | Public | Draft | veiron-ops |
-| `veiron-passport/README.md` | Public | Draft | veiron-passport |
-| `veiron-release/README.md` | Public | Mainnet Candidate. This folder does not declare a live public mainnet. | Veiron Release |
-| `veiron-release/vps-control-plane/README.md` | Component reference | Mainnet Candidate / Prototype. This is not a live-mainnet declaration.** | Veiron VPS Control Plane |
-| `veiron-research/README.md` | Public | Draft | veiron-research |
-| `veiron-rpc-gateway/README.md` | Public | Mainnet Candidate / public prototype / not public Mainnet | veiron-rpc-gateway |
-| `veiron-sdk-rust/docs/API.md` | Public | Not stated | veiron-sdk-rust — API map (v0.1) |
-| `veiron-sdk-rust/docs/JS_PARITY.md` | Public | Not stated | TypeScript `@veiron/sdk` ↔ Rust `veiron-sdk-rust` |
-| `veiron-sdk-rust/README.md` | Public | Prototype / Mainnet Candidate / not public Mainnet | veiron-sdk-rust |
-| `veiron-sdk/README.md` | Public | Not stated | @veiron/sdk |
-| `veiron-security/README.md` | Public | Draft | veiron-security |
-| `veiron-tests/README.md` | Public | Draft | veiron-tests |
-| `veiron-wallet/README.md` | Public | Draft / Mainnet Candidate / Prototype | veiron-wallet |
-| `veiron-website/DEPLOYMENT.md` | Component reference | Not stated | Veiron Network Deployment |
-| `veiron-website/README.md` | Public | Not stated | Veiron Network Website |
-| `veiron-website/server/README.md` | Component reference | Not stated | Veiron Network Server |
+| `TASK_MASTER.md` | Internal | Draft / Official Execution Guide | Vireon Network Task Master |
+| `vireon-android/README.md` | Public | **Mainnet Candidate / Prototype / not public mainnet** | Vireon Mobile for Android |
+| `vireon-benchmarks/README.md` | Public | Draft | vireon-benchmarks |
+| `vireon-browser/README.md` | Public | Prototype / Mainnet Candidate / not store-ready | vireon-browser |
+| `vireon-community/Discord Bot/CHANGELOG.md` | Component reference | Not stated | Changelog |
+| `vireon-community/Discord Bot/DEPLOYMENT.md` | Component reference | Not stated | VBOS Deployment |
+| `vireon-community/Discord Bot/README.md` | Component reference | Not stated | VBOS |
+| `vireon-community/Discord Bot/ROADMAP.md` | Component reference | Not stated | VBOS Roadmap |
+| `vireon-community/Discord Bot/VERSIONING.md` | Component reference | Not stated | VBOS Versioning |
+| `vireon-community/README.md` | Public | Draft | vireon-community |
+| `vireon-contracts/README.md` | Public | Draft | vireon-contracts |
+| `vireon-core/README.md` | Public | Implemented / Mainnet Candidate / not public Mainnet | vireon-core |
+| `vireon-desktop-tauri/MIGRATION.md` | Component reference | Not stated | Desktop Control Center — Tauri (product path) |
+| `vireon-desktop-tauri/README.md` | Public | Not stated | Vireon Control Center |
+| `vireon-desktop-tauri/src-tauri/resources/README.md` | Component reference | Not stated | Packaged runtime resources |
+| `vireon-desktop/README.md` | Public | Draft / Mainnet Candidate / Prototype / Not Mainnet Live | Vireon Desktop |
+| `vireon-devnet/data/README.md` | Component reference | Draft / Private Devnet / Runtime-only | vireon-devnet/data |
+| `vireon-devnet/README.md` | Public | Draft / Private Devnet / Prototype | vireon-devnet |
+| `vireon-examples/README.md` | Public | Not stated | vireon-examples |
+| `vireon-explorer/README.md` | Public | Draft / Mainnet Candidate / Prototype / Not Live Mainnet | vireon-explorer |
+| `vireon-faucet/README.md` | Public | Draft | vireon-faucet |
+| `vireon-governance/README.md` | Public | Draft | vireon-governance |
+| `vireon-indexer/README.md` | Public | Draft / Mainnet Candidate / Prototype | vireon-indexer |
+| `vireon-infra/README.md` | Public | Draft | vireon-infra |
+| `vireon-marketplace/README.md` | Public | Draft | vireon-marketplace |
+| `vireon-miner/kernels/README.md` | Component reference | Not stated | CUDA FiroPoW kernel |
+| `vireon-miner/README.md` | Public | Not stated | Vireon CUDA Miner |
+| `vireon-mining-pool/README.md` | Public | Mainnet Candidate / Prototype. Not a live public mining pool.** | Vireon Mining Pool |
+| `vireon-monitoring/README.md` | Public | Draft | vireon-monitoring |
+| `vireon-node/README.md` | Public | Mainnet Candidate / Prototype / not public Mainnet | vireon-node |
+| `vireon-ops/README.md` | Public | Draft | vireon-ops |
+| `vireon-passport/README.md` | Public | Draft | vireon-passport |
+| `vireon-release/README.md` | Public | Mainnet Candidate. This folder does not declare a live public mainnet. | Vireon Release |
+| `vireon-release/vps-control-plane/DOCKER_DEPLOYMENT.md` | Component reference | Not stated | Vireon Docker Control Plane 2.1.0-no-autoupdate |
+| `vireon-release/vps-control-plane/DOCKER_IMPLEMENTATION_STATUS.md` | Component reference | Not stated | Implementation status — 2.1.0-no-autoupdate |
+| `vireon-release/vps-control-plane/INSTALL_AND_UNINSTALL.md` | Component reference | Mainnet Candidate / Prototype | Docker Installation and Retention |
+| `vireon-release/vps-control-plane/MANUAL_UPGRADE.md` | Component reference | Not stated | Manual upgrades only |
+| `vireon-release/vps-control-plane/MIGRATION_FROM_V1.md` | Component reference | Not stated | Migration from the previous Docker stack |
+| `vireon-release/vps-control-plane/README.md` | Component reference | Mainnet Candidate / Prototype. This is not a Mainnet Live declaration. | Vireon Docker VPS Control Plane |
+| `vireon-research/README.md` | Public | Draft | vireon-research |
+| `vireon-rpc-gateway/README.md` | Public | Mainnet Candidate / public prototype / not public Mainnet | vireon-rpc-gateway |
+| `vireon-sdk-rust/docs/API.md` | Public | Not stated | vireon-sdk-rust — API map (v0.1) |
+| `vireon-sdk-rust/docs/JS_PARITY.md` | Public | Not stated | TypeScript `@vireon/sdk` ↔ Rust `vireon-sdk-rust` |
+| `vireon-sdk-rust/README.md` | Public | Prototype / Mainnet Candidate / not public Mainnet | vireon-sdk-rust |
+| `vireon-sdk/README.md` | Public | Not stated | @vireon/sdk |
+| `vireon-security/README.md` | Public | Draft | vireon-security |
+| `vireon-tests/README.md` | Public | Draft | vireon-tests |
+| `vireon-wallet/README.md` | Public | Draft / Mainnet Candidate / Prototype | vireon-wallet |
+| `vireon-website/DEPLOYMENT.md` | Component reference | Not stated | Vireon Network Deployment |
+| `vireon-website/README.md` | Public | Not stated | Vireon Network Website |
+| `vireon-website/server/README.md` | Component reference | Not stated | Vireon Network Server |

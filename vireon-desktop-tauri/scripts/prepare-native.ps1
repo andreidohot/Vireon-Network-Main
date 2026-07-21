@@ -20,25 +20,25 @@ New-Item -ItemType Directory -Force -Path $BinDir | Out-Null
 New-Item -ItemType Directory -Force -Path $ResDir | Out-Null
 New-Item -ItemType Directory -Force -Path $ResBin | Out-Null
 
-Write-Host "==> Building veiron-keystore-helper (release)"
+Write-Host "==> Building vireon-keystore-helper (release)"
 cargo build --release --locked --manifest-path $HelperManifest
 if ($LASTEXITCODE -ne 0) { throw "keystore helper build failed" }
 
-$HelperSrc = Join-Path $Root "native\keystore-helper\target\release\veiron-keystore-helper.exe"
+$HelperSrc = Join-Path $Root "native\keystore-helper\target\release\vireon-keystore-helper.exe"
 if (-not (Test-Path $HelperSrc)) {
   throw "Missing built helper: $HelperSrc"
 }
 
-$HelperDst = Join-Path $BinDir "veiron-keystore-helper-$TargetTriple.exe"
+$HelperDst = Join-Path $BinDir "vireon-keystore-helper-$TargetTriple.exe"
 Copy-Item $HelperSrc $HelperDst -Force
-Copy-Item $HelperSrc (Join-Path $BinDir "veiron-keystore-helper.exe") -Force
-Copy-Item $HelperSrc (Join-Path $ResBin "veiron-keystore-helper.exe") -Force
+Copy-Item $HelperSrc (Join-Path $BinDir "vireon-keystore-helper.exe") -Force
+Copy-Item $HelperSrc (Join-Path $ResBin "vireon-keystore-helper.exe") -Force
 Write-Host "Staged keystore helper -> $HelperDst"
 
-$repoOperator = Join-Path $Repo "veiron.ps1"
+$repoOperator = Join-Path $Repo "vireon.ps1"
 if (Test-Path $repoOperator) {
-  Copy-Item $repoOperator (Join-Path $ResDir "veiron.ps1") -Force
-  Write-Host "  + veiron.ps1"
+  Copy-Item $repoOperator (Join-Path $ResDir "vireon.ps1") -Force
+  Write-Host "  + vireon.ps1"
 }
 
 $logoCandidates = @(
@@ -58,16 +58,16 @@ if ($WithSidecars) {
   Push-Location $Repo
   try {
     # Release sidecars must contain real CUDA kernels; no stub/fallback is shippable.
-    $env:VEIRON_REQUIRE_CUDA = "1"
-    cargo build --release --locked -p veiron-miner
-    if ($LASTEXITCODE -ne 0) { throw "CUDA-enabled veiron-miner build failed" }
-    cargo build --release --locked -p veiron-node -p veiron-rpc-gateway -p veiron-indexer
-    if ($LASTEXITCODE -ne 0) { throw "Veiron sidecar build failed" }
+    $env:VIREON_REQUIRE_CUDA = "1"
+    cargo build --release --locked -p vireon-miner
+    if ($LASTEXITCODE -ne 0) { throw "CUDA-enabled vireon-miner build failed" }
+    cargo build --release --locked -p vireon-node -p vireon-rpc-gateway -p vireon-indexer
+    if ($LASTEXITCODE -ne 0) { throw "Vireon sidecar build failed" }
   } finally {
     Pop-Location
   }
 
-  $bins = @("veiron-miner", "veiron-node", "veiron-rpc-gateway", "veiron-indexer")
+  $bins = @("vireon-miner", "vireon-node", "vireon-rpc-gateway", "vireon-indexer")
   foreach ($name in $bins) {
     $src = Join-Path $Repo "target\release\$name.exe"
     if (Test-Path $src) {
@@ -78,7 +78,7 @@ if ($WithSidecars) {
     }
   }
 
-  $Stage = Join-Path $Repo "veiron-desktop\installer\stage"
+  $Stage = Join-Path $Repo "vireon-desktop\installer\stage"
   if (Test-Path $Stage) {
     Write-Host "==> Syncing optional installer stage extras"
     foreach ($item in @("scripts", "configs", "docs", "explorer")) {
@@ -95,14 +95,14 @@ if ($WithSidecars) {
   $manifest = @{
     prepared_at_utc = (Get-Date).ToUniversalTime().ToString("o")
     platform = "windows"
-    keystore_helper = "bin/veiron-keystore-helper.exe"
+    keystore_helper = "bin/vireon-keystore-helper.exe"
     binaries = @(
-      "bin/veiron-miner.exe",
-      "bin/veiron-node.exe",
-      "bin/veiron-rpc-gateway.exe",
-      "bin/veiron-indexer.exe"
+      "bin/vireon-miner.exe",
+      "bin/vireon-node.exe",
+      "bin/vireon-rpc-gateway.exe",
+      "bin/vireon-indexer.exe"
     )
-    operator = "veiron.ps1"
+    operator = "vireon.ps1"
     mining_backend = "cuda"
     cpu_mining = $false
     opencl_mining = $false

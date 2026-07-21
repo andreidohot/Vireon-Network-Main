@@ -44,7 +44,7 @@ enum Event {
     Logs(Result<String, DesktopError>),
 }
 
-pub struct VeironApp {
+pub struct VireonApp {
     page: Page,
     wallet: Option<WalletMetadata>,
     network: NetworkSnapshot,
@@ -70,7 +70,7 @@ pub struct VeironApp {
     last_refresh: Instant,
 }
 
-impl VeironApp {
+impl VireonApp {
     pub fn new(context: &eframe::CreationContext<'_>) -> Self {
         configure_style(&context.egui_ctx);
         let (tx, rx) = mpsc::channel();
@@ -203,7 +203,7 @@ impl VeironApp {
                 let drag = ui
                     .horizontal(|ui| {
                         ui.label(RichText::new("V").size(16.0).strong().color(TEAL));
-                        ui.label(RichText::new("Veiron.exe").size(12.0).strong().color(INK));
+                        ui.label(RichText::new("Vireon.exe").size(12.0).strong().color(INK));
                         ui.label(
                             RichText::new("MAINNET CANDIDATE / PROTOTYPE")
                                 .size(9.0)
@@ -253,7 +253,7 @@ impl VeironApp {
                         egui::FontId::proportional(62.0),
                         GOLD,
                     );
-                    ui.label(RichText::new("VEIRON").size(22.0).strong().color(TEAL));
+                    ui.label(RichText::new("VIREON").size(22.0).strong().color(TEAL));
                     ui.label(
                         RichText::new("CONTROL CENTER")
                             .size(9.0)
@@ -275,7 +275,7 @@ impl VeironApp {
                 nav_button(ui, &mut self.page, Page::Settings, "11", "SETTINGS");
                 ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
                     panel(ui, |ui| {
-                        status_line(ui, "VEIRON CORE", self.network.node_running);
+                        status_line(ui, "VIREON CORE", self.network.node_running);
                         ui.label(RichText::new("Mainnet Candidate").size(10.0).color(GOLD));
                         ui.label(RichText::new("NOT PUBLIC MAINNET").size(9.0).color(MUTED));
                     });
@@ -328,7 +328,7 @@ impl VeironApp {
     }
 
     fn overview(&mut self, ui: &mut egui::Ui, context: &egui::Context) {
-        self.header(ui, context, "Overview", "Veiron Windows control panel");
+        self.header(ui, context, "Overview", "Vireon Windows control panel");
 
         ui.columns(4, |columns| {
             dashboard_metric(
@@ -607,7 +607,7 @@ impl VeironApp {
             ui.horizontal(|ui| {
                 draw_qr(ui, &wallet.address, 118.0);
                 ui.vertical(|ui| {
-                    row(ui, "Network", "Veiron Mainnet Candidate");
+                    row(ui, "Network", "Vireon Mainnet Candidate");
                     ui.label(RichText::new(&wallet.address).size(10.0).color(INK));
                     if ui.button("COPY RECEIVE ADDRESS").clicked() {
                         ui.ctx().copy_text(wallet.address.clone());
@@ -796,7 +796,7 @@ impl VeironApp {
                 &mut self.operator_mode,
                 "Enable operator controls for this session",
             );
-            ui.label(RichText::new("Veiron uses PoW: every full node has equal validation authority. No stake, license, account flag or central permission is required. Mining proposes blocks; full validators independently accept or reject them by consensus rules.").color(MUTED));
+            ui.label(RichText::new("Vireon uses PoW: every full node has equal validation authority. No stake, license, account flag or central permission is required. Mining proposes blocks; full validators independently accept or reject them by consensus rules.").color(MUTED));
             ui.separator();
             compact_row(
                 ui,
@@ -1343,7 +1343,7 @@ impl VeironApp {
         ui.columns(3, |columns| {
             planned_card(
                 &mut columns[0],
-                "VEIRON PASSPORT",
+                "VIREON PASSPORT",
                 "Selective identity proofs",
                 "Planned",
             );
@@ -1373,7 +1373,7 @@ impl VeironApp {
             planned_card(
                 &mut columns[0],
                 "ACTIVE NETWORK",
-                "Veiron Mainnet Candidate",
+                "Vireon Mainnet Candidate",
                 "Locked",
             );
             planned_card(
@@ -1476,13 +1476,13 @@ impl VeironApp {
                     .color(CORAL),
             );
             ui.label("Private key: Windows Credential Manager for the current Windows user.");
-            ui.label("Public metadata: %LOCALAPPDATA%\\Veiron\\Desktop\\wallet.json.");
+            ui.label("Public metadata: %LOCALAPPDATA%\\Vireon\\Desktop\\wallet.json.");
             ui.label("Signing: local process only; direct submission to 127.0.0.1; no signed file created.");
         });
     }
 }
 
-impl eframe::App for VeironApp {
+impl eframe::App for VireonApp {
     fn update(&mut self, context: &egui::Context, _frame: &mut eframe::Frame) {
         self.events();
         if !self.busy && self.last_refresh.elapsed() > Duration::from_secs(15) {
@@ -1580,7 +1580,7 @@ impl eframe::App for VeironApp {
     }
 }
 
-impl Drop for VeironApp {
+impl Drop for VireonApp {
     fn drop(&mut self) {
         self.import_phrase.zeroize();
         if let Some(value) = &mut self.recovery_phrase {

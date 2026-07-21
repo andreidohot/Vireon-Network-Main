@@ -2,15 +2,15 @@
 
 Status: Draft / Mainnet Candidate / Prototype
 
-## `veiron-node` rejects `.veiron-local` paths
+## `vireon-node` rejects `.vireon-local` paths
 
 Expected fix in this workspace:
-- local operator scripts pass `.veiron-local/...` explicitly
-- node path validation now allows `.veiron-local` as a safe local operator root
+- local operator scripts pass `.vireon-local/...` explicitly
+- node path validation now allows `.vireon-local` as a safe local operator root
 
 If commands still fail:
 - run them from the repository root
-- verify the command includes `--data-dir .veiron-local/chain --mempool-dir .veiron-local/mempool`
+- verify the command includes `--data-dir .vireon-local/chain --mempool-dir .vireon-local/mempool`
 
 ## RPC starts but reads the wrong chain path
 
@@ -19,18 +19,18 @@ Symptoms:
 
 Checks:
 - use `configs/rpc.local.toml`
-- run from the repository root so relative `.veiron-local/...` paths resolve correctly
-- verify `.veiron-local/chain/chain.jsonl` exists
+- run from the repository root so relative `.vireon-local/...` paths resolve correctly
+- verify `.vireon-local/chain/chain.jsonl` exists
 
 ## Explorer cannot build because `tsc` is missing
 
 Cause:
-- `veiron-explorer/node_modules` does not exist yet
+- `vireon-explorer/node_modules` does not exist yet
 
 Fix:
 
 ```powershell
-cd veiron-explorer
+cd vireon-explorer
 npm install
 npm run build
 ```
@@ -38,11 +38,11 @@ npm run build
 ## Release gate fails after local explorer work
 
 Cause:
-- local operator use may install `veiron-explorer/node_modules`
+- local operator use may install `vireon-explorer/node_modules`
 
 Fix:
 - run the release gate before local smoke work when possible
-- if needed, remove `veiron-explorer/node_modules` and rerun the gate
+- if needed, remove `vireon-explorer/node_modules` and rerun the gate
 
 ## `cargo` uses the wrong Windows toolchain
 
@@ -95,7 +95,7 @@ The current indexer is a one-shot snapshot, not a daemon.
 Refresh it manually:
 
 ```powershell
-cargo run -p veiron-indexer -- --network mainnet-candidate --chain-data-dir .veiron-local/chain --index-dir .veiron-local/indexer index-chain
+cargo run -p vireon-indexer -- --network mainnet-candidate --chain-data-dir .vireon-local/chain --index-dir .vireon-local/indexer index-chain
 ```
 
 Or use:

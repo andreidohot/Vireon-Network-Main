@@ -5,7 +5,7 @@ Protocol specifications, transaction rules, state model notes and consensus desi
 Status: Current reference / Mainnet Candidate
 
 Current note:
-- `veiron-core` implements the candidate account, signature, address, FiroPoW,
+- `vireon-core` implements the candidate account, signature, address, FiroPoW,
   DAA, fee, emission, checkpoint, and upgrade rules.
 - Stable serialization, production storage/network soak, contracts, and G4
   approval remain incomplete.

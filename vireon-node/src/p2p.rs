@@ -21,7 +21,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use veiron_core::{cumulative_work, hash_to_hex, Block, Chain, Transaction};
+use vireon_core::{cumulative_work, hash_to_hex, Block, Chain, Transaction};
 
 /// Protocol v3: peer scoring/bans + header-first branch verification (A-H05).
 pub const P2P_PROTOCOL_VERSION: u32 = 3;
@@ -191,7 +191,7 @@ enum SyncResponse {
 
 #[derive(NetworkBehaviour)]
 #[behaviour(prelude = "libp2p::swarm::derive_prelude")]
-struct VeironBehaviour {
+struct VireonBehaviour {
     sync: request_response::json::Behaviour<SyncRequest, SyncResponse>,
     gossipsub: gossipsub::Behaviour,
     identify: identify::Behaviour,
@@ -314,16 +314,16 @@ async fn run_p2p_service_async(
     let identity = load_or_create_identity(&runtime_dir)?;
     let local_peer_id = identity.public().to_peer_id();
     let sync_protocol = StreamProtocol::try_from_owned(format!(
-        "/veiron/{}/sync/{}",
+        "/vireon/{}/sync/{}",
         config.network_id, P2P_PROTOCOL_VERSION
     ))
     .map_err(|error| NodeError::P2p(error.to_string()))?;
     let transaction_topic = gossipsub::IdentTopic::new(format!(
-        "veiron/{}/transactions/{}",
+        "vireon/{}/transactions/{}",
         config.network_id, P2P_PROTOCOL_VERSION
     ));
     let mining_topic = gossipsub::IdentTopic::new(format!(
-        "veiron/{}/mining-presence/{}",
+        "vireon/{}/mining-presence/{}",
         config.network_id, P2P_PROTOCOL_VERSION
     ));
     let gossipsub_config = gossipsub::ConfigBuilder::default()
@@ -358,7 +358,7 @@ async fn run_p2p_service_async(
                 request_response::json::codec::Codec::<SyncRequest, SyncResponse>::default()
                     .set_request_size_maximum(256 * 1024)
                     .set_response_size_maximum(16 * 1024 * 1024);
-            VeironBehaviour {
+            VireonBehaviour {
                 sync: request_response::Behaviour::with_codec(
                     codec,
                     [(sync_protocol, ProtocolSupport::Full)],
@@ -367,7 +367,7 @@ async fn run_p2p_service_async(
                 ),
                 gossipsub,
                 identify: identify::Behaviour::new(identify::Config::new(
-                    format!("veiron/{P2P_PROTOCOL_VERSION}"),
+                    format!("vireon/{P2P_PROTOCOL_VERSION}"),
                     key.public(),
                 )),
                 ping: ping::Behaviour::new(ping::Config::new()),
@@ -504,7 +504,7 @@ async fn run_p2p_service_async(
                     }
                 }
                 // Redial seeds when we have zero validated peers. A single
-                // non-Veiron connection must not block bootstrap forever.
+                // non-Vireon connection must not block bootstrap forever.
                 // Empty seed list is a valid solo-bootstrap configuration — do not surface noise.
                 let has_validated_peer = peers.values().any(|peer| peer.handshake_validated);
                 if tick_count.is_multiple_of(15)
@@ -543,7 +543,7 @@ async fn run_p2p_service_async(
                         );
                     }
                 }
-                // Drop peers that never complete Veiron handshake (wrong protocol / stale).
+                // Drop peers that never complete Vireon handshake (wrong protocol / stale).
                 if tick_count.is_multiple_of(10) {
                     let now = unix_seconds();
                     let stale: Vec<_> = peers
@@ -657,8 +657,8 @@ async fn run_p2p_service_async(
 // Swarm handler needs the full runtime graph; a Context struct is backlog (see WORKSPACE_AND_LINTS.md).
 #[allow(clippy::too_many_arguments)]
 fn handle_swarm_event(
-    event: SwarmEvent<VeironBehaviourEvent>,
-    swarm: &mut Swarm<VeironBehaviour>,
+    event: SwarmEvent<VireonBehaviourEvent>,
+    swarm: &mut Swarm<VireonBehaviour>,
     config_path: &Path,
     config: &NetworkConfig,
     data_dir: &Path,
@@ -738,7 +738,7 @@ fn handle_swarm_event(
             peers.remove(&peer_id);
             pending_branches.remove(&peer_id);
         }
-        SwarmEvent::Behaviour(VeironBehaviourEvent::Sync(event)) => match event {
+        SwarmEvent::Behaviour(VireonBehaviourEvent::Sync(event)) => match event {
             request_response::Event::Message { peer, message, .. } => match message {
                 request_response::Message::Request {
                     request, channel, ..
@@ -794,13 +794,13 @@ fn handle_swarm_event(
                     remote.last_error = Some(message.clone());
                 }
                 status.last_error = Some(message.clone());
-                // Foreign libp2p nodes without /veiron/.../sync never validate.
+                // Foreign libp2p nodes without /vireon/.../sync never validate.
                 // Drop them so seeds can redial and real miners can connect.
                 if message.contains("supports none of the requested protocols")
                     || message.contains("UnsupportedProtocols")
                     || message.contains("Unsupported protocol")
                 {
-                    // Repeated non-Veiron dialers get soft penalties; after threshold they are banned.
+                    // Repeated non-Vireon dialers get soft penalties; after threshold they are banned.
                     reputation.penalize(
                         &peer.to_string(),
                         15,
@@ -821,7 +821,7 @@ fn handle_swarm_event(
             }
             request_response::Event::ResponseSent { .. } => {}
         },
-        SwarmEvent::Behaviour(VeironBehaviourEvent::Gossipsub(gossipsub::Event::Message {
+        SwarmEvent::Behaviour(VireonBehaviourEvent::Gossipsub(gossipsub::Event::Message {
             propagation_source,
             message,
             ..
@@ -996,7 +996,7 @@ fn handle_sync_response(
     mempool_dir: &Path,
     peer_id: &PeerId,
     response: SyncResponse,
-    swarm: &mut Swarm<VeironBehaviour>,
+    swarm: &mut Swarm<VireonBehaviour>,
     peers: &mut BTreeMap<PeerId, ConnectedPeer>,
     pending_branches: &mut BTreeMap<PeerId, PendingBranch>,
     status: &mut P2pStatus,
@@ -1291,7 +1291,7 @@ fn request_branch_headers(
     config: &NetworkConfig,
     data_dir: &Path,
     peer_id: &PeerId,
-    swarm: &mut Swarm<VeironBehaviour>,
+    swarm: &mut Swarm<VireonBehaviour>,
     pending_branches: &BTreeMap<PeerId, PendingBranch>,
 ) -> NodeResult<()> {
     let branch = pending_branches
@@ -1312,7 +1312,7 @@ fn request_branch_chunk(
     config: &NetworkConfig,
     data_dir: &Path,
     peer_id: &PeerId,
-    swarm: &mut Swarm<VeironBehaviour>,
+    swarm: &mut Swarm<VireonBehaviour>,
     pending_branches: &BTreeMap<PeerId, PendingBranch>,
 ) -> NodeResult<()> {
     let branch = pending_branches
@@ -1699,7 +1699,7 @@ mod tests {
     use std::thread;
     use std::time::Instant;
     use tempfile::tempdir;
-    use veiron_core::{Address, Amount, Network, PrivateKey, INITIAL_BASE_FEE_ATOMIC};
+    use vireon_core::{Address, Amount, Network, PrivateKey, INITIAL_BASE_FEE_ATOMIC};
 
     fn p2p_network_test_guard() -> MutexGuard<'static, ()> {
         static LOCK: Mutex<()> = Mutex::new(());
@@ -1723,7 +1723,7 @@ mod tests {
         let content = format!(
             r#"network = "devnet"
 network_id = "veiron-devnet"
-human_name = "Veiron Devnet"
+human_name = "Vireon Devnet"
 status_label = "Draft / Private Devnet"
 block_time_seconds = 60
 difficulty_leading_zero_bits = 4
@@ -1739,7 +1739,7 @@ p2p_listen_port = {port}
 max_peers = 8
 seed_nodes = {seeds}
 max_mempool_transactions = 32
-genesis_config_path = "veiron-devnet/config/genesis-devnet.json"
+genesis_config_path = "vireon-devnet/config/genesis-devnet.json"
 chain_magic_hex = "56444556"
 allow_mainnet_candidate = false
 "#
@@ -1801,10 +1801,10 @@ allow_mainnet_candidate = false
             "/ip6/::1/tcp/20787"
         );
         assert_eq!(
-            seed_multiaddr("seed.veiron.example:20787")
+            seed_multiaddr("seed.vireon.example:20787")
                 .expect("DNS seed")
                 .to_string(),
-            "/dns4/seed.veiron.example/tcp/20787"
+            "/dns4/seed.vireon.example/tcp/20787"
         );
     }
 
@@ -1878,12 +1878,12 @@ allow_mainnet_candidate = false
             second_port,
             &[format!("/ip4/127.0.0.1/tcp/{first_port}")],
         );
-        let first_data = temp.path().join(".veiron-dev/first/chain");
-        let first_mempool = temp.path().join(".veiron-dev/first/mempool");
-        let first_runtime = temp.path().join(".veiron-dev/first/node");
-        let second_data = temp.path().join(".veiron-dev/second/chain");
-        let second_mempool = temp.path().join(".veiron-dev/second/mempool");
-        let second_runtime = temp.path().join(".veiron-dev/second/node");
+        let first_data = temp.path().join(".vireon-dev/first/chain");
+        let first_mempool = temp.path().join(".vireon-dev/first/mempool");
+        let first_runtime = temp.path().join(".vireon-dev/first/node");
+        let second_data = temp.path().join(".vireon-dev/second/chain");
+        let second_mempool = temp.path().join(".vireon-dev/second/mempool");
+        let second_runtime = temp.path().join(".vireon-dev/second/node");
         let miner_key = PrivateKey::generate();
         let miner = Address::from_public_key_for_network(&miner_key.public_key(), Network::Devnet)
             .to_string();
@@ -1996,12 +1996,12 @@ allow_mainnet_candidate = false
             second_port,
             &[format!("/ip4/127.0.0.1/tcp/{first_port}")],
         );
-        let first_data = temp.path().join(".veiron-dev/first/chain");
-        let first_mempool = temp.path().join(".veiron-dev/first/mempool");
-        let first_runtime = temp.path().join(".veiron-dev/first/node");
-        let second_data = temp.path().join(".veiron-dev/second/chain");
-        let second_mempool = temp.path().join(".veiron-dev/second/mempool");
-        let second_runtime = temp.path().join(".veiron-dev/second/node");
+        let first_data = temp.path().join(".vireon-dev/first/chain");
+        let first_mempool = temp.path().join(".vireon-dev/first/mempool");
+        let first_runtime = temp.path().join(".vireon-dev/first/node");
+        let second_data = temp.path().join(".vireon-dev/second/chain");
+        let second_mempool = temp.path().join(".vireon-dev/second/mempool");
+        let second_runtime = temp.path().join(".vireon-dev/second/node");
         let genesis_miner = Address::from_public_key_for_network(
             &PrivateKey::generate().public_key(),
             Network::Devnet,

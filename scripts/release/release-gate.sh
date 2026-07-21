@@ -10,11 +10,11 @@ fi
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$repo_root"
-temp_cargo_target_dir="$(mktemp -d "${TMPDIR:-/tmp}/veiron-release-gate-target.XXXXXX")"
+temp_cargo_target_dir="$(mktemp -d "${TMPDIR:-/tmp}/vireon-release-gate-target.XXXXXX")"
 
 cleanup() {
   rm -rf "$temp_cargo_target_dir"
-  rm -rf "$repo_root/veiron-explorer/node_modules" "$repo_root/veiron-website/node_modules" "$repo_root/veiron-website/server/node_modules"
+  rm -rf "$repo_root/vireon-explorer/node_modules" "$repo_root/vireon-website/node_modules" "$repo_root/vireon-website/server/node_modules"
 }
 
 trap cleanup EXIT
@@ -28,14 +28,15 @@ assert_path_exists() {
   fi
 }
 
-echo "Running Veiron G1 security and release gate (Mainnet Candidate rehearsal only)..."
+echo "Running Vireon G1 security and release gate (Mainnet Candidate rehearsal only)..."
 echo "This is NOT a public Mainnet launch approval. See docs/release/NETWORK_MATURITY.md"
 
-rm -rf "$repo_root/target" "$repo_root/target-msvc" "$repo_root/veiron-explorer/node_modules" "$repo_root/veiron-website/node_modules" "$repo_root/veiron-website/server/node_modules"
+rm -rf "$repo_root/target" "$repo_root/target-msvc" "$repo_root/vireon-explorer/node_modules" "$repo_root/vireon-website/node_modules" "$repo_root/vireon-website/server/node_modules"
 
 bash scripts/security/check-secrets.sh
 bash scripts/security/check-repo-hygiene.sh
 bash scripts/security/check-config-safety.sh
+bash scripts/security/check-workflow-pinning.sh
 
 assert_path_exists "configs/mainnet-candidate.toml" "Mainnet-candidate config"
 assert_path_exists "docs/release/MAINNET_CANDIDATE_CHECKLIST.md" "Mainnet-candidate checklist"
@@ -50,8 +51,8 @@ CARGO_TARGET_DIR="$temp_cargo_target_dir" cargo test --workspace
 CARGO_TARGET_DIR="$temp_cargo_target_dir" cargo clippy --workspace --all-targets -- -D warnings
 CARGO_TARGET_DIR="$temp_cargo_target_dir" cargo build --workspace --release
 
-if [[ -f veiron-explorer/package.json ]]; then
-  pushd veiron-explorer >/dev/null
+if [[ -f vireon-explorer/package.json ]]; then
+  pushd vireon-explorer >/dev/null
   npm install
   npm run build
   popd >/dev/null

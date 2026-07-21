@@ -18,40 +18,40 @@ $ErrorActionPreference = "Stop"
 
 # Resolve install / monorepo root robustly for packaged Tauri layouts.
 # $MyInvocation.MyCommand.Path can be empty when PowerShell is invoked in some hosts.
-function Resolve-VeironWorkspace {
+function Resolve-VireonWorkspace {
     $candidates = @()
     if ($PSScriptRoot) { $candidates += $PSScriptRoot }
     if ($MyInvocation.MyCommand.Path) {
         $parent = Split-Path -Parent $MyInvocation.MyCommand.Path -ErrorAction SilentlyContinue
         if ($parent) { $candidates += $parent }
     }
-    if ($env:VEIRON_WORKSPACE_ROOT) { $candidates += $env:VEIRON_WORKSPACE_ROOT }
+    if ($env:VIREON_WORKSPACE_ROOT) { $candidates += $env:VIREON_WORKSPACE_ROOT }
     try {
         $candidates += (Get-Location).Path
     } catch {}
 
     foreach ($candidate in $candidates) {
         if (-not $candidate) { continue }
-        if (Test-Path -LiteralPath (Join-Path $candidate "bin\veiron-miner.exe")) { return (Resolve-Path $candidate).Path }
-        if (Test-Path -LiteralPath (Join-Path $candidate "bin\veiron-node.exe")) { return (Resolve-Path $candidate).Path }
-        if (Test-Path -LiteralPath (Join-Path $candidate "scripts\local\veiron-local.ps1")) { return (Resolve-Path $candidate).Path }
-        if (Test-Path -LiteralPath (Join-Path $candidate "veiron-core\Cargo.toml")) { return (Resolve-Path $candidate).Path }
+        if (Test-Path -LiteralPath (Join-Path $candidate "bin\vireon-miner.exe")) { return (Resolve-Path $candidate).Path }
+        if (Test-Path -LiteralPath (Join-Path $candidate "bin\vireon-node.exe")) { return (Resolve-Path $candidate).Path }
+        if (Test-Path -LiteralPath (Join-Path $candidate "scripts\local\vireon-local.ps1")) { return (Resolve-Path $candidate).Path }
+        if (Test-Path -LiteralPath (Join-Path $candidate "vireon-core\Cargo.toml")) { return (Resolve-Path $candidate).Path }
     }
-    throw "Cannot resolve Veiron workspace. Set VEIRON_WORKSPACE_ROOT to the install resources folder."
+    throw "Cannot resolve Vireon workspace. Set VIREON_WORKSPACE_ROOT to the install resources folder."
 }
 
-$workspace = Resolve-VeironWorkspace
-$operator = Join-Path $workspace "scripts\local\veiron-local.ps1"
-$rpcUrl = if ($env:VEIRON_RPC_URL -and $env:VEIRON_RPC_URL.Trim()) {
-    $env:VEIRON_RPC_URL.Trim().TrimEnd('/')
+$workspace = Resolve-VireonWorkspace
+$operator = Join-Path $workspace "scripts\local\vireon-local.ps1"
+$rpcUrl = if ($env:VIREON_RPC_URL -and $env:VIREON_RPC_URL.Trim()) {
+    $env:VIREON_RPC_URL.Trim().TrimEnd('/')
 } else {
     "https://rpcnode.dohotstudio.com"
 }
 $explorerUrl = "http://127.0.0.1:4173"
 
 function Show-Usage {
-    Write-Host "Veiron Mainnet Candidate operator"
-    Write-Host "Usage: .\veiron.ps1 <command>"
+    Write-Host "Vireon Mainnet Candidate operator"
+    Write-Host "Usage: .\vireon.ps1 <command>"
     Write-Host ""
     Write-Host "  miner-start  Start GPU miner against VPS RPC/pool (requires -MinerAddress)"
     Write-Host "  miner-stop   Stop the GPU miner"
@@ -61,15 +61,15 @@ function Show-Usage {
 }
 
 function Get-LocalRoot {
-    if ($env:VEIRON_LOCAL_ROOT -and $env:VEIRON_LOCAL_ROOT.Trim()) {
-        return $env:VEIRON_LOCAL_ROOT.Trim()
+    if ($env:VIREON_LOCAL_ROOT -and $env:VIREON_LOCAL_ROOT.Trim()) {
+        return $env:VIREON_LOCAL_ROOT.Trim()
     }
-    if (Test-Path -LiteralPath (Join-Path $workspace "bin\veiron-miner.exe")) {
+    if (Test-Path -LiteralPath (Join-Path $workspace "bin\vireon-miner.exe")) {
         $localApp = $env:LOCALAPPDATA
         if (-not $localApp) { $localApp = Join-Path $env:USERPROFILE "AppData\Local" }
-        return (Join-Path $localApp "Veiron\ControlCenter\.veiron-local")
+        return (Join-Path $localApp "Vireon\ControlCenter\.vireon-local")
     }
-    return (Join-Path $workspace ".veiron-local")
+    return (Join-Path $workspace ".vireon-local")
 }
 
 function Start-PackagedMiner {
@@ -82,7 +82,7 @@ function Start-PackagedMiner {
     New-Item -ItemType Directory -Force -Path $minerDir, $logsDir | Out-Null
     $minerConfig = Join-Path $minerDir "config.toml"
     $metricsPath = (Join-Path $minerDir "metrics.json").Replace('\', '/')
-    # Product mining is GPU-only (CUDA → OpenCL). MinerThreads is ignored.
+    # Product mining is NVIDIA CUDA-only. MinerThreads is ignored.
     if ($MinerThreads -gt 0) {
         Write-Host "Note: -MinerThreads is deprecated (continuous CPU mining removed). Using GPU-only auto."
     }
@@ -119,9 +119,9 @@ metrics_path = "$metricsPath"
 $source
 "@ | Set-Content -LiteralPath $minerConfig -Encoding UTF8
 
-    $minerBinary = Join-Path $workspace "bin\veiron-miner.exe"
+    $minerBinary = Join-Path $workspace "bin\vireon-miner.exe"
     if (-not (Test-Path -LiteralPath $minerBinary)) {
-        throw "veiron-miner.exe missing at $minerBinary"
+        throw "vireon-miner.exe missing at $minerBinary"
     }
 
     # Health probe
@@ -141,9 +141,9 @@ $source
     $psi.CreateNoWindow = $true
     $psi.RedirectStandardOutput = $true
     $psi.RedirectStandardError = $true
-    $psi.Environment["VEIRON_LOCAL_ROOT"] = $localRoot
-    $psi.Environment["VEIRON_WORKSPACE_ROOT"] = $workspace
-    $psi.Environment["VEIRON_RPC_URL"] = $rpcUrl
+    $psi.Environment["VIREON_LOCAL_ROOT"] = $localRoot
+    $psi.Environment["VIREON_WORKSPACE_ROOT"] = $workspace
+    $psi.Environment["VIREON_RPC_URL"] = $rpcUrl
     $proc = New-Object System.Diagnostics.Process
     $proc.StartInfo = $psi
     [void]$proc.Start()
@@ -167,7 +167,7 @@ function Stop-PackagedMiner {
             & taskkill.exe /PID $pid /T /F 2>$null | Out-Null
         }
     }
-    & taskkill.exe /IM veiron-miner.exe /F 2>$null | Out-Null
+    & taskkill.exe /IM vireon-miner.exe /F 2>$null | Out-Null
     Write-Host "miner stop requested"
 }
 

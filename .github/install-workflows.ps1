@@ -34,11 +34,11 @@ Get-ChildItem -Path $source -Filter '*.yml' -File |
 
 $releaseToolsTarget = Join-Path $resolvedRepo 'scripts\release'
 New-Item -ItemType Directory -Force -Path $releaseToolsTarget | Out-Null
-Copy-Item (Join-Path $PSScriptRoot 'veiron-release.ps1') -Destination $releaseToolsTarget -Force
-Copy-Item (Join-Path $PSScriptRoot 'veiron-release.cmd') -Destination $releaseToolsTarget -Force
+Copy-Item (Join-Path $PSScriptRoot 'vireon-release.ps1') -Destination $releaseToolsTarget -Force
+Copy-Item (Join-Path $PSScriptRoot 'vireon-release.cmd') -Destination $releaseToolsTarget -Force
 
 Write-Host "Installed rebuilt workflows into: $target"
 Write-Host "Installed interactive release manager into: $releaseToolsTarget"
 Write-Host "Backup of previous workflows: $backup"
 Write-Host "Next: review 'git diff -- .github/workflows scripts/release' and commit the changes."
-Write-Host "After commit, run: .\scripts\release\veiron-release.cmd"
+Write-Host "After commit, run: .\scripts\release\vireon-release.cmd"

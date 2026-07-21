@@ -96,7 +96,7 @@ export const ecosystemProducts = [
   ['Indexer', 'Transform chain events into queryable data for explorer, apps, dashboards and marketplace UX.'],
   ['RPC Gateway', 'Public/private API layer for wallets, apps, explorer and admin tools.'],
   ['Passport', 'Human-friendly proof layer for licenses, access, reputation, achievements and authenticity.'],
-  ['SDK', 'TypeScript and Rust tooling for developers building apps, games and digital products on Veiron.'],
+  ['SDK', 'TypeScript and Rust tooling for developers building apps, games and digital products on Vireon.'],
 ]
 
 export const coreModules = [
@@ -185,7 +185,7 @@ export const passportUseCases = [
 ]
 
 export const whitepaperSections = [
-  ['Identity', 'Veiron Network / VIRE, Rust-based, mineable Layer 1 for ownership and low-fee applications.'],
+  ['Identity', 'Vireon Network / VIRE, Rust-based, mineable Layer 1 for ownership and low-fee applications.'],
   ['Economics', '60M max supply, 60 second blocks, halving around three years and defined initial reward.'],
   ['Architecture', 'Base, execution and product layers with large payloads off-chain and settlement/proofs on-chain.'],
   ['Standards', 'VRC-20, VRC-721, VRC-1155, VRC-LICENSE, VRC-PASS, VRC-GAME, VRC-COMM, VRC-FILE, VRC-MARKET.'],
@@ -203,10 +203,10 @@ export const tokenomicsRows = [
 ]
 
 export const faqItems = [
-  ['Is Veiron mainnet available?', 'No public production Mainnet is claimed. The current chain and packages are Mainnet Candidate prototypes pending G4.'],
+  ['Is Vireon mainnet available?', 'No public production Mainnet is claimed. The current chain and packages are Mainnet Candidate prototypes pending G4.'],
   ['Is the wallet available?', 'Candidate wallet tooling and the Tauri Control Center exist, but packages and recovery flows are not yet production-approved or signed.'],
   ['Is there a mining pool?', 'A reachable Mainnet Candidate pool prototype exists. It is not a production pool and still lacks production storage and an offline/HSM payout signer.'],
   ['Why not store everything on-chain?', 'Large files, messages, media and private data stay off-chain. The chain anchors settlement, ownership, permissions, commitments and hashes.'],
-  ['What is Veiron Passport?', 'A planned proof layer for licenses, app access, ownership, reputation, achievements and authenticity without mandatory public KYC.'],
+  ['What is Vireon Passport?', 'A planned proof layer for licenses, app access, ownership, reputation, achievements and authenticity without mandatory public KYC.'],
   ['What blocks public launch?', 'Independent genesis/security review, multi-host soak, production storage/operations, RPC abuse testing, signed artifacts and explicit G4 approval.'],
 ]

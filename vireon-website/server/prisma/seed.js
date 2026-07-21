@@ -26,7 +26,7 @@ const FORBIDDEN_DEFAULT_PASSWORDS = new Set([
 ])
 
 async function main() {
-  const email = process.env.DEFAULT_ADMIN_EMAIL || 'admin@veiron.network'
+  const email = process.env.DEFAULT_ADMIN_EMAIL || 'admin@vireon.network'
   const password = process.env.DEFAULT_ADMIN_PASSWORD
   if (!password || password.trim().length < 12) {
     throw new Error(

@@ -1,4 +1,4 @@
-package network.veiron.mobile
+package network.vireon.mobile
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows

@@ -26,8 +26,8 @@ $issues = New-Object System.Collections.Generic.List[string]
 $configFiles = @()
 $configRoots = @(
   (Join-Path $repoRoot "configs"),
-  (Join-Path $repoRoot "veiron-rpc-gateway\config"),
-  (Join-Path $repoRoot "veiron-devnet\config")
+  (Join-Path $repoRoot "vireon-rpc-gateway\config"),
+  (Join-Path $repoRoot "vireon-devnet\config")
 )
 foreach ($root in $configRoots) {
   if (Test-Path $root) {
@@ -42,7 +42,7 @@ foreach ($file in $configFiles | Sort-Object FullName -Unique) {
   if ($content -match '(?m)^\s*bind_host\s*=\s*"0\.0\.0\.0"' -and $content -notmatch '(?m)^\s*public_rpc_allowed\s*=\s*true') {
     $issues.Add("Unsafe RPC bind without public opt-in: $relativePath")
   }
-  if ($file.Name -like "*mainnet-candidate*.toml" -and $content -match '\.veiron-dev') {
+  if ($file.Name -like "*mainnet-candidate*.toml" -and $content -match '\.vireon-dev') {
     $issues.Add("Mainnet-candidate config uses devnet data path: $relativePath")
   }
   if ($file.Name -like "*mainnet-candidate*.toml" -and $content -match '(?im)^\s*(allow_reset|reset)\s*=\s*true\s*$') {
@@ -61,7 +61,7 @@ foreach ($file in $configFiles | Sort-Object FullName -Unique) {
 }
 
 $walletMaterial = Get-ChildItem -Path $repoRoot -Recurse -Force -File -ErrorAction SilentlyContinue | Where-Object {
-  ($_.FullName -notmatch '\\veiron-wallet\\') -and
+  ($_.FullName -notmatch '\\vireon-wallet\\') -and
   ($_.FullName -match '\\wallets\\' -or $_.Extension -in @('.wallet', '.seed', '.key', '.pem'))
 }
 foreach ($file in $walletMaterial) {

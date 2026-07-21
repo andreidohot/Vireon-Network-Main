@@ -5,8 +5,8 @@ WORKDIR /app
 COPY docker/ops/app.py /app/app.py
 COPY docker/ops/broker.py /app/broker.py
 COPY docker/ops/templates /app/templates
-COPY scripts /opt/veiron-scripts
-RUN chmod 0755 /opt/veiron-scripts/*.sh
+COPY scripts /opt/vireon-scripts
+RUN chmod 0755 /opt/vireon-scripts/*.sh
 ENV PATH="/opt/venv/bin:${PATH}"
 EXPOSE 8080 8090
 ENTRYPOINT []

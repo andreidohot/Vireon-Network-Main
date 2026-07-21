@@ -14,7 +14,7 @@ export default function CorePage() {
   return (
     <>
       <PageHero
-        eyebrow="Veiron Core"
+        eyebrow="Vireon Core"
         title="The Rust protocol engine behind VIRE, blocks, mining and settlement."
         text="Core is the part that must be proven before any public network claim. The site now separates what is defined from what is still a hard protocol decision."
       />

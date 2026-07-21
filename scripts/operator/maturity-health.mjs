@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Operator maturity health probe for Veiron Mainnet Candidate rehearsal hosts.
+ * Operator maturity health probe for Vireon Mainnet Candidate rehearsal hosts.
  *
  * Checks (read-only, public/gateway surface):
  *  - RPC /health + /status (incl. index lag fields when present)
@@ -10,15 +10,15 @@
  *
  * Usage:
  *   node scripts/operator/maturity-health.mjs
- *   VEIRON_RPC_URL=https://rpcnode.dohotstudio.com \
- *   VEIRON_POOL_URL=https://rpcnode.dohotstudio.com/pool \
+ *   VIREON_RPC_URL=https://rpcnode.dohotstudio.com \
+ *   VIREON_POOL_URL=https://rpcnode.dohotstudio.com/pool \
  *     node scripts/operator/maturity-health.mjs
  *
  * Exit 0 = all critical checks green; 1 = one or more failures.
  */
 
-const RPC = (process.env.VEIRON_RPC_URL || "https://rpcnode.dohotstudio.com").replace(/\/$/, "");
-const POOL = (process.env.VEIRON_POOL_URL || `${RPC}/pool`).replace(/\/$/, "");
+const RPC = (process.env.VIREON_RPC_URL || "https://rpcnode.dohotstudio.com").replace(/\/$/, "");
+const POOL = (process.env.VIREON_POOL_URL || `${RPC}/pool`).replace(/\/$/, "");
 
 const failures = [];
 const warnings = [];
@@ -67,7 +67,7 @@ function maturity(height, tip, required, statusField) {
 }
 
 async function main() {
-  console.log("Veiron maturity health");
+  console.log("Vireon maturity health");
   console.log(`RPC  ${RPC}`);
   console.log(`POOL ${POOL}`);
   console.log("");

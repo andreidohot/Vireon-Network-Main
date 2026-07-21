@@ -10,18 +10,8 @@ fi
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$repo_root"
 
-allowed_placeholder_regex='CHANGE_ME|example|localhost|127\.0\.0\.1'
-secret_patterns=(
-  "PRIVATE_KEY="
-  "WALLET_SEED="
-  "MNEMONIC="
-  "API_TOKEN="
-  "GITHUB_TOKEN="
-  "SECRET="
-  "PASSWORD="
-  "RPC_PASSWORD="
-  "ADMIN_TOKEN="
-)
+allowed_placeholder_regex='CHANGE_ME|example|replace_|generated_|youshallnotpass|localhost|127\.0\.0\.1|^\$|^\$\(|^<.+>$'
+secret_assignment_regex='^[[:space:]]*(export[[:space:]]+)?[A-Z0-9_]*(PRIVATE_KEY|WALLET_SEED|MNEMONIC|API_TOKEN|GITHUB_TOKEN|SECRET|PASSWORD|RPC_PASSWORD|ADMIN_TOKEN)[[:space:]]*=[[:space:]]*[^[:space:]#]*'
 self_rule_files=(
   "scripts/git/check-forbidden-files.ps1"
   "scripts/git/check-forbidden-files.sh"
@@ -38,14 +28,12 @@ while IFS= read -r file; do
   issues+=("Forbidden environment file: $file")
 done < <((git ls-files; git ls-files --others --exclude-standard) | sort -u | grep -E '(^|/)\.env($|\.)' | grep -vE '(^|/)\.env\.example$' || true)
 
-while IFS= read -r file; do
-  [[ -z "$file" ]] && continue
-  issues+=("Forbidden secret or wallet file: $file")
-done < <(find . -path ./.git -prune -o -type f \( -name "*.key" -o -name "*.pem" -o -name "*.seed" -o -name "*.wallet" -o -name "*.mnemonic" \) -print)
-
 mapfile -t candidate_files < <((git ls-files; git ls-files --others --exclude-standard) | sort -u)
 for file in "${candidate_files[@]}"; do
-  [[ -z "$file" || "$file" == ".env.example" || ! -f "$file" ]] && continue
+  [[ -z "$file" || "$(basename "$file")" == ".env.example" || ! -f "$file" ]] && continue
+  if [[ "$file" =~ \.(key|pem|seed|wallet|mnemonic)$ ]]; then
+    issues+=("Forbidden tracked or unignored secret or wallet file: $file")
+  fi
   skip_file=0
   for self_rule_file in "${self_rule_files[@]}"; do
     if [[ "$file" == "$self_rule_file" ]]; then
@@ -54,15 +42,22 @@ for file in "${candidate_files[@]}"; do
     fi
   done
   (( skip_file == 1 )) && continue
-  for pattern in "${secret_patterns[@]}"; do
-    while IFS= read -r line; do
-      [[ -z "$line" ]] && continue
-      if grep -Eiq "$allowed_placeholder_regex" <<<"$line"; then
-        continue
-      fi
-      issues+=("Secret pattern '$pattern' found in ${file}:${line%%:*}")
-    done < <(grep -nF "$pattern" "$file" || true)
-  done
+  while IFS=: read -r line_number assignment; do
+    [[ -z "$line_number" ]] && continue
+    value="${assignment#*=}"
+    value="${value%%#*}"
+    value="$(sed -E "s/^[[:space:]'\"]+|[[:space:]'\"]+$//g" <<<"$value")"
+    [[ -z "$value" ]] && continue
+    if grep -Eiq "$allowed_placeholder_regex" <<<"$value"; then
+      continue
+    fi
+    issues+=("Non-placeholder secret assignment found in ${file}:${line_number}")
+  done < <(grep -nE "$secret_assignment_regex" "$file" || true)
+
+  while IFS=: read -r line_number _; do
+    [[ -z "$line_number" ]] && continue
+    issues+=("Credential-like value found in ${file}:${line_number}")
+  done < <(grep -nEi '\bgh[pousr]_[A-Za-z0-9]{20,}\b|\bAKIA[0-9A-Z]{16}\b|-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----' "$file" || true)
 done
 
 if (( ${#issues[@]} > 0 )); then

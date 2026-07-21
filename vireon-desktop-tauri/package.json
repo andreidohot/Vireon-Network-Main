@@ -1,10 +1,10 @@
 {
-    "name":  "veiron-desktop-tauri",
+    "name":  "vireon-desktop-tauri",
     "private":  true,
     "version":  "1.0.0",
     "type":  "module",
-    "description":  "Veiron Control Center - Tauri desktop shell",
-    "author":  "Veiron Network \u003cadmin@veiron.network\u003e",
+    "description":  "Vireon Control Center - Tauri desktop shell",
+    "author":  "Vireon Network \u003cadmin@vireon.network\u003e",
     "scripts":  {
                     "dev":  "vite",
                     "build":  "tsc \u0026\u0026 vite build",

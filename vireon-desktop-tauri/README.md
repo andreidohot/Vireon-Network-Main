@@ -1,10 +1,10 @@
-# Veiron Control Center
+# Vireon Control Center
 
-Cross-platform Tauri 2 desktop application for Veiron Network.
+Cross-platform Tauri 2 desktop application for Vireon Network.
 
 - React 19 + Vite user interface
-- typed RPC access through `veiron-sdk-rust`
-- wallet keys stored through the `veiron-keystore-helper` sidecar and the OS credential vault
+- typed RPC access through `vireon-sdk-rust`
+- wallet keys stored through the `vireon-keystore-helper` sidecar and the OS credential vault
 - solo and pool mining through the bundled NVIDIA CUDA FiroPoW 0.9.4 miner
 - no CPU mining, OpenCL mining, or host-emulated mining fallback
 
@@ -22,7 +22,7 @@ compiled and linked.
 ## Windows
 
 ```powershell
-cd veiron-desktop-tauri
+cd vireon-desktop-tauri
 npm ci
 npm run prepare:native:sidecars
 npx tauri build --bundles nsis,msi
@@ -36,19 +36,19 @@ Build on an NVIDIA CUDA-capable Linux host with the Tauri AppImage, deb, and rpm
 packaging dependencies installed:
 
 ```bash
-cd veiron-desktop-tauri
+cd vireon-desktop-tauri
 npm ci
 bash scripts/prepare-native.sh --with-sidecars
 npx tauri build --bundles appimage,deb,rpm
 ```
 
 From the repository root, `bash scripts/release/build-linux-desktop.sh` collects
-the release files and `SHA256SUMS` under `veiron-release/apps/linux/`.
+the release files and `SHA256SUMS` under `vireon-release/apps/linux/`.
 
 ## Development and validation
 
 ```powershell
-cd veiron-desktop-tauri
+cd vireon-desktop-tauri
 npm ci
 npm run build
 npm test

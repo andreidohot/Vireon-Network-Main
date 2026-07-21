@@ -12,9 +12,9 @@ Set-StrictMode -Version Latest
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..\..")
 Set-Location $repoRoot
-$expectedRepository = "andreidohot/veiron-network"
+$expectedRepository = "andreidohot/vireon-network"
 $workflow = "vps-control-plane-release.yml"
-$versionFile = "veiron-release/vps-control-plane/VERSION"
+$versionFile = "vireon-release/vps-control-plane/VERSION"
 $env:CARGO_TARGET_DIR = Join-Path $repoRoot "target-msvc"
 $gh = @(
   (Join-Path $env:ProgramFiles "GitHub CLI\gh.exe"),
@@ -49,7 +49,7 @@ if ($Help) {
 }
 
 $remote = git remote get-url origin
-if ($LASTEXITCODE -ne 0 -or $remote -notmatch "github\.com[/:]andreidohot/veiron-network(?:\.git)?$") {
+if ($LASTEXITCODE -ne 0 -or $remote -notmatch "github\.com[/:]andreidohot/vireon-network(?:\.git)?$") {
   throw "origin must point to https://github.com/$expectedRepository"
 }
 if ((git branch --show-current) -ne "main") { throw "VPS releases are allowed only from main." }
@@ -118,7 +118,7 @@ $next = if ($numbers) { ($numbers | Measure-Object -Maximum).Maximum + 1 } else 
 $tag = "$prefix$next"
 
 Write-Host "[6/8] Creating $tag"
-Invoke-Checked { git tag -a $tag -m "Veiron VPS Control Plane $tag" } "tag creation failed"
+Invoke-Checked { git tag -a $tag -m "Vireon VPS Control Plane $tag" } "tag creation failed"
 try {
   Invoke-Checked { git push origin $tag } "tag push failed"
 } catch {
@@ -145,8 +145,8 @@ Invoke-Checked { & $gh run watch $runId --exit-status } "VPS release workflow fa
 Write-Host "[8/8] Verifying published release assets"
 $release = & $gh release view $tag --json url,isPrerelease,assets | ConvertFrom-Json
 $requiredAssets = @(
-  "veiron-vps-control-linux-x86_64.tar.gz",
-  "veiron-vps-control-linux-x86_64.tar.gz.sha256",
+  "vireon-docker-control-plane.tar.gz",
+  "vireon-docker-control-plane.tar.gz.sha256",
   "vps-control-contents.txt"
 )
 foreach ($asset in $requiredAssets) {

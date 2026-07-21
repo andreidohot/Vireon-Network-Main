@@ -1,8 +1,8 @@
-# veiron-core
+# vireon-core
 
 Status: Implemented / Mainnet Candidate / not public Mainnet
 
-`veiron-core` is the canonical source for Veiron protocol behavior. Product and
+`vireon-core` is the canonical source for Vireon protocol behavior. Product and
 service layers may optimize execution, but they must not weaken or replace core
 validation.
 
@@ -12,7 +12,7 @@ validation.
 - account-based signed transactions using ed25519 and network-separated
   lowercase Bech32m addresses;
 - deterministic transaction, merkle, block-header, and payload hashing;
-- FiroPoW 0.9.4 (`VeironPoW v1`, period length 1) consensus hashing through the
+- FiroPoW 0.9.4 (`VireonPoW v1`, period length 1) consensus hashing through the
   vendored native reference implementation;
 - LWMA-style next-difficulty validation;
 - base-fee burn and miner-priority-tip accounting;

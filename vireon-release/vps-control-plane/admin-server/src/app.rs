@@ -13,6 +13,7 @@ use axum::routing::{delete, get, post};
 use axum::{Json, Router};
 use reqwest::Client;
 use serde_json::{json, Value};
+use std::env;
 use std::fs;
 use std::path::Path;
 use std::process::Command;
@@ -75,7 +76,7 @@ pub fn router(state: AdminState) -> Router {
 
 async fn require_proxy_auth(headers: HeaderMap, request: Request, next: Next) -> Response {
     if headers
-        .get("x-veiron-admin-authenticated")
+        .get("x-vireon-admin-authenticated")
         .and_then(|value| value.to_str().ok())
         == Some("1")
     {
@@ -117,7 +118,7 @@ async fn logo_mark_png() -> impl IntoResponse {
 async fn health(State(state): State<AdminState>) -> Json<Value> {
     Json(json!({
         "ok": true,
-        "service": "veiron-vps-admin",
+        "service": "vireon-vps-admin",
         "network_id": state.config.network_id,
         "status_label": state.config.status_label,
         "exposure": "loopback-only; authenticate at reverse proxy"
@@ -180,32 +181,42 @@ async fn create_invitation(
         "/dns4/{}/tcp/{}",
         state.config.advertise_host, state.config.p2p_port
     );
+    if !docker_mode() {
+        return Err(bad_request(
+            "VPS enrollment is available only in Docker deployment mode",
+        ));
+    }
+    if state.config.release_bundle_url.trim().is_empty() {
+        return Err(bad_request(
+            "Docker enrollment requires an immutable release_bundle_url",
+        ));
+    }
     let install_command = format!(
-        "set -euo pipefail\ncurl -fsSL {bundle} -o /tmp/veiron-vps-control-linux-x86_64.tar.gz\ncurl -fsSL {bundle}.sha256 -o /tmp/veiron-vps-control-linux-x86_64.tar.gz.sha256\ncd /tmp\nsha256sum -c veiron-vps-control-linux-x86_64.tar.gz.sha256\ntar -xzf veiron-vps-control-linux-x86_64.tar.gz\nsudo ./veiron-vps-control/vps-control-plane/install.sh \\\n  --bundle /tmp/veiron-vps-control-linux-x86_64.tar.gz \\\n  --node-name {node} \\\n  --domain {domain} \\\n  --email {email} \\\n  --controller-url {controller} \\\n  --enrollment-token {token} \\\n  --seed {seed} \\\n  --release-bundle-url {bundle}\n",
-        bundle = state.config.release_bundle_url,
-        node = shell_arg(&request.node_name),
-        domain = shell_arg(&request.advertise_host),
-        email = shell_arg(&request.acme_email),
-        controller = shell_arg(&controller),
-        token = shell_arg(&invite.token),
-        seed = shell_arg(&seed),
-    );
+            "set -euo pipefail\ninstall -d -m 0755 /opt/vireon-agent\ntest -z \"$(ls -A /opt/vireon-agent)\" || {{ echo 'Refusing to overwrite /opt/vireon-agent' >&2; exit 73; }}\ncurl -fsSL {bundle} -o /tmp/vireon-docker-control-plane.tar.gz\ncurl -fsSL {bundle}.sha256 -o /tmp/vireon-docker-control-plane.tar.gz.sha256\ncd /tmp\nsha256sum -c vireon-docker-control-plane.tar.gz.sha256\ntar -xzf vireon-docker-control-plane.tar.gz -C /opt/vireon-agent\ncd /opt/vireon-agent/vireon-release/vps-control-plane\n./scripts/enroll-docker-node.sh --node-name {node} --p2p-host {domain} --email {email} --controller-url {controller} --enrollment-token {token} --seed {seed} --release-bundle-url {bundle}\n",
+            bundle = shell_arg(&state.config.release_bundle_url),
+            node = shell_arg(&request.node_name),
+            domain = shell_arg(&request.advertise_host),
+            email = shell_arg(&request.acme_email),
+            controller = shell_arg(&controller),
+            token = shell_arg(&invite.token),
+            seed = shell_arg(&seed),
+        );
     let steps = vec![
         EnrollmentStep {
-            title: "1 · Prepare DNS & firewall".into(),
+            title: "1 - Prepare DNS and firewall".into(),
             detail: format!(
-                "Point A/AAAA for {} to the new VPS. Open TCP 80, 443 and {} (P2P).",
+                "Point DNS for {} to the new host and open TCP {} for P2P.",
                 request.advertise_host, state.config.p2p_port
             ),
             code: None,
         },
         EnrollmentStep {
-            title: "2 · SSH to the new host".into(),
+            title: "2 - SSH to the new host".into(),
             detail: "Use a clean Ubuntu 24.04 machine. Run the install script as root (sudo).".into(),
             code: Some(format!("ssh root@{}", request.advertise_host)),
         },
         EnrollmentStep {
-            title: "3 · Run one-time enrollment install".into(),
+            title: "3 - Run one-time enrollment install".into(),
             detail: format!(
                 "Token expires at {}. Single-use only. Grants fleet telemetry, not consensus privilege.",
                 format_unix(invite.expires_at_unix_seconds)
@@ -213,8 +224,8 @@ async fn create_invitation(
             code: Some(install_command.clone()),
         },
         EnrollmentStep {
-            title: "4 · Verify in this panel".into(),
-            detail: "Within ~15–45s the node should appear ONLINE under Nodes / Topology after first report.".into(),
+            title: "4 - Verify in this panel".into(),
+            detail: "Within about 15-45 seconds the node should appear ONLINE under Nodes / Topology after its first report.".into(),
             code: None,
         },
     ];
@@ -392,6 +403,16 @@ async fn collect_local_report(state: &AdminState) -> NodeReport {
         get_json(&state.client, &mempool_url),
         get_json(&state.client, &indexer_url),
     );
+    let services = if docker_mode() {
+        ServiceStates {
+            node: json_service_state(&p2p),
+            rpc: json_service_state(&status),
+            indexer_timer: json_service_state(&indexer),
+            admin: "active".to_owned(),
+        }
+    } else {
+        service_states()
+    };
     NodeReport {
         network_id: state.config.network_id.clone(),
         node_name: state.config.node_name.clone(),
@@ -401,7 +422,7 @@ async fn collect_local_report(state: &AdminState) -> NodeReport {
             state.config.advertise_host, state.config.p2p_port
         ),
         reported_at_unix_seconds: unix_seconds(),
-        services: service_states(),
+        services,
         status,
         sync,
         p2p,
@@ -423,10 +444,22 @@ async fn get_json(client: &Client, url: &str) -> Value {
 
 fn service_states() -> ServiceStates {
     ServiceStates {
-        node: systemd_state("veiron-node"),
-        rpc: systemd_state("veiron-rpc"),
-        indexer_timer: systemd_state("veiron-indexer-refresh.timer"),
-        admin: systemd_state("veiron-vps-admin"),
+        node: systemd_state("vireon-node"),
+        rpc: systemd_state("vireon-rpc"),
+        indexer_timer: systemd_state("vireon-indexer-refresh.timer"),
+        admin: systemd_state("vireon-vps-admin"),
+    }
+}
+
+fn docker_mode() -> bool {
+    env::var("VIREON_DEPLOYMENT_MODE").is_ok_and(|value| value.eq_ignore_ascii_case("docker"))
+}
+
+fn json_service_state(payload: &Value) -> String {
+    if payload.get("error").is_some() {
+        "inactive".to_owned()
+    } else {
+        "active".to_owned()
     }
 }
 

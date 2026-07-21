@@ -1,8 +1,8 @@
 [package]
-name = "veiron-desktop-tauri"
+name = "vireon-desktop-tauri"
 version = "1.0.0"
-description = "Veiron Control Center - Tauri desktop shell"
-authors = ["Veiron Network <admin@veiron.network>"]
+description = "Vireon Control Center - Tauri desktop shell"
+authors = ["Vireon Network <admin@vireon.network>"]
 edition = "2021"
 publish = false
 
@@ -10,7 +10,7 @@ publish = false
 [workspace]
 
 [lib]
-name = "veiron_desktop_tauri_lib"
+name = "vireon_desktop_tauri_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
@@ -34,7 +34,7 @@ open = "5"
 sha2 = "0.10"
 # Shared protocol client: network defaults + typed RPC for status/account/balance.
 # Snapshot still uses ad-hoc GETs for indexer/pool/fleet (not in SDK v0).
-veiron-sdk-rust = { path = "../../veiron-sdk-rust", default-features = false, features = ["native"] }
+vireon-sdk-rust = { path = "../../vireon-sdk-rust", default-features = false, features = ["native"] }
 
 [profile.release]
 panic = "abort"

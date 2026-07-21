@@ -1,7 +1,7 @@
 use crate::network::Network;
 use serde::Serialize;
 
-pub const UPGRADE_ACTIVATION_POLICY_ID: &str = "veiron-flag-day-upgrade-v1";
+pub const UPGRADE_ACTIVATION_POLICY_ID: &str = "vireon-flag-day-upgrade-v1";
 pub const UPGRADE_ACTIVATION_MODE: &str = "fixed-height-flag-day";
 pub const LAUNCH_PROTOCOL_VERSION: u32 = 1;
 pub const LAUNCH_BLOCK_VERSION: u32 = 1;

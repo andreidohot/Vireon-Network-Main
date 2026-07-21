@@ -1,118 +1,72 @@
-# VPS control plane — installation and uninstall guide
+# Docker Installation and Retention
 
-This guide installs the Veiron VPS control plane on a fresh Ubuntu VPS and removes it cleanly when needed.
+Status: Mainnet Candidate / Prototype
 
-## What this bundle installs
+## Requirements
 
-- Veiron node + RPC + indexer services
-- VPS admin panel behind reverse proxy auth
-- fleet topology endpoints for the control plane
-- optional pool coordinator when enabled
-- no local miner binary on the VPS
+- Ubuntu 24.04 or another supported Docker Engine host;
+- Docker Engine with Compose v2;
+- `bash`, `curl`, `openssl`, `python3`, `jq` and `tar`;
+- inbound TCP 20787 for P2P;
+- inbound 80/443 only for direct-DNS mode;
+- an immutable Vireon Docker control-plane archive and SHA-256 file.
 
-## Installation prerequisites
-
-Before installing, make sure:
-
-1. The VPS runs Ubuntu 22.04/24.04.
-2. DNS resolves to the VPS host.
-3. Ports 80, 443 and 20787 are reachable from the internet.
-4. You have root access.
-5. You have the release archive and its SHA-256 file.
-
-## 1. Download the bundle
+## Verify and extract a release
 
 ```bash
-mkdir -p /tmp/veiron-vps && cd /tmp/veiron-vps
-curl -fsSL https://example.invalid/veiron-vps-control-linux-x86_64.tar.gz -o veiron-vps-control-linux-x86_64.tar.gz
-curl -fsSL https://example.invalid/veiron-vps-control-linux-x86_64.tar.gz.sha256 -o veiron-vps-control-linux-x86_64.tar.gz.sha256
-sha256sum -c veiron-vps-control-linux-x86_64.tar.gz.sha256
+curl -fsSLO https://example.invalid/vireon-docker-control-plane.tar.gz
+curl -fsSLO https://example.invalid/vireon-docker-control-plane.tar.gz.sha256
+sha256sum --check vireon-docker-control-plane.tar.gz.sha256
+sudo install -d -m 0755 /opt/vireon
+sudo tar -xzf vireon-docker-control-plane.tar.gz -C /opt/vireon
+cd /opt/vireon/vireon-release/vps-control-plane
 ```
 
-Replace the URLs with your release asset location.
+The archive contains the reviewed Rust source required for deterministic local
+image builds. It contains no `.env`, secret, runtime state or pre-existing
+wallet data.
 
-## 2. Run the installer
-
-The recommended flow is the interactive installer:
+## Fresh controller
 
 ```bash
-cd /tmp/veiron-vps
-tar -xzf veiron-vps-control-linux-x86_64.tar.gz
-sudo ./veiron-vps-control/vps-control-plane/install-interactive.sh
+sudo ./scripts/install-docker-stack.sh
 ```
 
-The installer will ask for:
+Create the printed loopback SSH tunnel, open the setup page and provide the
+controller, DNS, monitoring and optional pool values. Do not enable the pool
+without an approved reward address and offline signing process.
 
-- the path to the release archive
-- the node name
-- the public domain
-- the admin email
-- whether to enable the pool role
-- the pool reward address and pool name when enabled
-- whether to use an existing reverse proxy and whether to configure UFW
-
-If you prefer non-interactive mode, you can still run:
+## Existing systemd or earlier Docker installation
 
 ```bash
-sudo ./veiron-vps-control/vps-control-plane/install.sh \
-  --bundle /tmp/veiron-vps/veiron-vps-control-linux-x86_64.tar.gz \
-  --node-name bootstrap-eu-1 \
-  --domain node1.example.org \
-  --email operator@example.org \
-  --release-bundle-url https://example.invalid/veiron-vps-control-linux-x86_64.tar.gz
+sudo ./scripts/repair-existing-installation.sh
 ```
 
-### Useful installer options
+The repair path is intentionally non-destructive:
 
-- `--external-proxy` if another reverse proxy already listens on 80/443
-- `--enable-pool --pool-address <address>` for a pool coordinator
-- `--skip-firewall` if you manage firewall rules yourself
-- `--seed /dns4/.../tcp/20787` to add bootstrap peers
+- legacy systemd units are stopped and disabled, not removed;
+- legacy containers are stopped and retained or renamed;
+- legacy chain, control and pool data is copied into `state/`;
+- the old source remains available for rollback;
+- no command runs `docker compose down -v`.
 
-## 3. Verify the installation
+## Health
 
 ```bash
-sudo systemctl status veiron-node veiron-rpc veiron-vps-admin
-sudo systemctl status veiron-indexer-refresh.timer
-sudo /opt/veiron/vps-control-plane/health-check.sh --domain node1.example.org
+sudo ./scripts/health-check-docker.sh
+docker compose --env-file .env -f compose.yaml ps
 ```
 
-Expected endpoints:
-
-- HTTPS RPC: https://YOUR_DOMAIN
-- Fleet status: https://YOUR_DOMAIN/fleet/status
-- Admin panel: https://YOUR_DOMAIN/control/
-
-## 4. Desktop miner stability notes
-
-The VPS control plane now uses a more stable reverse-proxy layout for desktop miner traffic:
-
-- dedicated health/status locations
-- keep-alive friendly proxy headers
-- higher mining burst allowance
-- longer proxy read/send timeouts
-
-These settings reduce the disconnect/reconnect look that appears when the desktop app polls the VPS aggressively.
+When Cloudflare is enabled, also verify every configured public hostname after
+the tunnel or DNS activation completes.
 
 ## Uninstall
 
-Run the uninstall script from the unpacked bundle:
-
 ```bash
-sudo ./veiron-vps-control/vps-control-plane/uninstall.sh
+sudo ./scripts/uninstall-docker-stack.sh
 ```
 
-### Optional cleanup flags
-
-```bash
-sudo ./veiron-vps-control/vps-control-plane/uninstall.sh --purge-data
-sudo ./veiron-vps-control/vps-control-plane/uninstall.sh --purge-data --purge-cert
-```
-
-- `--purge-data` removes persisted chain, index and pool state
-- `--purge-cert` removes managed TLS certs from /etc/letsencrypt
-
-## Notes
-
-- The installer intentionally removes any leftover miner service from the VPS.
-- The uninstall script stops services and disables them, but it does not remove unrelated system packages such as nginx or certbot unless you remove them manually.
+The default uninstall stops the Vireon Docker stack and preserves `state/`,
+`.env`, secrets and legacy data. Data destruction is not part of the normal
+uninstall or repair flow. Archive and remove retained data only through a
+separate, explicit operator-approved procedure.

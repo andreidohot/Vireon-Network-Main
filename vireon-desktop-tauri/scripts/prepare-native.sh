@@ -32,29 +32,29 @@ TRIPLE="$(rustc -vV | sed -n 's/^host: //p')"
 
 mkdir -p "$BIN_DIR" "$RES_DIR" "$RES_BIN"
 
-echo "==> Building veiron-keystore-helper (release)"
+echo "==> Building vireon-keystore-helper (release)"
 cargo build --release --locked --manifest-path "$HELPER_MANIFEST"
 
-HELPER_SRC="$ROOT/native/keystore-helper/target/release/veiron-keystore-helper"
+HELPER_SRC="$ROOT/native/keystore-helper/target/release/vireon-keystore-helper"
 if [[ ! -f "$HELPER_SRC" ]]; then
   echo "Missing built helper: $HELPER_SRC" >&2
   exit 1
 fi
 
-cp "$HELPER_SRC" "$BIN_DIR/veiron-keystore-helper-$TRIPLE"
-cp "$HELPER_SRC" "$BIN_DIR/veiron-keystore-helper"
-cp "$HELPER_SRC" "$RES_BIN/veiron-keystore-helper"
-chmod +x "$BIN_DIR/veiron-keystore-helper-$TRIPLE" "$BIN_DIR/veiron-keystore-helper" "$RES_BIN/veiron-keystore-helper"
+cp "$HELPER_SRC" "$BIN_DIR/vireon-keystore-helper-$TRIPLE"
+cp "$HELPER_SRC" "$BIN_DIR/vireon-keystore-helper"
+cp "$HELPER_SRC" "$RES_BIN/vireon-keystore-helper"
+chmod +x "$BIN_DIR/vireon-keystore-helper-$TRIPLE" "$BIN_DIR/vireon-keystore-helper" "$RES_BIN/vireon-keystore-helper"
 # Do not ship Windows helper leftovers into Linux packages.
-rm -f "$BIN_DIR"/veiron-keystore-helper*.exe "$RES_BIN"/veiron-keystore-helper*.exe 2>/dev/null || true
-echo "Staged keystore helper -> $BIN_DIR/veiron-keystore-helper-$TRIPLE"
+rm -f "$BIN_DIR"/vireon-keystore-helper*.exe "$RES_BIN"/vireon-keystore-helper*.exe 2>/dev/null || true
+echo "Staged keystore helper -> $BIN_DIR/vireon-keystore-helper-$TRIPLE"
 
 stage_operator_and_assets() {
   # Operator entrypoint
-  if [[ -f "$REPO/veiron.sh" ]]; then
-    cp -f "$REPO/veiron.sh" "$RES_DIR/veiron.sh"
-    chmod +x "$RES_DIR/veiron.sh"
-    echo "  + veiron.sh"
+  if [[ -f "$REPO/vireon.sh" ]]; then
+    cp -f "$REPO/vireon.sh" "$RES_DIR/vireon.sh"
+    chmod +x "$RES_DIR/vireon.sh"
+    echo "  + vireon.sh"
   fi
 
   # Local operator scripts (shell only for Linux runtime)
@@ -97,11 +97,11 @@ stage_operator_and_assets() {
   fi
 
   # Static explorer (built frontend) if present
-  if [[ -d "$REPO/veiron-explorer/dist" ]]; then
+  if [[ -d "$REPO/vireon-explorer/dist" ]]; then
     rm -rf "$RES_DIR/explorer"
     mkdir -p "$RES_DIR/explorer"
-    cp -a "$REPO/veiron-explorer/dist/." "$RES_DIR/explorer/"
-    echo "  + explorer/ (from veiron-explorer/dist)"
+    cp -a "$REPO/vireon-explorer/dist/." "$RES_DIR/explorer/"
+    echo "  + explorer/ (from vireon-explorer/dist)"
   fi
 
   # Brand
@@ -119,19 +119,19 @@ if [[ "$WITH_SIDECARS" -eq 1 ]]; then
   (
     cd "$REPO"
     # Product releases require compiled CUDA kernels; stubs are not shippable.
-    export VEIRON_REQUIRE_CUDA=1
+    export VIREON_REQUIRE_CUDA=1
     command -v nvcc >/dev/null || {
       echo "nvcc is required to build the CUDA-only miner sidecar" >&2
       exit 1
     }
-    cargo build --release --locked -p veiron-miner
-    cargo build --release --locked -p veiron-node -p veiron-rpc-gateway -p veiron-indexer
+    cargo build --release --locked -p vireon-miner
+    cargo build --release --locked -p vireon-node -p vireon-rpc-gateway -p vireon-indexer
   )
 
   # Drop Windows .exe sidecars so they never land in deb/AppImage/rpm.
   rm -f "$RES_BIN"/*.exe 2>/dev/null || true
 
-  for bin in veiron-miner veiron-node veiron-rpc-gateway veiron-indexer; do
+  for bin in vireon-miner vireon-node vireon-rpc-gateway vireon-indexer; do
     src="$REPO/target/release/$bin"
     if [[ -f "$src" ]]; then
       cp -f "$src" "$RES_BIN/$bin"
@@ -148,14 +148,14 @@ if [[ "$WITH_SIDECARS" -eq 1 ]]; then
   "prepared_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "platform": "linux",
   "host_triple": "$TRIPLE",
-  "keystore_helper": "bin/veiron-keystore-helper",
+  "keystore_helper": "bin/vireon-keystore-helper",
   "binaries": [
-    "bin/veiron-miner",
-    "bin/veiron-node",
-    "bin/veiron-rpc-gateway",
-    "bin/veiron-indexer"
+    "bin/vireon-miner",
+    "bin/vireon-node",
+    "bin/vireon-rpc-gateway",
+    "bin/vireon-indexer"
   ],
-  "operator": "veiron.sh",
+  "operator": "vireon.sh",
   "mining_backend": "cuda",
   "cpu_mining": false,
   "opencl_mining": false

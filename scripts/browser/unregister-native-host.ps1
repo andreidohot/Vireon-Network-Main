@@ -1,4 +1,4 @@
-# Unregister veiron-browser-host native messaging entries (Windows).
+# Unregister vireon-browser-host native messaging entries (Windows).
 
 [CmdletBinding()]
 param(
@@ -9,7 +9,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$HostName = "com.veiron.browser_host"
+$HostName = "com.vireon.browser_host"
 
 $paths = @()
 switch ($Browser) {
@@ -35,7 +35,7 @@ foreach ($p in $paths) {
 }
 
 if ($RemoveInstallDir) {
-    $InstallDir = Join-Path $env:LOCALAPPDATA "Veiron\browser-host"
+    $InstallDir = Join-Path $env:LOCALAPPDATA "Vireon\browser-host"
     if (Test-Path $InstallDir) {
         Remove-Item -Recurse -Force $InstallDir
         Write-Host "Removed $InstallDir"

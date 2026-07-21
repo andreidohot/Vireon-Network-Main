@@ -17,14 +17,14 @@ pub enum ForkChoice {
 pub fn block_work(block: &Block) -> Result<ChainWork> {
     1_u128
         .checked_shl(u32::from(block.header.difficulty_leading_zero_bits))
-        .ok_or(crate::errors::VeironError::ChainWorkOverflow)
+        .ok_or(crate::errors::VireonError::ChainWorkOverflow)
 }
 
 pub fn cumulative_work(blocks: &[Block]) -> Result<ChainWork> {
     blocks.iter().try_fold(0_u128, |total, block| {
         total
             .checked_add(block_work(block)?)
-            .ok_or(crate::errors::VeironError::ChainWorkOverflow)
+            .ok_or(crate::errors::VireonError::ChainWorkOverflow)
     })
 }
 
@@ -39,13 +39,13 @@ pub fn common_ancestor_height(current: &[Block], candidate: &[Block]) -> Option<
 
 pub fn select_fork(current: &[Block], candidate: &[Block]) -> Result<ForkChoice> {
     let current_genesis = current.first().ok_or_else(|| {
-        crate::errors::VeironError::InvalidGenesis("current chain is empty".to_owned())
+        crate::errors::VireonError::InvalidGenesis("current chain is empty".to_owned())
     })?;
     let candidate_genesis = candidate.first().ok_or_else(|| {
-        crate::errors::VeironError::InvalidGenesis("candidate chain is empty".to_owned())
+        crate::errors::VireonError::InvalidGenesis("candidate chain is empty".to_owned())
     })?;
     if current_genesis.hash() != candidate_genesis.hash() {
-        return Err(crate::errors::VeironError::InvalidGenesis(
+        return Err(crate::errors::VireonError::InvalidGenesis(
             "candidate chain has a different genesis".to_owned(),
         ));
     }

@@ -9,13 +9,13 @@ if (Test-Path $cargoShim) {
   $cargoArgsPrefix = @()
 }
 
-Write-Host "Running Veiron mainnet-candidate release checks..."
+Write-Host "Running Vireon mainnet-candidate release checks..."
 & $cargo @cargoArgsPrefix fmt --all --check
 & $cargo @cargoArgsPrefix test --workspace --tests
 & $cargo @cargoArgsPrefix clippy --workspace --all-targets -- -D warnings
 
-if (Test-Path "veiron-explorer\package.json") {
-  Push-Location veiron-explorer
+if (Test-Path "vireon-explorer\package.json") {
+  Push-Location vireon-explorer
   npm install
   npm run build
   Pop-Location

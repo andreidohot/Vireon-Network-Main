@@ -1,11 +1,11 @@
-# Cum creezi un tag si un release Veiron
+# Cum creezi un tag si un release Vireon
 
 ## Instalare
 
 Din folderul extras ruleaza:
 
 ```powershell
-.\install-workflows.ps1 -RepoPath "D:\Blockchain-Core\Veiron_Network"
+.\install-workflows.ps1 -RepoPath "D:\Blockchain-Core\Vireon_Network"
 ```
 
 Installerul copiaza workflow-urile in `.github/workflows/` si managerul interactiv in `scripts/release/`.
@@ -13,7 +13,7 @@ Installerul copiaza workflow-urile in `.github/workflows/` si managerul interact
 Dupa instalare, verifica modificarile, apoi fa commit si push:
 
 ```powershell
-cd D:\Blockchain-Core\Veiron_Network
+cd D:\Blockchain-Core\Vireon_Network
 git status
 git add .github/workflows scripts/release
 git commit -m "ci: independent releases and local artifact publishing"
@@ -25,7 +25,7 @@ git push
 Din root-ul repository-ului:
 
 ```powershell
-.\scripts\release\veiron-release.cmd
+.\scripts\release\vireon-release.cmd
 ```
 
 Alege optiunea `1` pentru urmatorul candidate tag.
@@ -33,7 +33,7 @@ Alege optiunea `1` pentru urmatorul candidate tag.
 Managerul verifica automat folderul:
 
 ```text
-D:\Blockchain-Core\Veiron_Network\release-artifacts
+D:\Blockchain-Core\Vireon_Network\release-artifacts
 ```
 
 Implicit considera „recente” fisierele modificate in ultimele 24 de ore. Poti introduce alt interval intre 1 si 720 de ore.

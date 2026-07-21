@@ -8,7 +8,7 @@ gpu_intensity = 90
 gpu_batch_size = 131072
 gpu_devices = []
 kernel_validation = true
-metrics_path = ".veiron-local/miner/metrics.json"
+metrics_path = ".vireon-local/miner/metrics.json"
 
 [source]
 kind = "rpc"

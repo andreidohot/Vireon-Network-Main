@@ -16,13 +16,18 @@ $candidates = $candidates | Where-Object { $_ } | ForEach-Object { $_ -replace '
 $issues = New-Object System.Collections.Generic.List[string]
 
 $forbiddenPatterns = @(
-  '(^|/)\.veiron-(dev|testnet|mainnet|local)(/|$)',
-  '(^|/)(target|target-msvc|node_modules|logs|devnet-data|node-data)(/|$)',
+  '(^|/)\.(veiron|vireon)-(dev|testnet|mainnet|local)(/|$)',
+  '(^|/)(target|target-msvc|node_modules|logs|devnet-data|node-data|\.artifacts|coverage)(/|$)',
+  '(^|/)vireon-release/vps-control-plane/state/(?!config/generated/\.gitkeep$|secrets/\.gitkeep$).+',
   '(^|/)chain\.jsonl$',
-  '\.log$'
+  '\.(log|pid|tmp|bak|orig|rej|db|sqlite|exe|dll|msi|AppImage|deb|rpm|apk|aab)$'
 )
 
 foreach ($file in $candidates) {
+  if ($file -match '^\.review/pipeline/(runs|worktrees)/' -and $file -ne '.review/pipeline/runs/.gitkeep') {
+    $issues.Add("Forbidden local pipeline artifact: $file")
+    continue
+  }
   foreach ($pattern in $forbiddenPatterns) {
     if ($file -match $pattern) {
       $issues.Add("Forbidden tracked or unignored artifact: $file")

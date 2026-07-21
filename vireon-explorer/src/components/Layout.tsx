@@ -37,7 +37,7 @@ export function Layout({ children }: LayoutProps) {
           <div className="brand-mark">
             <div className="brand-badge" />
             <div>
-              <div className="brand-title">Veiron Explorer</div>
+              <div className="brand-title">Vireon Explorer</div>
               <div className="brand-subtitle">
                 {network
                   ? `${network.network_name} read-only local UI`

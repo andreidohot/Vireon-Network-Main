@@ -72,11 +72,11 @@ pub fn maybe_notify_mined_blocks(
         let _ = app
             .notification()
             .builder()
-            .title("Veiron block mined")
+            .title("Vireon block mined")
             .body(&body)
             .show();
         let _ = app.emit(
-            "veiron:block-mined",
+            "vireon:block-mined",
             serde_json::json!({ "height": height, "reward_atomic": reward }),
         );
         if settings.notify_sound {

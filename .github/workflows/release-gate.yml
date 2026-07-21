@@ -8,14 +8,14 @@ on:
       - "scripts/security/**"
       - "scripts/release/**"
       - "scripts/git/**"
-      - "veiron-release/**"
+      - "vireon-release/**"
       - ".github/workflows/release-gate.yml"
   pull_request:
     paths:
       - "scripts/security/**"
       - "scripts/release/**"
       - "scripts/git/**"
-      - "veiron-release/**"
+      - "vireon-release/**"
       - ".github/workflows/release-gate.yml"
   workflow_dispatch:
 
@@ -32,25 +32,25 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
         with:
           components: rustfmt, clippy
 
       - name: Cache Rust build artifacts
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@42dc69e1aa15d09112580998cf2ef0119e2e91ae
 
       - name: Install Linux build dependencies
         run: sudo apt-get update && sudo apt-get install -y libdbus-1-dev
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: veiron-explorer/package-lock.json
+          cache-dependency-path: vireon-explorer/package-lock.json
 
       - name: Script help smoke tests
         run: |

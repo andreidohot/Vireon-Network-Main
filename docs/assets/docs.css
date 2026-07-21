@@ -127,7 +127,7 @@ body::after {
   position: absolute;
   inset: -45%;
   background: conic-gradient(from 0deg, transparent, rgba(32,213,255,.28), transparent 30%);
-  animation: veiron-spin 8s linear infinite;
+  animation: vireon-spin 8s linear infinite;
 }
 
 .boot-logo img {
@@ -138,7 +138,7 @@ body::after {
   filter: drop-shadow(0 0 18px rgba(32,213,255,.45));
 }
 
-@keyframes veiron-spin { to { transform: rotate(360deg); } }
+@keyframes vireon-spin { to { transform: rotate(360deg); } }
 
 /* Sidebar */
 .sidebar {
@@ -393,7 +393,7 @@ body::after {
 }
 
 .markdown-section pre::before {
-  content: "VEIRON / CODE";
+  content: "VIREON / CODE";
   display: block;
   margin-bottom: 12px;
   color: var(--text-dim);
@@ -552,7 +552,7 @@ body::after {
   position: absolute;
   inset: -45%;
   background: conic-gradient(from 0deg, transparent, rgba(32,213,255,.3), transparent 30%);
-  animation: veiron-spin 8s linear infinite;
+  animation: vireon-spin 8s linear infinite;
 }
 
 .cover-logo-frame img {

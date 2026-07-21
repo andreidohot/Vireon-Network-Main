@@ -3,7 +3,7 @@ set -euo pipefail
 
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
   echo "Usage: scripts/local/stop-all.sh"
-  echo "Stops local managed Veiron processes if they are running."
+  echo "Stops local managed Vireon processes if they are running."
   exit 0
 fi
 

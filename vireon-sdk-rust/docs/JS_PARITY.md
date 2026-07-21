@@ -1,25 +1,25 @@
-# TypeScript `@veiron/sdk` ↔ Rust `veiron-sdk-rust`
+# TypeScript `@vireon/sdk` ↔ Rust `vireon-sdk-rust`
 
 Monorepo layout after rename:
 
 | Path | Language | npm / cargo name |
 |---|---|---|
-| `veiron-sdk/` | TypeScript | `@veiron/sdk` |
-| `veiron-sdk-rust/` | Rust | `veiron-sdk-rust` |
+| `vireon-sdk/` | TypeScript | `@vireon/sdk` |
+| `vireon-sdk-rust/` | Rust | `vireon-sdk-rust` |
 
 ## Shared product defaults
 
 | Constant (TS) | Constant (Rust) | Value |
 |---|---|---|
-| `VEIRON_DEFAULT_RPC_URL` | `DEFAULT_MAINNET_CANDIDATE_RPC` | `https://rpcnode.dohotstudio.com` |
-| `VEIRON_DEFAULT_POOL_URL` | `DEFAULT_MAINNET_CANDIDATE_POOL` | `…/pool` |
-| `VEIRON_NETWORK_ID` | `Network::MainnetCandidate` / `network_id()` | `veiron-mainnet-candidate` |
+| `VIREON_DEFAULT_RPC_URL` | `DEFAULT_MAINNET_CANDIDATE_RPC` | `https://rpcnode.dohotstudio.com` |
+| `VIREON_DEFAULT_POOL_URL` | `DEFAULT_MAINNET_CANDIDATE_POOL` | `…/pool` |
+| `VIREON_NETWORK_ID` | `Network::MainnetCandidate` / `network_id()` | `veiron-mainnet-candidate` |
 
 ## Method parity
 
 | TS | Rust | Notes |
 |---|---|---|
-| `createVeironClient` / `VeironClient` | `RpcClient::new` / `BlockingRpcClient::new` | |
+| `createVireonClient` / `VireonClient` | `RpcClient::new` / `BlockingRpcClient::new` | |
 | `health` | `health` | |
 | `status` | `status` | |
 | `chainTip` | `tip` | |
@@ -52,5 +52,5 @@ Monorepo layout after rename:
 
 ## Do not merge the trees
 
-Landing Rust under `veiron-sdk/` would overwrite `@veiron/sdk` and break `veiron-examples`.
-Keep path `veiron-sdk-rust` and document both from `docs/api/`.
+Landing Rust under `vireon-sdk/` would overwrite `@vireon/sdk` and break `vireon-examples`.
+Keep path `vireon-sdk-rust` and document both from `docs/api/`.

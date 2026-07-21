@@ -58,7 +58,7 @@ copy_libcxx_shared() {
 }
 
 cd "$root"
-cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -o veiron-android/app/src/main/jniLibs build --release -p veiron-mobile-core
+cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 -o vireon-android/app/src/main/jniLibs build --release -p vireon-mobile-core
 
 declare -A abi_triples=(
   ["arm64-v8a"]="aarch64-linux-android"
@@ -67,8 +67,8 @@ declare -A abi_triples=(
 )
 
 for abi in arm64-v8a armeabi-v7a x86_64; do
-  jni_dir="$root/veiron-android/app/src/main/jniLibs/$abi"
-  library="$jni_dir/libveiron_mobile_core.so"
+  jni_dir="$root/vireon-android/app/src/main/jniLibs/$abi"
+  library="$jni_dir/libvireon_mobile_core.so"
   [[ -s "$library" ]] || { echo "Android native build did not produce $library" >&2; exit 1; }
   copy_libcxx_shared "$abi" "${abi_triples[$abi]}" "$jni_dir"
 done

@@ -37,7 +37,7 @@ export default function StatusPage() {
     <>
       <PageHero
         eyebrow="Status"
-        title="Honest public readiness for Veiron Network."
+        title="Honest public readiness for Vireon Network."
         text="This page prevents the website from becoming misleading. It separates design, planned modules and operational infrastructure."
       >
         <MainnetCandidateBadge source={source} />

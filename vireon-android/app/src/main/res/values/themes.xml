@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Android 12+ edge-to-edge friendly dark chrome -->
-    <style name="Theme.Veiron" parent="android:Theme.Material.NoActionBar">
+    <style name="Theme.Vireon" parent="android:Theme.Material.NoActionBar">
         <item name="android:fontFamily">sans</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>

@@ -8,4 +8,4 @@
   - [Security](security/README.md)
   - [Runbook](operator/LOCAL_RUNBOOK.md)
   - [Release Status](release/NETWORK_MATURITY.md)
-- [GitHub](https://github.com/andreidohot/Veiron-Network-Main)
+- [GitHub](https://github.com/andreidohot/Vireon-Network-Main)

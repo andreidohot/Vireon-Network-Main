@@ -27,14 +27,14 @@ It exists so operators, auditors and agents do not treat a green CI or release-g
 
 Runnable under Mainnet Candidate / Prototype:
 
-- `veiron-core` consensus and FiroPoW 0.9.4 validation
-- `veiron-node` + JSONL storage + P2P (libp2p) prototype
-- `veiron-rpc-gateway` (loopback / reverse-proxy TLS patterns)
-- `veiron-wallet` CLI, Control Center (**Tauri** is the product target)
-- `veiron-miner` (NVIDIA CUDA-only FiroPoW; no CPU/OpenCL fallback) against RPC or pool
-- `veiron-mining-pool` **prototype** (not a public production pool)
-- `veiron-indexer` / explorer / website (candidate-scoped)
-- Optional VPS control-plane packaging under `veiron-release/vps-control-plane/`
+- `vireon-core` consensus and FiroPoW 0.9.4 validation
+- `vireon-node` + JSONL storage + P2P (libp2p) prototype
+- `vireon-rpc-gateway` (loopback / reverse-proxy TLS patterns)
+- `vireon-wallet` CLI, Control Center (**Tauri** is the product target)
+- `vireon-miner` (NVIDIA CUDA-only FiroPoW; no CPU/OpenCL fallback) against RPC or pool
+- `vireon-mining-pool` **prototype** (not a public production pool)
+- `vireon-indexer` / explorer / website (candidate-scoped)
+- Optional VPS control-plane packaging under `vireon-release/vps-control-plane/`
 
 Still **not** production-complete (non-exhaustive):
 
@@ -57,7 +57,7 @@ Still **not** production-complete (non-exhaustive):
 | Indexer | Tip-hash rebuild, atomic `index.json`, dedicated timer writer, read-only RPC cache, bounded overview/pagination | Incremental detach, continuous daemon as default product |
 | RPC multi-client | Serialized chain-cache refresh, cached tip/work metadata, bounded index routes, `/status` lag fields | In-process rate limits, durable cache, production load test |
 | Pool | Immature→Mature after N confs; **Mature re-check on reorg** claws unpaid mature | Shared admission, HSM signer, production storage |
-| Developer surface | `@veiron/sdk` read client + examples | Signed-tx helpers without key custody |
+| Developer surface | `@vireon/sdk` read client + examples | Signed-tx helpers without key custody |
 
 ---
 

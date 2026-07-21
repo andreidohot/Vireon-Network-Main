@@ -1,4 +1,4 @@
-package network.veiron.mobile
+package network.vireon.mobile
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -73,7 +73,7 @@ class MainActivity : ComponentActivity() {
                 )
             ) {
                 Surface(modifier = Modifier.fillMaxSize(), color = Deep) {
-                    VeironApp(store)
+                    VireonApp(store)
                 }
             }
         }
@@ -81,7 +81,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun VeironApp(store: SecureWalletStore) {
+private fun VireonApp(store: SecureWalletStore) {
     var wallets by remember { mutableStateOf(store.wallets()) }
     var active by remember { mutableStateOf(store.activeWallet()) }
     var stage by remember { mutableStateOf(if (active == null) "wallet" else "sync") }
@@ -195,7 +195,7 @@ private fun VeironApp(store: SecureWalletStore) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Image(
                             painter = painterResource(id = R.drawable.logo),
-                            contentDescription = "Veiron",
+                            contentDescription = "Vireon",
                             modifier = Modifier
                                 .size(52.dp)
                                 .clip(RoundedCornerShape(14.dp))
@@ -206,7 +206,7 @@ private fun VeironApp(store: SecureWalletStore) {
                         )
                         Column {
                             Text(
-                                "VEIRON MOBILE · v${BuildConfig.VERSION_NAME}",
+                                "VIREON MOBILE · v${BuildConfig.VERSION_NAME}",
                                 color = Cyan,
                                 style = MaterialTheme.typography.labelMedium,
                                 fontFamily = FontFamily.Monospace,
@@ -354,7 +354,7 @@ private fun MobileMiningBanBanner(compact: Boolean = false) {
             if (compact) {
                 "Android is wallet + network monitor only. Mining stays on Windows/Linux Control Center (GPU CUDA/OpenCL)."
             } else {
-                "Phones and tablets must not mine Veiron. This app has no miner start/stop, no share submit, and no local PoW. Use Windows or Linux Control Center for FiroPoW GPU mining."
+                "Phones and tablets must not mine Vireon. This app has no miner start/stop, no share submit, and no local PoW. Use Windows or Linux Control Center for FiroPoW GPU mining."
             },
             color = TextPrimary.copy(alpha = 0.92f),
             fontSize = 12.sp,

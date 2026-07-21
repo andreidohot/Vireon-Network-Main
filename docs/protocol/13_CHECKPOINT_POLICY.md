@@ -4,7 +4,7 @@ Status: Implemented / Mainnet Candidate
 
 ## Accepted Launch Direction
 
-`TM-110` freezes Veiron's early-network checkpoint direction as:
+`TM-110` freezes Vireon's early-network checkpoint direction as:
 - social/hardcoded checkpoints in early environments;
 - checkpoints carried by node releases;
 - progressive relaxation only through an explicit later decision;
@@ -13,7 +13,7 @@ Status: Implemented / Mainnet Candidate
 ## Rule
 
 Checkpoint policy ID:
-- `veiron-hardcoded-checkpoints-v1`
+- `vireon-hardcoded-checkpoints-v1`
 
 Checkpoint mode:
 - `social-hardcoded-early-network`
@@ -25,8 +25,8 @@ Current active canonical checkpoint:
 
 ## Current Implementation Note
 
-- `veiron-core` now exposes checkpoint schedules per network;
-- `veiron-core` now validates checkpointed heights during chain acceptance and full chain rebuild;
+- `vireon-core` now exposes checkpoint schedules per network;
+- `vireon-core` now validates checkpointed heights during chain acceptance and full chain rebuild;
 - the current repository pins the deterministic Mainnet Candidate genesis hash as the first canonical checkpoint;
 - Devnet and Testnet do not yet pin additional checkpoint heights in the current repository state.
 

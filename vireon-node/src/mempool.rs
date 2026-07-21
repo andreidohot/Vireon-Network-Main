@@ -7,7 +7,7 @@ use std::fs::{self, File, OpenOptions};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
-use veiron_core::{
+use vireon_core::{
     apply_transaction, hash_to_hex, next_base_fee, validate_transaction_against_state, Address,
     Chain, LedgerState, Network, Transaction,
 };
@@ -124,7 +124,7 @@ fn write_pending_transactions_unlocked(
 pub fn reconcile_after_reorg(
     mempool_dir: &Path,
     chain: &Chain,
-    detached_blocks: &[veiron_core::Block],
+    detached_blocks: &[vireon_core::Block],
     max_transactions: usize,
 ) -> NodeResult<Vec<String>> {
     with_mempool_lock(mempool_dir, || {
@@ -291,7 +291,7 @@ fn filter_pending_candidates(
     chain: &Chain,
     records: Vec<PendingTransactionRecord>,
     max_age_seconds: u64,
-    _anticipated_base_fee: veiron_core::Amount,
+    _anticipated_base_fee: vireon_core::Amount,
 ) -> (Vec<PendingTransactionRecord>, Vec<String>) {
     let mined_hashes = mined_transaction_hashes(chain);
     let mut seen_pending_hashes = BTreeSet::new();
@@ -319,7 +319,7 @@ fn filter_pending_candidates(
 
 fn effective_priority_atomic(
     record: &PendingTransactionRecord,
-    base_fee: veiron_core::Amount,
+    base_fee: vireon_core::Amount,
 ) -> u64 {
     record
         .transaction
@@ -330,7 +330,7 @@ fn effective_priority_atomic(
 
 fn sort_pending_for_admission(
     records: &mut [PendingTransactionRecord],
-    base_fee: veiron_core::Amount,
+    base_fee: vireon_core::Amount,
 ) {
     // Primary: sender then nonce (account model). Secondary: higher tip first.
     records.sort_by(|a, b| {
@@ -348,7 +348,7 @@ fn sort_pending_for_admission(
 
 fn sort_pending_by_fee_desc(
     records: &mut [PendingTransactionRecord],
-    base_fee: veiron_core::Amount,
+    base_fee: vireon_core::Amount,
 ) {
     records.sort_by(|a, b| {
         effective_priority_atomic(b, base_fee)
@@ -369,7 +369,7 @@ fn sort_pending_by_fee_desc(
 /// Used when the mempool is full so higher-fee demand can displace an entire low-fee package.
 pub fn lowest_fee_sender_package(
     records: &[PendingTransactionRecord],
-    base_fee: veiron_core::Amount,
+    base_fee: vireon_core::Amount,
     incoming_tip: u64,
 ) -> Option<String> {
     use std::collections::BTreeMap;
@@ -401,7 +401,7 @@ pub fn lowest_fee_sender_package(
 pub fn validate_pending_transaction(
     state: &LedgerState,
     transaction: &Transaction,
-    anticipated_base_fee: veiron_core::Amount,
+    anticipated_base_fee: vireon_core::Amount,
 ) -> NodeResult<()> {
     if transaction.is_coinbase() {
         return Err(NodeError::Input(
@@ -412,7 +412,7 @@ pub fn validate_pending_transaction(
     Address::parse(&transaction.to).map_err(|error| NodeError::Input(error.to_string()))?;
     match validate_transaction_against_state(state, transaction, anticipated_base_fee) {
         Ok(()) => Ok(()),
-        Err(veiron_core::VeironError::InvalidNonce {
+        Err(vireon_core::VireonError::InvalidNonce {
             address,
             expected,
             actual,
@@ -445,7 +445,7 @@ fn mined_transaction_hashes(chain: &Chain) -> BTreeSet<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use veiron_core::{devnet_genesis, Address, PrivateKey};
+    use vireon_core::{devnet_genesis, Address, PrivateKey};
 
     #[test]
     fn age_eviction_drops_stale_pending_records() {
@@ -461,7 +461,7 @@ mod tests {
         let stale = PendingTransactionRecord {
             tx_hash: "aa".repeat(32),
             received_at_unix_seconds: 1,
-            transaction: Transaction::coinbase(9, miner.clone(), veiron_core::block_reward(9))
+            transaction: Transaction::coinbase(9, miner.clone(), vireon_core::block_reward(9))
                 .expect("shape only — coinbase will be rejected as invalid pending"),
         };
         // Only age matters here: coinbase is already invalid for mempool, so
@@ -486,7 +486,7 @@ mod tests {
 
     #[test]
     fn nonce_gap_is_rejected_by_pending_validation() {
-        use veiron_core::{Amount, INITIAL_BASE_FEE_ATOMIC};
+        use vireon_core::{Amount, INITIAL_BASE_FEE_ATOMIC};
 
         let miner = PrivateKey::generate();
         let miner_address =
@@ -496,7 +496,7 @@ mod tests {
             Network::Devnet,
         )
         .to_string();
-        let genesis = veiron_core::devnet_genesis(&miner_address).expect("genesis");
+        let genesis = vireon_core::devnet_genesis(&miner_address).expect("genesis");
         let mut chain = Chain::new(Network::Devnet);
         chain.append_block(genesis).expect("append");
         let base = Amount::from_atomic(INITIAL_BASE_FEE_ATOMIC);
@@ -523,7 +523,7 @@ mod tests {
 
     #[test]
     fn package_eviction_picks_lowest_min_tip_sender() {
-        use veiron_core::{Amount, INITIAL_BASE_FEE_ATOMIC};
+        use vireon_core::{Amount, INITIAL_BASE_FEE_ATOMIC};
 
         let low_sender = Address::from_public_key_for_network(
             &PrivateKey::generate().public_key(),
@@ -593,7 +593,7 @@ mod tests {
 
     #[test]
     fn fee_sort_prefers_higher_priority_tip() {
-        use veiron_core::{Amount, INITIAL_BASE_FEE_ATOMIC};
+        use vireon_core::{Amount, INITIAL_BASE_FEE_ATOMIC};
 
         let addr_a = Address::from_public_key_for_network(
             &PrivateKey::generate().public_key(),

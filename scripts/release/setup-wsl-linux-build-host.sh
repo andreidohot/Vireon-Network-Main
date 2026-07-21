@@ -36,11 +36,11 @@ apt-get update
 # The WSL repository contains the toolkit without a Linux display driver.
 apt-get install -y nodejs cuda-toolkit
 
-cat >/etc/profile.d/veiron-cuda.sh <<'EOF'
+cat >/etc/profile.d/vireon-cuda.sh <<'EOF'
 export PATH=/usr/local/cuda/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 EOF
-chmod 0644 /etc/profile.d/veiron-cuda.sh
+chmod 0644 /etc/profile.d/vireon-cuda.sh
 export PATH="/usr/local/cuda/bin:$PATH"
 export LD_LIBRARY_PATH="/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 

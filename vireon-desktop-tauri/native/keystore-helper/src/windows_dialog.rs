@@ -41,7 +41,7 @@ pub fn show_recovery_phrase(phrase: &str) -> Result<bool> {
     let text = wide(&format!(
         "Write down these 24 words in order. They will not be shown again.\n\n{phrase}\n\nPress OK only after your offline backup is complete."
     ));
-    let title = wide("Veiron recovery phrase - one-time display");
+    let title = wide("Vireon recovery phrase - one-time display");
 
     // SAFETY: `text`/`title` are valid null-terminated UTF-16, live for the call duration.
     // HWND is null (desktop owner). MessageBoxW is a standard user32 entry point.
@@ -92,7 +92,7 @@ pub fn prompt_recovery_phrase() -> Result<String> {
                 let _ = CreateWindowExW(
                     0,
                     wide("STATIC").as_ptr(),
-                    wide("Enter the 24-word Veiron recovery phrase. It stays in the native helper and is not exposed to the web UI.").as_ptr(),
+                    wide("Enter the 24-word Vireon recovery phrase. It stays in the native helper and is not exposed to the web UI.").as_ptr(),
                     WS_CHILD | WS_VISIBLE,
                     20,
                     20,
@@ -201,7 +201,7 @@ pub fn prompt_recovery_phrase() -> Result<String> {
     // thread only. Class name is unique. HWND null checks prevent use of failed creates.
     unsafe {
         let instance = GetModuleHandleW(std::ptr::null());
-        let class_name = wide("VeironRecoveryImportWindow");
+        let class_name = wide("VireonRecoveryImportWindow");
         let class = WNDCLASSW {
             style: CS_HREDRAW | CS_VREDRAW,
             lpfnWndProc: Some(window_proc),
@@ -215,7 +215,7 @@ pub fn prompt_recovery_phrase() -> Result<String> {
         let window = CreateWindowExW(
             0,
             class_name.as_ptr(),
-            wide("Import Veiron wallet").as_ptr(),
+            wide("Import Vireon wallet").as_ptr(),
             WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
             CW_USEDEFAULT,
             CW_USEDEFAULT,

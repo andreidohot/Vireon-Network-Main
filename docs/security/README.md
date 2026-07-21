@@ -6,7 +6,7 @@ Status: Current Mainnet Candidate security index
 
 Current network-separation safeguards:
 - Devnet, Testnet and Mainnet Candidate use separate network IDs and chain magic values.
-- Devnet, Testnet and Mainnet Candidate use separate default data roots: `.veiron-dev/`, `.veiron-testnet/` and `.veiron-mainnet/`.
+- Devnet, Testnet and Mainnet Candidate use separate default data roots: `.vireon-dev/`, `.vireon-testnet/` and `.vireon-mainnet/`.
 - Mainnet Candidate startup requires `allow_mainnet_candidate = true`.
 - Reset commands must refuse Mainnet Candidate.
 - Wallet signing must surface the active network before transaction signing.

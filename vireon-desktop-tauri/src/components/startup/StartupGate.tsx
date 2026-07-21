@@ -1,7 +1,7 @@
 import { CheckCircle2, CircleGauge, KeyRound, LoaderCircle, Plus, RadioTower, WalletCards } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { NetworkSnapshot, WalletMetadata } from "@shared/types";
-import { VeironLogo } from "../brand/VeironLogo";
+import { VireonLogo } from "../brand/VireonLogo";
 import { RecoveryPhraseImport } from "../wallet/RecoveryPhraseImport";
 import { startupAccessMode } from "./startupPolicy";
 
@@ -45,11 +45,11 @@ export function StartupGate(props: StartupGateProps) {
   const remoteMode = /vps gateway/i.test(props.snapshot.detail) || props.snapshot.online;
 
   return (
-    <div className="startup-overlay" role="dialog" aria-modal="true" aria-label="Veiron startup verification">
+    <div className="startup-overlay" role="dialog" aria-modal="true" aria-label="Vireon startup verification">
       <section className="startup-gate">
         <div className="startup-rail">
           <div className="startup-emblem">
-            <VeironLogo size="md" alt="Veiron" />
+            <VireonLogo size="md" alt="Vireon" />
           </div>
           <div className={stage === "wallet" ? "startup-step active" : "startup-step complete"}>
             <WalletCards size={18} />

@@ -1,6 +1,6 @@
 //! CUDA-only FiroPoW 0.9.4 product mining.
 //!
-//! Nodes continue to validate PoW on the host in `veiron-core`, but this crate
+//! Nodes continue to validate PoW on the host in `vireon-core`, but this crate
 //! never searches nonces on the CPU and never labels host work as GPU mining.
 
 mod coordinator;

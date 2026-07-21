@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use std::env;
 use std::fs;
 use std::net::IpAddr;
 use std::path::{Path, PathBuf};
@@ -43,11 +44,17 @@ impl AdminConfig {
     }
 
     pub fn validate(&self) -> Result<(), String> {
+        let docker_mode = env::var("VIREON_DEPLOYMENT_MODE")
+            .is_ok_and(|value| value.eq_ignore_ascii_case("docker"));
+        self.validate_for_mode(docker_mode)
+    }
+
+    fn validate_for_mode(&self, docker_mode: bool) -> Result<(), String> {
         let bind_ip: IpAddr = self
             .bind_host
             .parse()
             .map_err(|_| "bind_host must be a literal loopback IP".to_owned())?;
-        if !bind_ip.is_loopback() {
+        if !bind_ip.is_loopback() && !docker_mode {
             return Err("admin service must bind to a loopback address".to_owned());
         }
         if self.network_id != "veiron-mainnet-candidate" {
@@ -58,8 +65,11 @@ impl AdminConfig {
         }
         if !self.local_rpc_url.starts_with("http://127.0.0.1:")
             && !self.local_rpc_url.starts_with("http://[::1]:")
+            && !(docker_mode && self.local_rpc_url.starts_with("http://vireon-rpc:"))
         {
-            return Err("local_rpc_url must use loopback HTTP".to_owned());
+            return Err(
+                "local_rpc_url must use loopback HTTP or Docker-internal vireon-rpc".to_owned(),
+            );
         }
         if let Some(url) = &self.controller_url {
             if !url.is_empty() && !url.starts_with("https://") {
@@ -107,5 +117,15 @@ mod tests {
         let mut config = valid();
         config.controller_url = Some("http://controller.example.org".to_owned());
         assert!(config.validate().is_err());
+    }
+
+    #[test]
+    fn accepts_docker_internal_bind_and_rpc_only_in_docker_mode() {
+        let mut config = valid();
+        config.bind_host = "0.0.0.0".to_owned();
+        config.local_rpc_url = "http://vireon-rpc:10787".to_owned();
+
+        assert!(config.validate_for_mode(true).is_ok());
+        assert!(config.validate_for_mode(false).is_err());
     }
 }

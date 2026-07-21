@@ -1,9 +1,9 @@
 [package]
-name = "veiron-core"
+name = "vireon-core"
 version = "1.0.0"
 edition = "2021"
 license = "Apache-2.0"
-description = "Veiron core primitives Ă˘â‚¬â€ť FiroPoW 0.9.4 (VeironPoW v1) consensus"
+description = "Vireon core primitives -- FiroPoW 0.9.4 (VireonPoW v1) consensus"
 build = "build.rs"
 
 [dependencies]

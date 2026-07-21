@@ -11,7 +11,7 @@ use protocol::{default_config_from_args, HostState, Request};
 use std::env;
 use std::io::{self, BufRead, BufReader, Write};
 use std::path::PathBuf;
-use veiron_sdk_rust::{
+use vireon_sdk_rust::{
     BlockingRpcClient, MnemonicWordCount, Network, WalletAccount, WalletDerivationPath,
 };
 
@@ -105,7 +105,7 @@ fn main() {
 
     let jsonl = args.iter().any(|a| a == "--jsonl" || a == "--stdio-jsonl");
     let require_os_confirm = args.iter().any(|a| a == "--require-os-confirm")
-        || env::var("VEIRON_HOST_REQUIRE_OS_CONFIRM")
+        || env::var("VIREON_HOST_REQUIRE_OS_CONFIRM")
             .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
             .unwrap_or(false);
 
@@ -113,7 +113,7 @@ fn main() {
     let mut state = match HostState::new(config) {
         Ok(state) => state,
         Err(error) => {
-            eprintln!("veiron-browser-host failed to start: {error}");
+            eprintln!("vireon-browser-host failed to start: {error}");
             std::process::exit(1);
         }
     };
@@ -142,17 +142,17 @@ fn exit_result(result: Result<(), String>) -> ! {
 
 fn print_help() {
     eprintln!(
-        "veiron-browser-host {} â€” Mainnet Candidate native messaging host
+        "vireon-browser-host {} -- Mainnet Candidate native messaging host
 
 USAGE:
-  veiron-browser-host [OPTIONS]
+  vireon-browser-host [OPTIONS]
 
 NATIVE MESSAGING / DEV:
   --jsonl                 JSON-lines protocol on stdin/stdout (dev/test)
   --local                 Use http://127.0.0.1:10787 RPC
   --rpc <url>             Custom RPC base URL
   --keystore-dir <path>   Override encrypted keystore directory
-  --require-os-confirm    Confirm send/sign via OS dialog (Windows) or VEIRON_HOST_CONFIRM
+  --require-os-confirm    Confirm send/sign via OS dialog (Windows) or VIREON_HOST_CONFIRM
   --print-info            Print network/keystore paths and exit
   -h, --help              Show this help
 
@@ -165,7 +165,7 @@ RPC ONE-SHOTS (exit after print; use --local or --rpc as needed):
   --print-indexer         GET /indexer/status as JSON
   --print-block           Latest block (or --height N)
   --print-chain           Combined tip/status/sync/mempool/indexer/supply summary
-  --print-account         Account snapshot (--address vire1â€¦ or keystore public address)
+  --print-account         Account snapshot (--address vire1... or keystore public address)
   --check-health          Probe RPC + tip (+ optional indexer); exit codes for automation
   --require-indexer-sync  Fail if indexer missing/out of sync (lag allowed = 0 unless set below)
   --max-indexer-lag <n>   Fail if indexer lag_blocks or height delta > n (enables indexer check)
@@ -177,7 +177,7 @@ Health exit codes (--check-health):
   2  chain not ready (status/tip missing)
   3  indexer lag / not in sync (with --require-indexer-sync and/or --max-indexer-lag)
 
-RECOVERY (CLI ONLY â€” mnemonic never sent to the extension):
+RECOVERY (CLI ONLY -- mnemonic never sent to the extension):
   --init-wallet           Create encrypted keystore; print recovery phrase ONCE to stderr
   --import-mnemonic       Import mnemonic into encrypted keystore
   --export-public         Print address / public metadata (no secrets)
@@ -185,17 +185,17 @@ RECOVERY (CLI ONLY â€” mnemonic never sent to the extension):
   --delete-wallet         Delete keystore after passphrase verification
 
 Passphrases / args:
-  --passphrase <text>     Or env VEIRON_HOST_PASSPHRASE
+  --passphrase <text>     Or env VIREON_HOST_PASSPHRASE
   --old-passphrase <text> For --change-passphrase
   --new-passphrase <text> For --change-passphrase
   --mnemonic <phrase>     For --import-mnemonic
   --height <n>            For --print-block
-  --address <vire1â€¦>      For --print-account
+  --address <vire1...>      For --print-account
 
 ENV:
-  VEIRON_HOST_REQUIRE_OS_CONFIRM=1
-  VEIRON_HOST_CONFIRM=1
-  VEIRON_HOST_PASSPHRASE=...
+  VIREON_HOST_REQUIRE_OS_CONFIRM=1
+  VIREON_HOST_CONFIRM=1
+  VIREON_HOST_PASSPHRASE=...
 ",
         env!("CARGO_PKG_VERSION")
     );
@@ -210,7 +210,7 @@ fn print_info(args: &[String]) -> Result<(), String> {
     let keystore_dir = resolve_keystore_dir(args, config.network);
     if wants_json(args) {
         return print_json(&serde_json::json!({
-            "service": "veiron-browser-host",
+            "service": "vireon-browser-host",
             "version": env!("CARGO_PKG_VERSION"),
             "network_id": config.network_id(),
             "status_label": config.status_label(),
@@ -220,7 +220,7 @@ fn print_info(args: &[String]) -> Result<(), String> {
             "status": "Mainnet Candidate / Prototype",
         }));
     }
-    println!("service=veiron-browser-host");
+    println!("service=vireon-browser-host");
     println!("version={}", env!("CARGO_PKG_VERSION"));
     println!("network_id={}", config.network_id());
     println!("status_label={}", config.status_label());
@@ -316,7 +316,7 @@ fn run_print_chain(args: &[String]) -> Result<(), String> {
         "supply": supply,
         "indexer": indexer,
         "rpc_base_url": client.config().rpc_base_url,
-        "disclaimer": "Mainnet Candidate / Prototype â€” not Mainnet Live",
+        "disclaimer": "Mainnet Candidate / Prototype -- not Mainnet Live",
     });
     print_json(&summary)
 }
@@ -329,7 +329,7 @@ fn run_print_account(args: &[String]) -> Result<(), String> {
         let dir = resolve_keystore_dir(args, Network::MainnetCandidate);
         export_public(&dir)
             .map(|view| view.address)
-            .map_err(|e| format!("{e} (or pass --address vire1â€¦)"))?
+            .map_err(|e| format!("{e} (or pass --address vire1...)"))?
     };
     let account = client.account(&address).map_err(|e| e.to_string())?;
     print_json(&account)
@@ -554,12 +554,12 @@ fn run_export_public(args: &[String]) {
 fn run_init_wallet(args: &[String]) -> Result<(), String> {
     let config = default_config_from_args(args);
     let dir = resolve_keystore_dir(args, config.network);
-    let passphrase = require_cli_passphrase(args, "--passphrase", "VEIRON_HOST_PASSPHRASE")?;
+    let passphrase = require_cli_passphrase(args, "--passphrase", "VIREON_HOST_PASSPHRASE")?;
     let (account, mnemonic) = WalletAccount::generate(config.network, MnemonicWordCount::Twelve)
         .map_err(|e| e.to_string())?;
     let stored = create_encrypted_wallet(&dir, config.network, &passphrase, &account)?;
 
-    eprintln!("=== Veiron browser-host recovery phrase (shown ONCE) ===");
+    eprintln!("=== Vireon browser-host recovery phrase (shown ONCE) ===");
     eprintln!("{}", mnemonic.phrase);
     eprintln!("=== Store offline. This phrase is never given to the extension. ===");
     eprintln!("path={}", keystore_path(&dir).display());
@@ -572,7 +572,7 @@ fn run_init_wallet(args: &[String]) -> Result<(), String> {
 fn run_import_mnemonic(args: &[String]) -> Result<(), String> {
     let config = default_config_from_args(args);
     let dir = resolve_keystore_dir(args, config.network);
-    let passphrase = require_cli_passphrase(args, "--passphrase", "VEIRON_HOST_PASSPHRASE")?;
+    let passphrase = require_cli_passphrase(args, "--passphrase", "VIREON_HOST_PASSPHRASE")?;
     let phrase = arg_value(args, "--mnemonic")
         .map(str::to_owned)
         .filter(|s| !s.trim().is_empty())
@@ -591,9 +591,9 @@ fn run_import_mnemonic(args: &[String]) -> Result<(), String> {
 fn run_change_passphrase(args: &[String]) -> Result<(), String> {
     let config = default_config_from_args(args);
     let dir = resolve_keystore_dir(args, config.network);
-    let old = require_cli_passphrase(args, "--old-passphrase", "VEIRON_HOST_OLD_PASSPHRASE")
-        .or_else(|_| require_cli_passphrase(args, "--passphrase", "VEIRON_HOST_PASSPHRASE"))?;
-    let new = require_cli_passphrase(args, "--new-passphrase", "VEIRON_HOST_NEW_PASSPHRASE")?;
+    let old = require_cli_passphrase(args, "--old-passphrase", "VIREON_HOST_OLD_PASSPHRASE")
+        .or_else(|_| require_cli_passphrase(args, "--passphrase", "VIREON_HOST_PASSPHRASE"))?;
+    let new = require_cli_passphrase(args, "--new-passphrase", "VIREON_HOST_NEW_PASSPHRASE")?;
     let view = change_passphrase(&dir, config.network, &old, &new)?;
     println!("address={}", view.address);
     println!("status=passphrase_changed");
@@ -604,7 +604,7 @@ fn run_change_passphrase(args: &[String]) -> Result<(), String> {
 fn run_delete_wallet(args: &[String]) -> Result<(), String> {
     let config = default_config_from_args(args);
     let dir = resolve_keystore_dir(args, config.network);
-    let passphrase = require_cli_passphrase(args, "--passphrase", "VEIRON_HOST_PASSPHRASE")?;
+    let passphrase = require_cli_passphrase(args, "--passphrase", "VIREON_HOST_PASSPHRASE")?;
     let _ = unlock_wallet(&dir, config.network, &passphrase)?;
     delete_wallet(&dir, config.network, &passphrase)?;
     println!("status=deleted");

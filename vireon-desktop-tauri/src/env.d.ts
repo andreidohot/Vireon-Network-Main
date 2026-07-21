@@ -1,10 +1,10 @@
 /// <reference types="vite/client" />
 
-import type { VeironBridge } from "@shared/types";
+import type { VireonBridge } from "@shared/types";
 
 declare global {
   interface Window {
-    veiron: VeironBridge;
+    vireon: VireonBridge;
   }
 }
 

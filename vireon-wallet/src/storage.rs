@@ -7,7 +7,7 @@ use rand::RngCore;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
-use veiron_core::{Address, Network, PrivateKey};
+use vireon_core::{Address, Network, PrivateKey};
 use zeroize::Zeroize;
 
 pub const DEFAULT_WALLET_FILE_NAME: &str = "default-wallet.json";
@@ -15,7 +15,7 @@ pub const SCHEMA_PLAINTEXT_LEGACY: &str = "veiron-wallet-plaintext-v0";
 pub const SCHEMA_ENCRYPTED_V1: &str = "veiron-wallet-encrypted-v1";
 
 /// Env var for the passphrase that encrypts mainnet-candidate wallet files.
-pub const WALLET_PASSPHRASE_ENV: &str = "VEIRON_WALLET_PASSPHRASE";
+pub const WALLET_PASSPHRASE_ENV: &str = "VIREON_WALLET_PASSPHRASE";
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct EncryptedSecret {
@@ -58,7 +58,7 @@ impl StoredWallet {
     pub fn network(&self) -> WalletResult<Network> {
         self.network_id
             .parse()
-            .map_err(|error: veiron_core::VeironError| WalletError::Core(error))
+            .map_err(|error: vireon_core::VireonError| WalletError::Core(error))
     }
 
     pub fn is_encrypted(&self) -> bool {
@@ -301,7 +301,7 @@ pub fn load_wallet(wallet_dir: &Path) -> WalletResult<StoredWallet> {
     Ok(wallet)
 }
 
-/// Unlock the private key. Encrypted wallets need `passphrase` or `VEIRON_WALLET_PASSPHRASE`.
+/// Unlock the private key. Encrypted wallets need `passphrase` or `VIREON_WALLET_PASSPHRASE`.
 pub fn private_key_from_wallet(wallet: &StoredWallet) -> WalletResult<PrivateKey> {
     private_key_from_wallet_passphrase(wallet, None)
 }
@@ -326,7 +326,7 @@ pub fn private_key_from_wallet_passphrase(
             // Refuse plaintext mainnet-candidate material for signing after upgrade path.
             if wallet.network_id == Network::MainnetCandidate.network_id() {
                 return Err(WalletError::Input(
-                    "legacy plaintext mainnet-candidate wallet detected; re-import with encryption (VEIRON_WALLET_PASSPHRASE)".into(),
+                    "legacy plaintext mainnet-candidate wallet detected; re-import with encryption (VIREON_WALLET_PASSPHRASE)".into(),
                 ));
             }
             return PrivateKey::from_hex(hex).map_err(WalletError::from);

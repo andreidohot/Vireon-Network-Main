@@ -1,22 +1,22 @@
 //! Optional live smoke against the public Mainnet Candidate RPC.
 //!
 //! Run:
-//!   cargo test -p veiron-sdk-rust --features native --test live_rpc_smoke -- --ignored --nocapture
+//!   cargo test -p vireon-sdk-rust --features native --test live_rpc_smoke -- --ignored --nocapture
 //!
-//! Or set VEIRON_LIVE_SMOKE=1 to enable without --ignored.
+//! Or set VIREON_LIVE_SMOKE=1 to enable without --ignored.
 
 #![cfg(feature = "native")]
 
-use veiron_sdk_rust::{NetworkConfig, RpcClient};
+use vireon_sdk_rust::{NetworkConfig, RpcClient};
 
 fn live_enabled() -> bool {
-    std::env::var("VEIRON_LIVE_SMOKE")
+    std::env::var("VIREON_LIVE_SMOKE")
         .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
         .unwrap_or(false)
 }
 
 #[tokio::test]
-#[ignore = "hits public Mainnet Candidate RPC; run with --ignored or VEIRON_LIVE_SMOKE=1"]
+#[ignore = "hits public Mainnet Candidate RPC; run with --ignored or VIREON_LIVE_SMOKE=1"]
 async fn public_candidate_rpc_smoke() {
     if !live_enabled() && std::env::var("CARGO_TEST_RUN_IGNORED").is_err() {
         // Still allow plain --ignored from cargo.
@@ -47,7 +47,7 @@ async fn public_candidate_rpc_smoke() {
     let mempool = client.mempool_status().await.expect("mempool");
     let _ = mempool.pending_count;
 
-    // Indexer may lag or be empty on some deployments â€” tolerate soft failures.
+    // Indexer may lag or be empty on some deployments -- tolerate soft failures.
     match client.indexer_status().await {
         Ok(idx) => {
             assert!(idx.initialized || idx.indexed_block_count == 0);

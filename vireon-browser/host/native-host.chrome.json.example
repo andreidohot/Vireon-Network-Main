@@ -1,7 +1,7 @@
 {
-  "name": "com.veiron.browser_host",
-  "description": "Veiron Network browser native messaging host (Mainnet Candidate scaffold)",
-  "path": "C:\\\\REPLACE\\\\WITH\\\\ABSOLUTE\\\\PATH\\\\veiron-browser-host.exe",
+  "name": "com.vireon.browser_host",
+  "description": "Vireon Network browser native messaging host (Mainnet Candidate scaffold)",
+  "path": "C:\\\\REPLACE\\\\WITH\\\\ABSOLUTE\\\\PATH\\\\vireon-browser-host.exe",
   "type": "stdio",
   "allowed_origins": [
     "chrome-extension://REPLACE_EXTENSION_ID/"

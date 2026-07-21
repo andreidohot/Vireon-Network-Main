@@ -4,7 +4,7 @@
 > preserved as chain-history evidence. Current protocol and genesis sources are
 > `../protocol/06_CONSENSUS_POW.md` and `GENESIS.md`.
 
-**Reason:** Consensus PoW changed from Blake3 leading-zero-bits to **FiroPoW 0.9.4** (VeironPoW v1). All prior blocks, balances, and pool state are invalid.
+**Reason:** Consensus PoW changed from Blake3 leading-zero-bits to **FiroPoW 0.9.4** (VireonPoW v1). All prior blocks, balances, and pool state are invalid.
 
 ## New genesis pin
 
@@ -17,22 +17,22 @@
 
 ## Operator steps
 
-1. Deploy Linux release binaries (`veiron-node`, `veiron-rpc-gateway`, `veiron-indexer`, `veiron-mining-pool`) built with FiroPoW native linkage.
-2. Deploy updated genesis approval/review JSON under `/etc/veiron` and `/opt/veiron/docs/release`.
+1. Deploy Linux release binaries (`vireon-node`, `vireon-rpc-gateway`, `vireon-indexer`, `vireon-mining-pool`) built with FiroPoW native linkage.
+2. Deploy updated genesis approval/review JSON under `/etc/vireon` and `/opt/vireon/docs/release`.
 3. **Preferred (no re-mine on VPS):** import pre-mined genesis from a dev machine:
 
 ```bash
 # Dev (once):
-veiron-node --config configs/mainnet-candidate.toml export-genesis-block \
+vireon-node --config configs/mainnet-candidate.toml export-genesis-block \
   --output docs/release/genesis.mainnet-candidate.block.json
 
 # VPS:
-systemctl stop veiron-node veiron-rpc veiron-mining-pool
-# from /opt/veiron working dir, with approval files in place:
-veiron-node --config /etc/veiron/node.toml \
-  --data-dir /var/lib/veiron/.veiron-mainnet/chain \
+systemctl stop vireon-node vireon-rpc vireon-mining-pool
+# from /opt/vireon working dir, with approval files in place:
+vireon-node --config /etc/vireon/node.toml \
+  --data-dir /var/lib/vireon/.vireon-mainnet/chain \
   import-genesis-block --genesis-file /path/to/genesis.mainnet-candidate.block.json --force
-systemctl start veiron-node veiron-rpc veiron-mining-pool
+systemctl start vireon-node vireon-rpc vireon-mining-pool
 ```
 
 4. Confirm:
@@ -49,7 +49,7 @@ curl -sS https://rpcnode.dohotstudio.com/status
 ## Local wipe (Windows)
 
 ```
-%LOCALAPPDATA%\Veiron\ControlCenter\.veiron-local\{chain,mempool,indexer,node}
+%LOCALAPPDATA%\Vireon\ControlCenter\.vireon-local\{chain,mempool,indexer,node}
 ```
 
 Wallet addresses can be kept; balances restart at zero on the new chain.

@@ -1,14 +1,14 @@
 groups:
-  - name: veiron-core
+  - name: vireon-core
     rules:
-      - alert: VeironEndpointDown
-        expr: probe_success{job="veiron-http"} == 0
+      - alert: VireonEndpointDown
+        expr: probe_success{job="vireon-http"} == 0
         for: 2m
         labels:
           severity: critical
           service: "{{ $labels.instance }}"
         annotations:
-          summary: "Veiron endpoint is unreachable"
+          summary: "Vireon endpoint is unreachable"
           description: "{{ $labels.instance }} has failed blackbox probes for more than two minutes."
 
 
@@ -39,12 +39,12 @@ groups:
           description: "Available memory has remained below 10% for ten minutes."
 
 
-      - alert: VeironBackupStale
-        expr: time() - veiron_backup_last_success_unixtime > 129600
+      - alert: VireonBackupStale
+        expr: time() - vireon_backup_last_success_unixtime > 129600
         for: 15m
         labels:
           severity: critical
           service: backup
         annotations:
-          summary: "Veiron backup is stale"
+          summary: "Vireon backup is stale"
           description: "No successful backup has been recorded for more than 36 hours."

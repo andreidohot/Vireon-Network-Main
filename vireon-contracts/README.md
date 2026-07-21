@@ -1,4 +1,4 @@
-# veiron-contracts
+# vireon-contracts
 
 Reserved for contract standards, examples and VM integration research.
 

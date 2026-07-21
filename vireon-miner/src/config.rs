@@ -2,7 +2,7 @@ use crate::{MinerError, Result};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
-use veiron_core::Address;
+use vireon_core::Address;
 
 /// Versioned miner configuration (schema v4: CUDA-only, no host search fields).
 pub const MINER_CONFIG_SCHEMA_VERSION: u32 = 4;
@@ -36,7 +36,7 @@ pub struct MinerConfig {
     /// Selected CUDA device ids (`cuda:0:...`) or indexes. Empty = all CUDA GPUs.
     #[serde(default)]
     pub gpu_devices: Vec<String>,
-    /// Re-validate every GPU candidate with veiron-core (always recommended).
+    /// Re-validate every GPU candidate with vireon-core (always recommended).
     #[serde(default = "default_true")]
     pub kernel_validation: bool,
     pub source: WorkSourceConfig,

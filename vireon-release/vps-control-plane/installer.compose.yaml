@@ -1,23 +1,24 @@
-name: veiron-installer
+name: vireon-installer
 services:
   docker-broker:
-    image: ${VEIRON_OPS_IMAGE:-ghcr.io/andreidohot/veiron-ops}:${VEIRON_VERSION:-2.1.0-no-autoupdate}
+    image: ${VIREON_OPS_IMAGE:-ghcr.io/andreidohot/vireon-ops}:${VIREON_VERSION:-2.1.0-no-autoupdate}
     build:
-      context: ${VEIRON_HOST_WORKSPACE:?Set VEIRON_HOST_WORKSPACE}
+      context: ${VIREON_HOST_WORKSPACE:?Set VIREON_HOST_WORKSPACE}
       dockerfile: docker/ops/Dockerfile
-    container_name: veiron-installer-broker
+    container_name: vireon-installer-broker
     restart: unless-stopped
-    working_dir: ${VEIRON_HOST_WORKSPACE}
+    working_dir: ${VIREON_HOST_WORKSPACE}
     environment:
-      VEIRON_WORKSPACE: ${VEIRON_HOST_WORKSPACE}
-      VEIRON_COMPOSE_FILE: ${VEIRON_HOST_WORKSPACE}/compose.yaml
-      VEIRON_HOST_WORKSPACE: ${VEIRON_HOST_WORKSPACE}
-      VEIRON_HOST_REPO: ${VEIRON_HOST_REPO}
+      VIREON_WORKSPACE: ${VIREON_HOST_WORKSPACE}
+      VIREON_COMPOSE_FILE: ${VIREON_HOST_WORKSPACE}/compose.yaml
+      VIREON_HOST_WORKSPACE: ${VIREON_HOST_WORKSPACE}
+      VIREON_HOST_REPO: ${VIREON_HOST_REPO}
       BROKER_TOKEN_FILE: /run/secrets/broker_token
+      VIREON_INSTALLER_MODE: "true"
     command: ["gunicorn", "--bind", "0.0.0.0:8090", "--workers", "1", "--threads", "2", "--timeout", "7200", "broker:app"]
     volumes:
-      - ${VEIRON_HOST_WORKSPACE}:${VEIRON_HOST_WORKSPACE}
-      - ${VEIRON_HOST_REPO}:${VEIRON_HOST_REPO}:ro
+      - ${VIREON_HOST_WORKSPACE}:${VIREON_HOST_WORKSPACE}
+      - ${VIREON_HOST_REPO}:${VIREON_HOST_REPO}:ro
       - /var/run/docker.sock:/var/run/docker.sock
     secrets: [broker_token, cloudflare_api_token, backup_passphrase, r2_secret_access_key]
     networks: [installer-internal]
@@ -30,22 +31,22 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
-  veiron-installer:
-    image: ${VEIRON_OPS_IMAGE:-ghcr.io/andreidohot/veiron-ops}:${VEIRON_VERSION:-2.1.0-no-autoupdate}
+  vireon-installer:
+    image: ${VIREON_OPS_IMAGE:-ghcr.io/andreidohot/vireon-ops}:${VIREON_VERSION:-2.1.0-no-autoupdate}
     build:
-      context: ${VEIRON_HOST_WORKSPACE:?Set VEIRON_HOST_WORKSPACE}
+      context: ${VIREON_HOST_WORKSPACE:?Set VIREON_HOST_WORKSPACE}
       dockerfile: docker/ops/Dockerfile
-    container_name: veiron-installer
+    container_name: vireon-installer
     restart: unless-stopped
     environment:
-      VEIRON_WORKSPACE: /workspace
+      VIREON_WORKSPACE: /workspace
       SETUP_TOKEN_FILE: /run/secrets/setup_token
       BROKER_URL: http://docker-broker:8090
       BROKER_TOKEN_FILE: /run/secrets/broker_token
-      VEIRON_HOST_WORKSPACE: ${VEIRON_HOST_WORKSPACE}
-      VEIRON_HOST_REPO: ${VEIRON_HOST_REPO}
+      VIREON_HOST_WORKSPACE: ${VIREON_HOST_WORKSPACE}
+      VIREON_HOST_REPO: ${VIREON_HOST_REPO}
     ports: ["127.0.0.1:${OPS_BOOTSTRAP_PORT:-8080}:8080"]
-    volumes: ["${VEIRON_HOST_WORKSPACE}:/workspace"]
+    volumes: ["${VIREON_HOST_WORKSPACE}:/workspace"]
     secrets: [setup_token, broker_token]
     depends_on:
       docker-broker: {condition: service_healthy}
@@ -55,7 +56,7 @@ services:
     security_opt: [no-new-privileges:true]
     cap_drop: [ALL]
 networks:
-  installer-internal: {name: veiron-installer-internal, driver: bridge}
+  installer-internal: {name: vireon-installer-internal, driver: bridge}
 secrets:
   setup_token: {file: ./state/secrets/setup_token}
   broker_token: {file: ./state/secrets/broker_token}

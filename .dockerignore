@@ -1,5 +1,5 @@
-# Veiron Docker Build Context — exclude everything unnecessary
-# Context root: Veiron-Network-Main/ (set via compose.yaml build.context: ../..)
+# Vireon Docker Build Context — exclude everything unnecessary
+# Context root: Vireon-Network-Main/ (set via compose.yaml build.context: ../..)
 
 # Rust build artefacts
 target/
@@ -16,36 +16,36 @@ shared/brand/
 shared/test-vectors/
 
 # Other projects (each has its own Dockerfile if needed)
-veiron-android/
-veiron-benchmarks/
-veiron-browser/
-veiron-community/
-veiron-contracts/
-veiron-desktop/
-veiron-desktop-tauri/
-veiron-devnet/
-veiron-examples/
-veiron-explorer/
-veiron-faucet/
-veiron-governance/
-veiron-indexer/
-veiron-infra/
-veiron-marketplace/
-veiron-miner/
-veiron-mining-pool/
-veiron-mobile-core/
-veiron-monitoring/
-veiron-node/
-veiron-ops/
-veiron-passport/
-veiron-research/
-veiron-rpc-gateway/
-veiron-sdk/
-veiron-sdk-rust/
-veiron-security/
-veiron-tests/
-veiron-wallet/
-veiron-website/
+vireon-android/
+vireon-benchmarks/
+vireon-browser/
+vireon-community/
+vireon-contracts/
+vireon-desktop/
+vireon-desktop-tauri/
+vireon-devnet/
+vireon-examples/
+vireon-explorer/
+vireon-faucet/
+vireon-governance/
+vireon-indexer/
+vireon-infra/
+vireon-marketplace/
+vireon-miner/
+vireon-mining-pool/
+vireon-mobile-core/
+vireon-monitoring/
+vireon-node/
+vireon-ops/
+vireon-passport/
+vireon-research/
+vireon-rpc-gateway/
+vireon-sdk/
+vireon-sdk-rust/
+vireon-security/
+vireon-tests/
+vireon-wallet/
+vireon-website/
 
 # OS and IDE garbage
 .DS_Store

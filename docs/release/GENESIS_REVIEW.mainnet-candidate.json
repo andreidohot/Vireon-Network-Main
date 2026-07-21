@@ -1,7 +1,7 @@
 {
   "review_standard_id": "veiron-genesis-review-v1",
   "network_id": "veiron-mainnet-candidate",
-  "human_name": "Veiron Mainnet Candidate",
+  "human_name": "Vireon Mainnet Candidate",
   "status_label": "Planned / Mainnet Candidate",
   "address_prefix": "vire",
   "block_time_seconds": 60,

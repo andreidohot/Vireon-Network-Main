@@ -1,7 +1,7 @@
-# veiron-sdk-rust — API map (v0.1)
+# vireon-sdk-rust — API map (v0.1)
 
-Crate: `veiron-sdk-rust`  
-Import: `use veiron_sdk_rust::…`
+Crate: `vireon-sdk-rust`  
+Import: `use vireon_sdk_rust::…`
 
 ## Config
 

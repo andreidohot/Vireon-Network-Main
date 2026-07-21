@@ -1,4 +1,4 @@
-const HOST_NAME = "com.veiron.browser_host";
+const HOST_NAME = "com.vireon.browser_host";
 
 let nextId = 1;
 

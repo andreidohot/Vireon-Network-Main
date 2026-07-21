@@ -10,13 +10,19 @@ const inventoryPath = path.join(root, 'docs', 'DOCUMENTATION_INVENTORY.md')
 const writeInventory = process.argv.includes('--write')
 
 const ignoredDirectories = new Set([
-  '.artifacts', '.git', '.veiron-local', '.tmp-firo', 'dist', 'node_modules', 'release-artifacts', 'target',
+  '.artifacts', '.git', '.review', '.veiron-local', '.vireon-local', '.tmp-firo',
+  'dist', 'node_modules', 'release-artifacts', 'target', 'veiron-docker',
+])
+const ignoredFiles = new Set([
+  'CODE_REVIEW_REPORT_2026-07-19.md',
+  'RUST_CODE_ANALYSIS_REPORT.md',
 ])
 
 async function walk(directory) {
   const results = []
   for (const entry of await fs.readdir(directory, { withFileTypes: true })) {
     if (entry.isDirectory() && ignoredDirectories.has(entry.name)) continue
+    if (entry.isFile() && ignoredFiles.has(entry.name)) continue
     const absolute = path.join(directory, entry.name)
     if (entry.isDirectory()) results.push(...await walk(absolute))
     else if (/\.mdx?$/i.test(entry.name)) results.push(absolute)
@@ -36,8 +42,8 @@ function isPublicSource(file) {
   if (file === 'README.md') return true
   if (file.startsWith('docs/')) return true
   if (file.startsWith('shared/')) return true
-  if (/^veiron-[^/]+\/README\.md$/.test(file)) return true
-  return /^veiron-sdk-rust\/docs\/.*\.md$/.test(file)
+  if (/^vireon-[^/]+\/README\.md$/.test(file)) return true
+  return /^vireon-sdk-rust\/docs\/.*\.md$/.test(file)
 }
 
 function classify(file) {
@@ -51,6 +57,12 @@ function firstMatch(content, expression, fallback = '') {
   return content.match(expression)?.[1]?.trim().replaceAll('|', '\\|') || fallback
 }
 
+function hasMojibake(content) {
+  // Match common UTF-8-as-Windows-1252 sequences without rejecting legitimate
+  // Romanian characters such as ă, â, î, ș and ț.
+  return /\u00e2(?:\u20ac|\u2020)|\u00c3[\u0080-\u00bf]|\u00c2[\u0080-\u00bf]|\u0102\u02c6|\uFFFD/.test(content)
+}
+
 function localLinkTargets(content) {
   return [...content.matchAll(/!?(?:\[[^\]]*\])\(([^)\s]+)(?:\s+['"][^'"]*['"])?\)/g)]
     .map((match) => match[1].replace(/^<|>$/g, ''))
@@ -60,6 +72,7 @@ function localLinkTargets(content) {
 async function targetExists(sourceAbsolute, target) {
   const decoded = decodeURIComponent(target.split('#', 1)[0])
   if (!decoded) return true
+  if (decoded === '/') return true
   const absolute = path.resolve(path.dirname(sourceAbsolute), decoded)
   try {
     const stat = await fs.stat(absolute)
@@ -77,7 +90,7 @@ const stalePatterns = [
   [/Tauri 0\.[0-9]+/i, 'stale Control Center version'],
   [/apply updates \*\*without operator confirmation\*\*/i, 'invalid desktop auto-install policy'],
   [/accepted launch PoW algorithm is Blake3/i, 'superseded PoW decision'],
-  [/veiron-miner\/src\/backends\/opencl\.rs/i, 'removed OpenCL source path'],
+  [/vireon-miner\/src\/backends\/opencl\.rs/i, 'removed OpenCL source path'],
   [/\bP2P (?:protocol )?v2\b/i, 'superseded P2P protocol version'],
   [/0000a26d0a9da9577f94350eaed9568f04e7e823f9e2ee5d0df0df52597779c2/i, 'superseded candidate genesis hash'],
   [/Rust implementation (?:starts|begins) only after/i, 'obsolete pre-implementation gate'],
@@ -87,6 +100,7 @@ const stalePatterns = [
 const files = (await walk(root)).sort((left, right) => repoPath(left).localeCompare(repoPath(right)))
 const rows = []
 const errors = []
+const navigationFragments = new Set(['docs/_navbar.md', 'docs/_sidebar.md'])
 
 for (const absolute of files) {
   const file = repoPath(absolute)
@@ -97,7 +111,7 @@ for (const absolute of files) {
 
   rows.push({ file, classification, title, status })
 
-  if (title === '(missing title)' && classification !== 'Internal') {
+  if (title === '(missing title)' && classification !== 'Internal' && !navigationFragments.has(file)) {
     errors.push(`${file}: missing level-one title`)
   }
 
@@ -107,7 +121,7 @@ for (const absolute of files) {
       errors.push(`${file}: historical document lacks a clear "historical / not current" opening banner`)
     }
   } else if (classification !== 'Internal') {
-    if (/â€|â†|â€¦|Ă|Ã|Â/.test(content)) {
+    if (hasMojibake(content)) {
       errors.push(`${file}: mojibake or invalid UTF-8 text`)
     }
     for (const [pattern, description] of stalePatterns) {
@@ -125,7 +139,7 @@ const counts = rows.reduce((result, row) => {
   return result
 }, {})
 
-const inventory = `# Veiron Documentation Inventory
+const inventory = `# Vireon Documentation Inventory
 
 Status: Generated audit inventory
 

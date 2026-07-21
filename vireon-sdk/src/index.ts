@@ -1,15 +1,15 @@
 /**
- * @veiron/sdk — public read client for Veiron Mainnet Candidate.
+ * @vireon/sdk — public read client for Vireon Mainnet Candidate.
  *
  * Scope: RPC gateway + mining pool public HTTP APIs.
  * Non-goals: smart contracts, key custody, private admin pool endpoints.
  */
 
 export {
-  VeironClient,
-  VeironError,
-  createVeironClient,
-  VEIRON_FIRST_ACCOUNT_NONCE
+  VireonClient,
+  VireonError,
+  createVireonClient,
+  VIREON_FIRST_ACCOUNT_NONCE
 } from "./client.js";
 export { poolBlockMaturity, type MaturityProgress } from "./maturity.js";
 export type {
@@ -25,9 +25,9 @@ export type {
   PoolWorker,
   SignedTransactionBody,
   SubmitTransactionResponse,
-  VeironClientOptions
+  VireonClientOptions
 } from "./types.js";
 
-export const VEIRON_DEFAULT_RPC_URL = "https://rpcnode.dohotstudio.com";
-export const VEIRON_DEFAULT_POOL_URL = "https://rpcnode.dohotstudio.com/pool";
-export const VEIRON_NETWORK_ID = "veiron-mainnet-candidate";
+export const VIREON_DEFAULT_RPC_URL = "https://rpcnode.dohotstudio.com";
+export const VIREON_DEFAULT_POOL_URL = "https://rpcnode.dohotstudio.com/pool";
+export const VIREON_NETWORK_ID = "veiron-mainnet-candidate";

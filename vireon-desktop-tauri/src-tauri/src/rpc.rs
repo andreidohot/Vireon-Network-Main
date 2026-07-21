@@ -13,7 +13,7 @@ use std::time::Duration;
 
 /// Local loopback RPC is usually fast.
 const LOCAL_TIMEOUT_MS: u64 = 8_000;
-/// Public VPS status can stall under mining template load (vps-fix.md); stay under nginx 90s.
+/// Public VPS status can stall under gateway load; keep requests bounded.
 const REMOTE_TIMEOUT_MS: u64 = 25_000;
 const REMOTE_HEALTH_TIMEOUT_MS: u64 = 8_000;
 /// Retries for transient proxy pressure (429/503/504/timeout).
@@ -124,7 +124,7 @@ fn client_for(remote: bool) -> AppResult<reqwest::Client> {
         .pool_max_idle_per_host(8)
         .pool_idle_timeout(Duration::from_secs(90))
         .tcp_keepalive(Duration::from_secs(30))
-        .user_agent("Veiron-Control-Center/1.0")
+        .user_agent("Vireon-Control-Center/1.0")
         .build()
         .map_err(|error| {
             crate::error::AppError::msg(format!("HTTP client init failed: {error}"))
@@ -144,7 +144,7 @@ async fn request_once(base: &str, endpoint: &str, remote: bool) -> AppResult<Val
     let url = format!("{}{}", base.trim_end_matches('/'), endpoint);
     let response = client_for(remote)?
         .get(&url)
-        .header("X-Veiron-Client", "control-center")
+        .header("X-Vireon-Client", "control-center")
         .send()
         .await
         .map_err(|error| crate::error::AppError::msg(format!("RPC request failed: {error}")))?;
@@ -164,7 +164,7 @@ async fn request_once(base: &str, endpoint: &str, remote: bool) -> AppResult<Val
         .map_err(|error| crate::error::AppError::msg(format!("RPC JSON decode failed: {error}")))
 }
 
-/// GET with exponential backoff for transient proxy/gateway pressure (vps-fix.md).
+/// GET with exponential backoff for transient proxy or gateway pressure.
 async fn request(base: &str, endpoint: &str) -> AppResult<Value> {
     let remote = !is_local_rpc_url(base);
     let attempts = if remote { MAX_STATUS_ATTEMPTS } else { 1 };
@@ -209,7 +209,7 @@ async fn health_ok(base: &str) -> bool {
             3_000
         }))
         .connect_timeout(Duration::from_secs(5))
-        .user_agent("Veiron-Control-Center/1.0")
+        .user_agent("Vireon-Control-Center/1.0")
         .build()
     {
         Ok(c) => c,
@@ -217,7 +217,7 @@ async fn health_ok(base: &str) -> bool {
     };
     match client
         .get(url)
-        .header("X-Veiron-Client", "control-center")
+        .header("X-Vireon-Client", "control-center")
         .send()
         .await
     {
@@ -321,14 +321,14 @@ async fn p2p_status(base: &str) -> Value {
 
 fn read_miner_metrics() -> Option<Value> {
     // Prefer the same runtime root used when starting the miner (packaged user data
-    // vs monorepo .veiron-local). Fall back across both so hashrate never goes blank
+    // vs monorepo .vireon-local). Fall back across both so hashrate never goes blank
     // due to a path mismatch between process.rs and snapshot reads.
     let mut candidates = Vec::new();
     if let Ok(workspace) = find_workspace_root() {
         candidates.push(local_root(&workspace).join("miner").join("metrics.json"));
         candidates.push(
             workspace
-                .join(".veiron-local")
+                .join(".vireon-local")
                 .join("miner")
                 .join("metrics.json"),
         );
@@ -336,9 +336,9 @@ fn read_miner_metrics() -> Option<Value> {
     if let Ok(app_data) = std::env::var("LOCALAPPDATA") {
         candidates.push(
             PathBuf::from(app_data)
-                .join("Veiron")
+                .join("Vireon")
                 .join("ControlCenter")
-                .join(".veiron-local")
+                .join(".vireon-local")
                 .join("miner")
                 .join("metrics.json"),
         );
@@ -457,7 +457,7 @@ pub async fn network_snapshot(wallet: Option<WalletMetadata>) -> NetworkSnapshot
         Ok(value) => value,
         Err(err) => {
             // Transient VPS pressure: if /health still answers, keep last-known snapshot
-            // as degraded instead of flipping the UI offline every few seconds (vps-fix.md).
+            // as degraded instead of flipping the UI offline every few seconds.
             let gateway_alive = health_ok(&base).await;
             if gateway_alive {
                 if let Some(mut cached) = last_good_snapshot().lock().clone() {

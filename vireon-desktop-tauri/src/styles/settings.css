@@ -297,7 +297,7 @@
     rgba(var(--overlay-ink), 0.18);
 }
 
-.settings-about-hero .veiron-logo-img {
+.settings-about-hero .vireon-logo-img {
   width: 112px;
   height: 112px;
   filter: drop-shadow(0 0 18px rgba(150, 80, 255, 0.35));
@@ -312,7 +312,7 @@
 }
 
 /* Theme variants */
-html[data-theme="veiron-midnight"] {
+html[data-theme="vireon-midnight"] {
   --bg-base: #01060a;
   --bg-deep: #000408;
   --panel: #06141c;

@@ -12,7 +12,7 @@ export default function NetworkPage() {
       <PageHero
         eyebrow="Network architecture"
         title="A mineable Layer 1 split into base, execution and product layers."
-        text="Veiron is positioned as a Rust-based PoW-first network with an upgrade path toward energy-aware mining research, while keeping large payloads off-chain."
+        text="Vireon is positioned as a Rust-based PoW-first network with an upgrade path toward energy-aware mining research, while keeping large payloads off-chain."
       />
       <section className="px-5 py-20">
         <div className="mx-auto max-w-7xl">

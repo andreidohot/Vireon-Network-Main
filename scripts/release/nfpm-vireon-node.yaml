@@ -1,17 +1,17 @@
-name: veiron-node
+name: vireon-node
 arch: x86_64
 platform: linux
-version: ${VEIRON_NODE_VERSION}
-maintainer: Veiron Network <admin@veiron.network>
-description: Veiron Mainnet Candidate full validation node
-homepage: https://github.com/andreidohot/veiron-network
+version: ${VIREON_NODE_VERSION}
+maintainer: Vireon Network <admin@vireon.network>
+description: Vireon Mainnet Candidate full validation node
+homepage: https://github.com/andreidohot/vireon-network
 license: Apache-2.0
 contents:
-  - src: release-artifacts/nfpm-stage/veiron-node
-    dst: /usr/bin/veiron-node
+  - src: release-artifacts/nfpm-stage/vireon-node
+    dst: /usr/bin/vireon-node
   - src: configs/genesis.mainnet-candidate.toml
-    dst: /usr/share/veiron/configs/genesis.mainnet-candidate.toml
+    dst: /usr/share/vireon/configs/genesis.mainnet-candidate.toml
   - src: docs/release/GENESIS_APPROVAL.mainnet-candidate.json
-    dst: /usr/share/veiron/docs/release/GENESIS_APPROVAL.mainnet-candidate.json
-  - src: veiron-release/vps/configs/node.vps.toml
-    dst: /usr/share/veiron/node.example.toml
+    dst: /usr/share/vireon/docs/release/GENESIS_APPROVAL.mainnet-candidate.json
+  - src: vireon-release/vps/configs/node.vps.toml
+    dst: /usr/share/vireon/node.example.toml

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::net::IpAddr;
 use std::path::{Path, PathBuf};
-use veiron_core::Address;
+use vireon_core::Address;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]

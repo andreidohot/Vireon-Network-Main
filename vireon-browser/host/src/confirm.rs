@@ -3,7 +3,7 @@
 /// Confirm a send/sign action. Returns `true` if allowed.
 ///
 /// - On Windows: MessageBox OK/Cancel when `require_os_confirm` is true.
-/// - Elsewhere: prints to stderr and requires env `VEIRON_HOST_CONFIRM=1` for non-interactive
+/// - Elsewhere: prints to stderr and requires env `VIREON_HOST_CONFIRM=1` for non-interactive
 ///   JSONL, or auto-allows when OS confirm is disabled (extension should confirm in UI).
 pub fn confirm_send(require_os_confirm: bool, summary: &str) -> Result<(), String> {
     if !require_os_confirm {
@@ -12,14 +12,14 @@ pub fn confirm_send(require_os_confirm: bool, summary: &str) -> Result<(), Strin
 
     #[cfg(windows)]
     {
-        windows_confirm("Veiron browser host", summary)
+        windows_confirm("Vireon browser host", summary)
     }
 
     #[cfg(not(windows))]
     {
-        eprintln!("veiron-browser-host confirm required:\n{summary}");
-        eprintln!("Set VEIRON_HOST_CONFIRM=1 to allow this action in non-GUI environments.");
-        match std::env::var("VEIRON_HOST_CONFIRM") {
+        eprintln!("vireon-browser-host confirm required:\n{summary}");
+        eprintln!("Set VIREON_HOST_CONFIRM=1 to allow this action in non-GUI environments.");
+        match std::env::var("VIREON_HOST_CONFIRM") {
             Ok(value)
                 if value == "1"
                     || value.eq_ignore_ascii_case("true")
@@ -28,7 +28,7 @@ pub fn confirm_send(require_os_confirm: bool, summary: &str) -> Result<(), Strin
                 Ok(())
             }
             _ => Err(
-                "send/sign blocked: OS confirm enabled and VEIRON_HOST_CONFIRM is not set"
+                "send/sign blocked: OS confirm enabled and VIREON_HOST_CONFIRM is not set"
                     .to_owned(),
             ),
         }

@@ -101,7 +101,7 @@ fn validate_seed(seed: &str) -> AppResult<String> {
     };
     if canonical == "/ip4/127.0.0.1/tcp/20787" || canonical == "/ip6/::1/tcp/20787" {
         return Err(AppError::msg(
-            "127.0.0.1:20787 is this node's own P2P endpoint, not a bootstrap peer. Use the reachable address of another Veiron node.",
+            "127.0.0.1:20787 is this node's own P2P endpoint, not a bootstrap peer. Use the reachable address of another Vireon node.",
         ));
     }
     Ok(canonical)

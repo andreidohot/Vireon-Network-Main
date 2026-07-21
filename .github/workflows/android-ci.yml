@@ -4,15 +4,15 @@ on:
   push:
     branches: [main]
     paths:
-      - "veiron-android/**"
-      - "veiron-mobile-core/**"
-      - "veiron-core/**"
+      - "vireon-android/**"
+      - "vireon-mobile-core/**"
+      - "vireon-core/**"
       - ".github/workflows/android-ci.yml"
   pull_request:
     paths:
-      - "veiron-android/**"
-      - "veiron-mobile-core/**"
-      - "veiron-core/**"
+      - "vireon-android/**"
+      - "vireon-mobile-core/**"
+      - "vireon-core/**"
       - ".github/workflows/android-ci.yml"
   workflow_dispatch:
 
@@ -28,16 +28,16 @@ jobs:
     runs-on: self-hosted
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
 
       - name: Build and verify Android debug APK
-        working-directory: veiron-android
+        working-directory: vireon-android
         shell: powershell
         run: .\gradlew.bat --no-daemon clean testDebugUnitTest lintDebug assembleDebugAndroidTest assembleDebug verifyDebugNativeLibraries
 
       - name: Upload Android debug APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: veiron-android-debug
+          name: vireon-android-debug
           if-no-files-found: error
-          path: veiron-android/app/build/outputs/apk/debug/*.apk
+          path: vireon-android/app/build/outputs/apk/debug/*.apk

@@ -19,8 +19,8 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use subtle::ConstantTimeEq;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::limit::RequestBodyLimitLayer;
-use veiron_core::{check_pow, hash_to_hex, Address};
-use veiron_miner::{
+use vireon_core::{check_pow, hash_to_hex, Address};
+use vireon_miner::{
     MiningSubmitRequest, MiningSubmitResponse, MiningTemplate, SubmitStatus,
     MINING_PROTOCOL_VERSION,
 };
@@ -170,7 +170,7 @@ async fn styles() -> impl IntoResponse {
 async fn health(State(state): State<PoolState>) -> Json<serde_json::Value> {
     Json(serde_json::json!({
         "ok": true,
-        "service": "veiron-mining-pool",
+        "service": "vireon-mining-pool",
         "protocol": POOL_PROTOCOL_VERSION,
         "network_id": state.config.network_id,
         "status_label": state.config.status_label,
@@ -480,7 +480,7 @@ async fn process_share(
         .map_err(|error| PoolError::InvalidShare(error.to_string()))?;
     block.header.nonce = request.nonce;
     if !request.mix_hash.trim().is_empty() {
-        block.header.mix_hash = veiron_core::Hash::from_hex(request.mix_hash.trim())
+        block.header.mix_hash = vireon_core::Hash::from_hex(request.mix_hash.trim())
             .map_err(|e| PoolError::InvalidShare(format!("invalid mix_hash: {e}")))?;
     }
     let hash = block.pow_hash();
@@ -1268,7 +1268,7 @@ mod tests {
     use super::*;
     use axum::routing::{get, post};
     use std::path::PathBuf;
-    use veiron_core::{
+    use vireon_core::{
         block_reward, initial_base_fee, Block, Hash, Network, PrivateKey, Transaction,
     };
 

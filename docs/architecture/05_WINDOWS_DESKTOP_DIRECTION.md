@@ -7,12 +7,12 @@ Related direction:
 
 ## Goal
 
-Veiron should aim for a single Windows desktop application for end users instead of forcing them to operate multiple separate tools by hand.
+Vireon should aim for a single Windows desktop application for end users instead of forcing them to operate multiple separate tools by hand.
 
 ## Product Rule
 
 User-facing direction:
-- one Veiron desktop app;
+- one Vireon desktop app;
 - one primary Windows entrypoint;
 - one consistent interface for wallet, node, mining and local chain visibility.
 

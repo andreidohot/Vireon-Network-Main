@@ -26,7 +26,7 @@ export default function TokenomicsPage() {
             <Coins className="text-ionHot" />
             <h2 className="mt-6 text-4xl font-black text-white">60M VIRE capped supply.</h2>
             <p className="mt-5 leading-8 text-frost/65">
-              Mainnet Candidate emission is currently {stats.currentSupply} VIRE out of {stats.maxSupply} VIRE. Values come from the Veiron RPC when the local candidate node is available.
+              Mainnet Candidate emission is currently {stats.currentSupply} VIRE out of {stats.maxSupply} VIRE. Values come from the Vireon RPC when the local candidate node is available.
             </p>
             <div className="mt-8 h-5 overflow-hidden rounded-full border border-line bg-void/60">
               <motion.div

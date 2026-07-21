@@ -2,7 +2,7 @@
 
 Status: Draft / Mainnet Candidate / Prototype
 
-This document is the detailed operator command reference for local Veiron work.
+This document is the detailed operator command reference for local Vireon work.
 
 Scope:
 - local node;
@@ -33,12 +33,12 @@ Expected host:
 ## Local Paths
 
 The local operator flow uses:
-- chain data: `.veiron-local/chain/`
-- mempool data: `.veiron-local/mempool/`
-- index data: `.veiron-local/indexer/`
-- wallet data: `.veiron-local/wallets/`
-- logs: `.veiron-local/logs/`
-- backups: `.veiron-local/backups/`
+- chain data: `.vireon-local/chain/`
+- mempool data: `.vireon-local/mempool/`
+- index data: `.vireon-local/indexer/`
+- wallet data: `.vireon-local/wallets/`
+- logs: `.vireon-local/logs/`
+- backups: `.vireon-local/backups/`
 
 Primary local configs:
 - `configs/local.toml`
@@ -123,7 +123,7 @@ bash scripts/local/backup-local-chain.sh
 ```
 
 What it does:
-- creates a timestamped backup under `.veiron-local/backups/`;
+- creates a timestamped backup under `.vireon-local/backups/`;
 - includes chain, mempool, indexer and logs by default;
 - excludes wallet private keys by default.
 
@@ -163,7 +163,7 @@ bash scripts/local/stop-all.sh
 
 What it does:
 - stops managed PowerShell or shell wrapper processes;
-- shuts down or kills orphaned local `veiron-node` and `veiron-rpc-gateway` binaries under `.veiron-local/build/` if needed.
+- shuts down or kills orphaned local `vireon-node` and `vireon-rpc-gateway` binaries under `.vireon-local/build/` if needed.
 
 ### Run Full Smoke Test
 
@@ -196,43 +196,43 @@ What it verifies:
 Start node:
 
 ```powershell
-cargo run -p veiron-node -- --config configs/local.toml --data-dir .veiron-local/chain --mempool-dir .veiron-local/mempool start-node
+cargo run -p vireon-node -- --config configs/local.toml --data-dir .vireon-local/chain --mempool-dir .vireon-local/mempool start-node
 ```
 
 Node status:
 
 ```powershell
-cargo run -p veiron-node -- --config configs/local.toml --data-dir .veiron-local/chain --mempool-dir .veiron-local/mempool node-status
+cargo run -p vireon-node -- --config configs/local.toml --data-dir .vireon-local/chain --mempool-dir .vireon-local/mempool node-status
 ```
 
 Validate chain:
 
 ```powershell
-cargo run -p veiron-node -- --config configs/local.toml --data-dir .veiron-local/chain --mempool-dir .veiron-local/mempool validate-chain
+cargo run -p vireon-node -- --config configs/local.toml --data-dir .vireon-local/chain --mempool-dir .vireon-local/mempool validate-chain
 ```
 
 Mine one block:
 
 ```powershell
-cargo run -p veiron-node -- --config configs/local.toml --data-dir .veiron-local/chain --mempool-dir .veiron-local/mempool mine-block
+cargo run -p vireon-node -- --config configs/local.toml --data-dir .vireon-local/chain --mempool-dir .vireon-local/mempool mine-block
 ```
 
 Mine pending block:
 
 ```powershell
-cargo run -p veiron-node -- --config configs/local.toml --data-dir .veiron-local/chain --mempool-dir .veiron-local/mempool mine-pending-block
+cargo run -p vireon-node -- --config configs/local.toml --data-dir .vireon-local/chain --mempool-dir .vireon-local/mempool mine-pending-block
 ```
 
 Show mempool status:
 
 ```powershell
-cargo run -p veiron-node -- --config configs/local.toml --data-dir .veiron-local/chain --mempool-dir .veiron-local/mempool mempool-status
+cargo run -p vireon-node -- --config configs/local.toml --data-dir .vireon-local/chain --mempool-dir .vireon-local/mempool mempool-status
 ```
 
 Shutdown local node:
 
 ```powershell
-cargo run -p veiron-node -- --config configs/local.toml --data-dir .veiron-local/chain --mempool-dir .veiron-local/mempool shutdown
+cargo run -p vireon-node -- --config configs/local.toml --data-dir .vireon-local/chain --mempool-dir .vireon-local/mempool shutdown
 ```
 
 ## Direct RPC Commands
@@ -240,7 +240,7 @@ cargo run -p veiron-node -- --config configs/local.toml --data-dir .veiron-local
 Start RPC:
 
 ```powershell
-cargo run -p veiron-rpc-gateway -- --config configs/rpc.local.toml
+cargo run -p vireon-rpc-gateway -- --config configs/rpc.local.toml
 ```
 
 Useful local reads:
@@ -263,31 +263,31 @@ chain history. Do not use it for recurring monitoring or UI refreshes.
 Create wallet:
 
 ```powershell
-cargo run -p veiron-wallet -- --network mainnet-candidate --wallet-dir .veiron-local/wallets --signed-tx-dir .veiron-local/wallets/signed-txs create-wallet
+cargo run -p vireon-wallet -- --network mainnet-candidate --wallet-dir .vireon-local/wallets --signed-tx-dir .vireon-local/wallets/signed-txs create-wallet
 ```
 
 Show address:
 
 ```powershell
-cargo run -p veiron-wallet -- --network mainnet-candidate --wallet-dir .veiron-local/wallets address
+cargo run -p vireon-wallet -- --network mainnet-candidate --wallet-dir .vireon-local/wallets address
 ```
 
 Wallet status:
 
 ```powershell
-cargo run -p veiron-wallet -- --network mainnet-candidate --wallet-dir .veiron-local/wallets wallet-status
+cargo run -p vireon-wallet -- --network mainnet-candidate --wallet-dir .vireon-local/wallets wallet-status
 ```
 
 Check balance:
 
 ```powershell
-cargo run -p veiron-wallet -- --network mainnet-candidate --wallet-dir .veiron-local/wallets --rpc-base-url http://127.0.0.1:10787 balance <address>
+cargo run -p vireon-wallet -- --network mainnet-candidate --wallet-dir .vireon-local/wallets --rpc-base-url http://127.0.0.1:10787 balance <address>
 ```
 
 Submit signed transaction:
 
 ```powershell
-cargo run -p veiron-wallet -- --network mainnet-candidate --wallet-dir .veiron-local/wallets --signed-tx-dir .veiron-local/wallets/signed-txs --rpc-base-url http://127.0.0.1:10787 submit-tx --tx-file <path>
+cargo run -p vireon-wallet -- --network mainnet-candidate --wallet-dir .vireon-local/wallets --signed-tx-dir .vireon-local/wallets/signed-txs --rpc-base-url http://127.0.0.1:10787 submit-tx --tx-file <path>
 ```
 
 ## Direct Indexer Commands
@@ -295,19 +295,19 @@ cargo run -p veiron-wallet -- --network mainnet-candidate --wallet-dir .veiron-l
 Refresh index snapshot:
 
 ```powershell
-cargo run -p veiron-indexer -- --network mainnet-candidate --chain-data-dir .veiron-local/chain --index-dir .veiron-local/indexer index-chain
+cargo run -p vireon-indexer -- --network mainnet-candidate --chain-data-dir .vireon-local/chain --index-dir .vireon-local/indexer index-chain
 ```
 
 Show index status:
 
 ```powershell
-cargo run -p veiron-indexer -- --network mainnet-candidate --index-dir .veiron-local/indexer status
+cargo run -p vireon-indexer -- --network mainnet-candidate --index-dir .vireon-local/indexer status
 ```
 
 Print index summary:
 
 ```powershell
-cargo run -p veiron-indexer -- --network mainnet-candidate --index-dir .veiron-local/indexer print-index-summary
+cargo run -p vireon-indexer -- --network mainnet-candidate --index-dir .vireon-local/indexer print-index-summary
 ```
 
 ## Explorer
@@ -315,7 +315,7 @@ cargo run -p veiron-indexer -- --network mainnet-candidate --index-dir .veiron-l
 Build explorer:
 
 ```powershell
-cd veiron-explorer
+cd vireon-explorer
 npm install
 npm run build
 ```
@@ -323,8 +323,8 @@ npm run build
 Run explorer locally:
 
 ```powershell
-cd veiron-explorer
-$env:VITE_VEIRON_RPC_URL = "http://127.0.0.1:10787"
+cd vireon-explorer
+$env:VITE_VIREON_RPC_URL = "http://127.0.0.1:10787"
 npm run dev -- --host 127.0.0.1 --port 4173
 ```
 
@@ -334,14 +334,14 @@ Expected local URL:
 ## Logs
 
 Local wrapper logs live under:
-- `.veiron-local/logs/node.log`
-- `.veiron-local/logs/node.err.log`
-- `.veiron-local/logs/rpc.log`
-- `.veiron-local/logs/rpc.err.log`
-- `.veiron-local/logs/explorer.log`
-- `.veiron-local/logs/explorer.err.log`
-- `.veiron-local/logs/indexer-refresh.log`
-- `.veiron-local/logs/indexer-refresh.err.log`
+- `.vireon-local/logs/node.log`
+- `.vireon-local/logs/node.err.log`
+- `.vireon-local/logs/rpc.log`
+- `.vireon-local/logs/rpc.err.log`
+- `.vireon-local/logs/explorer.log`
+- `.vireon-local/logs/explorer.err.log`
+- `.vireon-local/logs/indexer-refresh.log`
+- `.vireon-local/logs/indexer-refresh.err.log`
 
 ## Related Documents
 

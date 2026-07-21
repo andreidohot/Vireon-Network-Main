@@ -1,10 +1,10 @@
-# Veiron Mobile for Android
+# Vireon Mobile for Android
 
 Status: **Mainnet Candidate / Prototype / not public mainnet**  
 Version: **1.0.0** (aligned with Windows/Linux Control Center)
 **Minimum OS: Android 12 (API 31)+**
 
-Veiron Mobile mirrors the desktop Control Center for **wallet + network monitoring** (read-only chain / pool visibility).
+Vireon Mobile mirrors the desktop Control Center for **wallet + network monitoring** (read-only chain / pool visibility).
 
 ## Mining policy (hard rule)
 
@@ -42,14 +42,14 @@ Veiron Mobile mirrors the desktop Control Center for **wallet + network monitori
 ```bash
 rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
 cargo install cargo-ndk
-cd veiron-android
+cd vireon-android
 ./gradlew clean assembleDebug verifyDebugNativeLibraries
 ```
 
 Windows:
 
 ```powershell
-cd veiron-android
+cd vireon-android
 .\gradlew.bat clean assembleDebug verifyDebugNativeLibraries
 ```
 
@@ -59,11 +59,11 @@ Native libs: `arm64-v8a`, `armeabi-v7a`, `x86_64`.
 ## Native tests
 
 ```bash
-cd veiron-android
+cd vireon-android
 ./gradlew connectedDebugAndroidTest
 ```
 
-Instrumented tests load `libveiron_mobile_core.so` and verify 24-word (and import path) wallet derivation.
+Instrumented tests load `libvireon_mobile_core.so` and verify 24-word (and import path) wallet derivation.
 
 ## Product line
 

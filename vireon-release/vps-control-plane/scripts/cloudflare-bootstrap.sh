@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-workspace="${VEIRON_WORKSPACE:-/workspace}"
+phase="all"
+case "${1:-}" in
+  "") ;;
+  --prepare) phase="prepare" ;;
+  --activate) phase="activate" ;;
+  *) echo "Usage: $0 [--prepare|--activate]" >&2; exit 64 ;;
+esac
+
+workspace="${VIREON_WORKSPACE:-/workspace}"
 secrets_dir="$workspace/state/secrets"
 api_token_file="/run/secrets/cloudflare_api_token"
 [[ -s "$api_token_file" ]] || api_token_file="$secrets_dir/cloudflare_api_token"
@@ -51,11 +59,15 @@ detect_ipv4() {
 upsert_dns() {
   local type="$1" name="$2" content="$3" proxied="$4"
   local existing record_id body response
-  existing="$(cf GET "/zones/$CLOUDFLARE_ZONE_ID/dns_records?type=$type&name=$name")"
+  existing="$(cf GET "/zones/$CLOUDFLARE_ZONE_ID/dns_records?name=$name")"
   assert_success "$existing"
+  [[ "$(jq '.result | length' <<<"$existing")" -le 1 ]] || {
+    echo "Refusing to modify ambiguous duplicate DNS records for $name" >&2
+    return 1
+  }
   record_id="$(jq -r '.result[0].id // empty' <<<"$existing")"
   body="$(jq -n --arg type "$type" --arg name "$name" --arg content "$content" --argjson proxied "$proxied" \
-    '{type:$type,name:$name,content:$content,ttl:1,proxied:$proxied,comment:"Managed by Veiron Docker control plane"}')"
+    '{type:$type,name:$name,content:$content,ttl:1,proxied:$proxied,comment:"Managed by Vireon Docker control plane"}')"
   if [[ -n "$record_id" ]]; then
     response="$(cf PUT "/zones/$CLOUDFLARE_ZONE_ID/dns_records/$record_id" --data "$body")"
   else
@@ -76,6 +88,10 @@ public_ip="$(detect_ipv4)"
 upsert_dns A "$P2P_HOST" "$public_ip" false
 
 if [[ "$mode" == "dns" ]]; then
+  if [[ "$phase" == "prepare" ]]; then
+    echo "Direct DNS mode has no pre-activation step."
+    exit 0
+  fi
   for host in "$CONTROL_HOST" "$RPC_HOST" "$FLEET_HOST" "$GRAFANA_HOST" "$PROMETHEUS_HOST"; do
     upsert_dns A "$host" "$public_ip" "${CLOUDFLARE_PROXY_HTTP:-true}"
   done
@@ -87,7 +103,7 @@ if [[ "$mode" == "dns" ]]; then
 fi
 
 [[ "$mode" == "tunnel" ]] || { echo "Unsupported CLOUDFLARE_MODE: $mode" >&2; exit 64; }
-tunnel_name="${CLOUDFLARE_TUNNEL_NAME:-veiron-control-plane}"
+tunnel_name="${CLOUDFLARE_TUNNEL_NAME:-vireon-control-plane}"
 
 list="$(cf GET "/accounts/$CLOUDFLARE_ACCOUNT_ID/cfd_tunnel?is_deleted=false&name=$tunnel_name")"
 assert_success "$list"
@@ -143,6 +159,11 @@ ingress="$(jq -n \
   }')"
 configured="$(cf PUT "/accounts/$CLOUDFLARE_ACCOUNT_ID/cfd_tunnel/$tunnel_id/configurations" --data "$ingress")"
 assert_success "$configured"
+
+if [[ "$phase" == "prepare" ]]; then
+  echo "Cloudflare Tunnel token and ingress prepared; DNS was not changed."
+  exit 0
+fi
 
 for host in "$CONTROL_HOST" "$RPC_HOST" "$FLEET_HOST" "$GRAFANA_HOST" "$PROMETHEUS_HOST"; do
   upsert_dns CNAME "$host" "$tunnel_id.cfargotunnel.com" true

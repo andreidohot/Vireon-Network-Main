@@ -154,7 +154,7 @@ export interface PoolHistory {
   accounts?: unknown[];
 }
 
-export interface VeironClientOptions {
+export interface VireonClientOptions {
   /** RPC / gateway base, e.g. https://rpcnode.dohotstudio.com */
   rpcUrl?: string;
   /** Pool coordinator base, e.g. https://rpcnode.dohotstudio.com/pool */

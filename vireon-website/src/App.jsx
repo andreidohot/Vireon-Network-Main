@@ -1,23 +1,23 @@
 import { lazy, Suspense } from 'react'
 import Layout, { useRoutePath } from './components/layout/Layout.jsx'
-import CorePage from './pages/CorePage.jsx'
-import DevelopersPage from './pages/DevelopersPage.jsx'
-import DocsPage from './pages/DocsPage.jsx'
-import EcosystemPage from './pages/EcosystemPage.jsx'
-import ExplorerPage from './pages/ExplorerPage.jsx'
-import FaqPage from './pages/FaqPage.jsx'
-import HomePage from './pages/HomePage.jsx'
-import MiningPage from './pages/MiningPage.jsx'
-import NetworkPage from './pages/NetworkPage.jsx'
-import PassportPage from './pages/PassportPage.jsx'
-import ProtocolPage from './pages/ProtocolPage.jsx'
-import RoadmapPage from './pages/RoadmapPage.jsx'
-import StatusPage from './pages/StatusPage.jsx'
-import TokenomicsPage from './pages/TokenomicsPage.jsx'
-import WalletPage from './pages/WalletPage.jsx'
-import WhitepaperPage from './pages/WhitepaperPage.jsx'
 
 const AdminApp = lazy(() => import('./admin/AdminApp.jsx'))
+const CorePage = lazy(() => import('./pages/CorePage.jsx'))
+const DevelopersPage = lazy(() => import('./pages/DevelopersPage.jsx'))
+const DocsPage = lazy(() => import('./pages/DocsPage.jsx'))
+const EcosystemPage = lazy(() => import('./pages/EcosystemPage.jsx'))
+const ExplorerPage = lazy(() => import('./pages/ExplorerPage.jsx'))
+const FaqPage = lazy(() => import('./pages/FaqPage.jsx'))
+const HomePage = lazy(() => import('./pages/HomePage.jsx'))
+const MiningPage = lazy(() => import('./pages/MiningPage.jsx'))
+const NetworkPage = lazy(() => import('./pages/NetworkPage.jsx'))
+const PassportPage = lazy(() => import('./pages/PassportPage.jsx'))
+const ProtocolPage = lazy(() => import('./pages/ProtocolPage.jsx'))
+const RoadmapPage = lazy(() => import('./pages/RoadmapPage.jsx'))
+const StatusPage = lazy(() => import('./pages/StatusPage.jsx'))
+const TokenomicsPage = lazy(() => import('./pages/TokenomicsPage.jsx'))
+const WalletPage = lazy(() => import('./pages/WalletPage.jsx'))
+const WhitepaperPage = lazy(() => import('./pages/WhitepaperPage.jsx'))
 
 const pages = {
   '/': <HomePage />,
@@ -51,5 +51,11 @@ export default function App() {
     ? <DocsPage path={path} />
     : pages[path] || <HomePage />
 
-  return <Layout path={path}>{page}</Layout>
+  return (
+    <Layout path={path}>
+      <Suspense fallback={<div className="grid min-h-[60vh] place-items-center text-frost">Loading page...</div>}>
+        {page}
+      </Suspense>
+    </Layout>
+  )
 }

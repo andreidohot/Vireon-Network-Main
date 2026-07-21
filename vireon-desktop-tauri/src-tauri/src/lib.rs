@@ -15,7 +15,7 @@ mod workspace;
 use notify::NotifyState;
 use tauri::Manager;
 use updates::UpdateService;
-use workspace::set_resource_root;
+use workspace::{migrate_legacy_user_data, set_resource_root};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -29,11 +29,12 @@ pub fn run() {
             if let Ok(resource_dir) = app.path().resource_dir() {
                 set_resource_root(resource_dir);
             }
+            migrate_legacy_user_data()?;
             health::ensure_runtime_dirs();
 
             // Auto-update from GitHub Releases — detect and apply without approval.
-            // Set VEIRON_DISABLE_AUTO_UPDATE=1 to suppress the background loop.
-            let disabled = std::env::var("VEIRON_DISABLE_AUTO_UPDATE")
+            // Set VIREON_DISABLE_AUTO_UPDATE=1 to suppress the background loop.
+            let disabled = std::env::var("VIREON_DISABLE_AUTO_UPDATE")
                 .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
                 .unwrap_or(false);
             if !disabled {
@@ -85,7 +86,7 @@ pub fn run() {
         .run(tauri::generate_context!())
         .unwrap_or_else(|error| {
             // Avoid an uncaught panic at the process boundary; surface a clear fatal exit.
-            eprintln!("Veiron Control Center failed to start: {error}");
+            eprintln!("Vireon Control Center failed to start: {error}");
             std::process::exit(1);
         });
 }

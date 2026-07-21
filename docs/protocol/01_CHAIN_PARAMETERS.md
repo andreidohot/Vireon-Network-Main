@@ -1,4 +1,4 @@
-# Veiron Chain Parameters
+# Vireon Chain Parameters
 
 Status: Implemented / Mainnet Candidate
 

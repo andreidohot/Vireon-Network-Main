@@ -29,7 +29,7 @@ Minimum readiness gates:
 - candidate chain validation rebuilds full state from genesis before reporting ready;
 - reset is refused for Mainnet Candidate;
 - Devnet reset requires explicit confirmation and local backup;
-- candidate chain data stays under `.veiron-mainnet/`;
+- candidate chain data stays under `.vireon-mainnet/`;
 - mempool capacity is bounded by config and duplicate transaction hashes are rejected;
 - secret, repository-hygiene and config-safety scanners pass;
 - release gate documentation exists and can be run locally;
@@ -37,14 +37,14 @@ Minimum readiness gates:
 - wallet material stays outside tracked source folders;
 - RPC exposes only read or submit endpoints needed for the local candidate flow;
 - RPC application profiles prevent VPS deployments from registering mining and detailed P2P operator routes;
-- Ubuntu VPS services run as an unprivileged account with systemd filesystem, memory and CPU restrictions;
-- public VPS RPC remains on localhost behind Nginx TLS, body limits and rate limits;
+- Ubuntu VPS services run in constrained Docker containers with fixed non-root runtime users, memory and CPU limits;
+- public VPS traffic terminates at Caddy or Cloudflare Tunnel while raw RPC and control ports remain private;
 - multi-VPS bootstrapping uses explicit libp2p seed multiaddresses and does not create a privileged consensus server;
 - explorer reads only RPC and indexer data and keeps Draft / Prototype labels visible;
 - release scripts run format, test, clippy and explorer build gates;
 - forbidden-file checks block `.env`, keys, seeds, wallet files, runtime data and obvious secret patterns.
 - local operator scripts exist for start, stop, status, backup, reset, mining and smoke-test flows under `scripts/local/`;
-- local operator data stays under `.veiron-local/` for rehearsal mode before any VPS deployment;
+- local operator data stays under `.vireon-local/` for rehearsal mode before any VPS deployment;
 - local operator runbook and troubleshooting docs exist under `docs/operator/`.
 
 Still required before any live public launch claim (G4 — detail in `NETWORK_MATURITY.md`):

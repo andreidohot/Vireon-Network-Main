@@ -25,7 +25,7 @@ export function Wallet() {
 
   const createWallet = async () => {
     try {
-      await window.veiron.wallet.create(displayName);
+      await window.vireon.wallet.create(displayName);
       await reloadWallet();
       setNotice({
         error: false,
@@ -45,7 +45,7 @@ export function Wallet() {
   const importWallet = async (walletName: string) => {
     setImporting(true);
     try {
-      await window.veiron.wallet.import(walletName);
+      await window.vireon.wallet.import(walletName);
       await reloadWallet();
       setNotice({
         error: false,
@@ -68,7 +68,7 @@ export function Wallet() {
   const disconnectWallet = async () => {
     setDisconnectBusy(true);
     try {
-      await window.veiron.wallet.remove();
+      await window.vireon.wallet.remove();
       await reloadWallet();
       setDisconnectOpen(false);
       setNotice({ error: false, text: "Active wallet disconnected from this profile." });

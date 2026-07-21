@@ -12,7 +12,7 @@ const envSchema = z.object({
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(15 * 60 * 1000),
   RATE_LIMIT_MAX: z.coerce.number().default(300),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  VEIRON_RPC_URL: z.string().url().default('https://rpcnode.dohotstudio.com'),
+  VIREON_RPC_URL: z.string().url().default('https://rpcnode.dohotstudio.com'),
 })
 
 const parsedEnv = envSchema.parse(process.env)

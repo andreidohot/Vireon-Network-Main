@@ -13,11 +13,11 @@ pub enum RpcError {
     #[error("TOML error: {0}")]
     Toml(#[from] toml::de::Error),
     #[error("node error: {0}")]
-    Node(#[from] veiron_node::NodeError),
+    Node(#[from] vireon_node::NodeError),
     #[error("indexer error: {0}")]
-    Indexer(#[from] veiron_indexer::IndexerError),
+    Indexer(#[from] vireon_indexer::IndexerError),
     #[error("core error: {0}")]
-    Core(#[from] veiron_core::VeironError),
+    Core(#[from] vireon_core::VireonError),
     #[error("config error: {0}")]
     Config(String),
     #[error("bad request: {0}")]
@@ -39,11 +39,11 @@ impl IntoResponse for RpcError {
         let status = match &self {
             Self::BadRequest(_) => StatusCode::BAD_REQUEST,
             Self::NotFound(_) => StatusCode::NOT_FOUND,
-            Self::Node(veiron_node::NodeError::ChainNotInitialized(_)) => StatusCode::NOT_FOUND,
-            Self::Indexer(veiron_indexer::IndexerError::IndexNotInitialized(_))
-            | Self::Indexer(veiron_indexer::IndexerError::NotFound(_)) => StatusCode::NOT_FOUND,
-            Self::Node(veiron_node::NodeError::InvalidChainFile { .. })
-            | Self::Indexer(veiron_indexer::IndexerError::InvalidIndexFile { .. })
+            Self::Node(vireon_node::NodeError::ChainNotInitialized(_)) => StatusCode::NOT_FOUND,
+            Self::Indexer(vireon_indexer::IndexerError::IndexNotInitialized(_))
+            | Self::Indexer(vireon_indexer::IndexerError::NotFound(_)) => StatusCode::NOT_FOUND,
+            Self::Node(vireon_node::NodeError::InvalidChainFile { .. })
+            | Self::Indexer(vireon_indexer::IndexerError::InvalidIndexFile { .. })
             | Self::Node(_)
             | Self::Indexer(_)
             | Self::Core(_)

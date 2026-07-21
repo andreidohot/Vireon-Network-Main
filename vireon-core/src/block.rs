@@ -1,5 +1,5 @@
 use crate::crypto::{blake3_hash, Hash};
-use crate::errors::{Result, VeironError};
+use crate::errors::{Result, VireonError};
 use crate::firopow::{self, FiroPowOutput};
 use crate::network::Network;
 use crate::transaction::Transaction;
@@ -62,7 +62,7 @@ impl Block {
         transactions: Vec<Transaction>,
     ) -> Result<Self> {
         if transactions.is_empty() {
-            return Err(VeironError::EmptyTransactions);
+            return Err(VireonError::EmptyTransactions);
         }
 
         let merkle_root = compute_merkle_root(&transactions)?;
@@ -108,7 +108,7 @@ impl Block {
 
     pub fn network(&self) -> Result<Network> {
         Network::from_network_id(&self.header.network_id).ok_or_else(|| {
-            VeironError::InvalidNetwork {
+            VireonError::InvalidNetwork {
                 expected: "known network".to_owned(),
                 actual: self.header.network_id.clone(),
             }
@@ -138,14 +138,14 @@ impl Block {
 
 pub fn compute_merkle_root(transactions: &[Transaction]) -> Result<Hash> {
     if transactions.is_empty() {
-        return Err(VeironError::EmptyTransactions);
+        return Err(VireonError::EmptyTransactions);
     }
 
     let mut level: Vec<Hash> = transactions.iter().map(Transaction::tx_hash).collect();
     while level.len() > 1 {
         if level.len() % 2 == 1 {
             let Some(&last) = level.last() else {
-                return Err(VeironError::EmptyTransactions);
+                return Err(VireonError::EmptyTransactions);
             };
             level.push(last);
         }

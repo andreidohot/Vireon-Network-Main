@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
-use veiron_core::{Network, Transaction};
-use veiron_node::{
+use vireon_core::{Network, Transaction};
+use vireon_node::{
     approve_genesis, balance, default_data_dir, default_mempool_dir, default_miner_address,
     export_genesis_block, format_status, genesis_approval_status, genesis_hash_hex_from_config,
     genesis_review_manifest, import_genesis_block, mempool_status, mine_block, mine_pending_block,
@@ -11,19 +11,19 @@ use veiron_node::{
 
 const NODE_EXAMPLES: &str = "\
 Examples:
-  veiron-node --config configs/local.toml --data-dir .veiron-local/chain --mempool-dir .veiron-local/mempool start-node
-  veiron-node --config configs/local.toml --data-dir .veiron-local/chain --mempool-dir .veiron-local/mempool node-status
-  veiron-node --config configs/local.toml --data-dir .veiron-local/chain --mempool-dir .veiron-local/mempool mine-block
-  veiron-node --config configs/local.toml --data-dir .veiron-local/chain --mempool-dir .veiron-local/mempool validate-chain
-  veiron-node --config configs/mainnet-candidate.toml export-genesis-review --output docs/release/GENESIS_REVIEW.mainnet-candidate.json
-  veiron-node --config configs/mainnet-candidate.toml approve-genesis --review-file docs/release/GENESIS_REVIEW.mainnet-candidate.json --approved-by \"Operator\" --output docs/release/GENESIS_APPROVAL.mainnet-candidate.json
-  veiron-node --config configs/mainnet-candidate.toml export-genesis-block --output docs/release/genesis.mainnet-candidate.block.json
-  veiron-node --config configs/mainnet-candidate.toml --data-dir /var/lib/veiron/.veiron-mainnet/chain import-genesis-block --genesis-file docs/release/genesis.mainnet-candidate.block.json --force
+  vireon-node --config configs/local.toml --data-dir .vireon-local/chain --mempool-dir .vireon-local/mempool start-node
+  vireon-node --config configs/local.toml --data-dir .vireon-local/chain --mempool-dir .vireon-local/mempool node-status
+  vireon-node --config configs/local.toml --data-dir .vireon-local/chain --mempool-dir .vireon-local/mempool mine-block
+  vireon-node --config configs/local.toml --data-dir .vireon-local/chain --mempool-dir .vireon-local/mempool validate-chain
+  vireon-node --config configs/mainnet-candidate.toml export-genesis-review --output docs/release/GENESIS_REVIEW.mainnet-candidate.json
+  vireon-node --config configs/mainnet-candidate.toml approve-genesis --review-file docs/release/GENESIS_REVIEW.mainnet-candidate.json --approved-by \"Operator\" --output docs/release/GENESIS_APPROVAL.mainnet-candidate.json
+  vireon-node --config configs/mainnet-candidate.toml export-genesis-block --output docs/release/genesis.mainnet-candidate.block.json
+  vireon-node --config configs/mainnet-candidate.toml --data-dir /var/lib/vireon/.vireon-mainnet/chain import-genesis-block --genesis-file docs/release/genesis.mainnet-candidate.block.json --force
 ";
 
 #[derive(Debug, Parser)]
-#[command(name = "veiron-node")]
-#[command(about = "Draft / Mainnet Candidate / Prototype CLI for Veiron Network")]
+#[command(name = "vireon-node")]
+#[command(about = "Draft / Mainnet Candidate / Prototype CLI for Vireon Network")]
 #[command(after_help = NODE_EXAMPLES)]
 struct Cli {
     #[arg(long)]
@@ -127,12 +127,12 @@ fn main() {
         }
         Command::NodeStatus => {
             node_status(&config_path, &data_dir, &mempool_dir).and_then(|summary| {
-                serde_json::to_string_pretty(&summary).map_err(veiron_node::NodeError::from)
+                serde_json::to_string_pretty(&summary).map_err(vireon_node::NodeError::from)
             })
         }
         Command::MineBlock => mine_block(&config_path, &data_dir, &mempool_dir, &miner_address),
         Command::Peers => peers(&config_path, &data_dir).and_then(|summary| {
-            serde_json::to_string_pretty(&summary).map_err(veiron_node::NodeError::from)
+            serde_json::to_string_pretty(&summary).map_err(vireon_node::NodeError::from)
         }),
         Command::Shutdown => shutdown(configured_network, &data_dir),
         Command::PrintGenesisHash => genesis_hash_hex_from_config(&config_path),
@@ -140,7 +140,7 @@ fn main() {
             export_genesis_block(&config_path, &output).map(|genesis| {
                 format!(
                     "exported genesis block hash={} height={} output={}",
-                    veiron_core::hash_to_hex(&genesis.hash()),
+                    vireon_core::hash_to_hex(&genesis.hash()),
                     genesis.header.height,
                     output.display()
                 )
@@ -166,7 +166,7 @@ fn main() {
                 )
             }),
             None => genesis_review_manifest(&config_path).and_then(|manifest| {
-                serde_json::to_string_pretty(&manifest).map_err(veiron_node::NodeError::from)
+                serde_json::to_string_pretty(&manifest).map_err(vireon_node::NodeError::from)
             }),
         },
         Command::ApproveGenesis {
@@ -182,18 +182,18 @@ fn main() {
             output.as_deref(),
         )
         .and_then(|summary| {
-            serde_json::to_string_pretty(&summary).map_err(veiron_node::NodeError::from)
+            serde_json::to_string_pretty(&summary).map_err(vireon_node::NodeError::from)
         }),
         Command::GenesisApprovalStatus => {
             genesis_approval_status(&config_path).and_then(|summary| {
-                serde_json::to_string_pretty(&summary).map_err(veiron_node::NodeError::from)
+                serde_json::to_string_pretty(&summary).map_err(vireon_node::NodeError::from)
             })
         }
         Command::Status => status(&config_path, &data_dir).map(|report| format_status(&report)),
         Command::MinePendingBlock => {
             mine_pending_block(&config_path, &data_dir, &mempool_dir, &miner_address).and_then(
                 |summary| {
-                    serde_json::to_string_pretty(&summary).map_err(veiron_node::NodeError::from)
+                    serde_json::to_string_pretty(&summary).map_err(vireon_node::NodeError::from)
                 },
             )
         }
@@ -210,17 +210,17 @@ fn main() {
         }),
         Command::Balance { address } => {
             balance(&config_path, &data_dir, &address).and_then(|summary| {
-                serde_json::to_string_pretty(&summary).map_err(veiron_node::NodeError::from)
+                serde_json::to_string_pretty(&summary).map_err(vireon_node::NodeError::from)
             })
         }
         Command::State => state(&config_path, &data_dir).and_then(|summary| {
-            serde_json::to_string_pretty(&summary).map_err(veiron_node::NodeError::from)
+            serde_json::to_string_pretty(&summary).map_err(vireon_node::NodeError::from)
         }),
         Command::MempoolStatus => mempool_status(&data_dir, &mempool_dir).and_then(|summary| {
-            serde_json::to_string_pretty(&summary).map_err(veiron_node::NodeError::from)
+            serde_json::to_string_pretty(&summary).map_err(vireon_node::NodeError::from)
         }),
         Command::SubmitTx { tx_file } => {
-            let content = std::fs::read_to_string(&tx_file).map_err(veiron_node::NodeError::from);
+            let content = std::fs::read_to_string(&tx_file).map_err(vireon_node::NodeError::from);
             content
                 .and_then(|value| serde_json::from_str::<Transaction>(&value).map_err(Into::into))
                 .and_then(|transaction| {
@@ -232,7 +232,7 @@ fn main() {
                     )
                 })
                 .and_then(|summary| {
-                    serde_json::to_string_pretty(&summary).map_err(veiron_node::NodeError::from)
+                    serde_json::to_string_pretty(&summary).map_err(vireon_node::NodeError::from)
                 })
         }
     };
@@ -240,7 +240,7 @@ fn main() {
     match result {
         Ok(message) => println!("{message}"),
         Err(error) => {
-            eprintln!("veiron-node error: {error}");
+            eprintln!("vireon-node error: {error}");
             std::process::exit(1);
         }
     }

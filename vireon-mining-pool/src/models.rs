@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
-pub const POOL_PROTOCOL_VERSION: &str = "veiron-pool-v1";
+pub const POOL_PROTOCOL_VERSION: &str = "vireon-pool-v1";
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ShareRecord {

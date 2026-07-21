@@ -4,7 +4,7 @@ Status: Implemented / Mainnet Candidate
 
 ## Accepted Launch Direction
 
-`TM-109` freezes Veiron's launch upgrade activation policy as:
+`TM-109` freezes Vireon's launch upgrade activation policy as:
 - fixed-height flag-day activation only;
 - launch protocol version `1`;
 - launch block version `1`;
@@ -12,20 +12,20 @@ Status: Implemented / Mainnet Candidate
 
 ## Rule
 
-For launch-scope Veiron validation:
+For launch-scope Vireon validation:
 - each block height maps to exactly one expected block version;
 - block versions do not negotiate dynamically;
 - a node must reject a block whose version does not match the expected version for that height.
 
 Current implementation note:
-- `veiron-core` now computes the expected block version from the active network plus block height;
+- `vireon-core` now computes the expected block version from the active network plus block height;
 - the current policy returns version `1` at genesis and beyond because no later upgrade heights are pinned yet;
 - the rule is already wired into chain validation, so wrong-version blocks are rejected.
 
 ## Launch Policy Shape
 
 Policy ID:
-- `veiron-flag-day-upgrade-v1`
+- `vireon-flag-day-upgrade-v1`
 
 Activation mode:
 - `fixed-height-flag-day`

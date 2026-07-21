@@ -30,7 +30,7 @@ function blockPayload(block) {
 }
 
 export class RustNodeProvider extends INetworkProvider {
-  constructor(baseUrl = env.VEIRON_RPC_URL) {
+  constructor(baseUrl = env.VIREON_RPC_URL) {
     super()
     this.baseUrl = baseUrl.replace(/\/+$/, '')
   }
@@ -38,7 +38,7 @@ export class RustNodeProvider extends INetworkProvider {
   async request(path) {
     const response = await fetch(`${this.baseUrl}${path}`)
     if (!response.ok) {
-      const error = new Error(`Veiron RPC request failed with ${response.status}`)
+      const error = new Error(`Vireon RPC request failed with ${response.status}`)
       error.status = response.status
       throw error
     }

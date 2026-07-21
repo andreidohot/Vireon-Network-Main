@@ -1,9 +1,9 @@
 [package]
-name = "veiron-vps-admin"
+name = "vireon-vps-admin"
 version = "1.0.0"
 edition = "2021"
 license = "Apache-2.0"
-description = "Loopback-only Veiron VPS fleet administration and telemetry service"
+description = "Loopback-only Vireon VPS fleet administration and telemetry service"
 
 [dependencies]
 axum = "0.7"

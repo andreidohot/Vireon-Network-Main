@@ -7,26 +7,36 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"; repo="$(cd "$root/../..
 mkdir -p state/secrets state/config/generated state/data/{chain,mempool,indexer,node} state/control state/pool
 for n in admin_password grafana_password setup_token broker_token cloudflare_tunnel_token pool_admin_token backup_passphrase; do openssl rand -hex 32 > state/secrets/$n; chmod 600 state/secrets/$n; done
 for n in cloudflare_api_token r2_secret_access_key discord_webhook telegram_bot_token smtp_password; do : > state/secrets/$n; chmod 600 state/secrets/$n; done
-st=""; for x in "${seeds[@]}"; do [[ -n $st ]] && st+=", "; st+="\"$x\""; done
-cat > .env <<EOF
-COMPOSE_PROJECT_NAME='veiron-agent-${node}'
-STACK_VERSION='2.1.0-no-autoupdate'
-VEIRON_HOST_WORKSPACE='$root'
-VEIRON_HOST_REPO='$repo'
-VEIRON_VERSION='2.1.0-no-autoupdate'
-BASE_DOMAIN='$base'
-NODE_NAME='$node'
-ADMIN_EMAIL='$email'
-CONTROL_ROLE='agent'
-CONTROLLER_URL='$controller'
-ENROLLMENT_TOKEN='$token'
-RELEASE_BUNDLE_URL='$bundle'
-P2P_HOST='$host'
-P2P_PORT='20787'
-SEED_NODES_TOML='$st'
-CLOUDFLARE_MODE='disabled'
-ENABLE_POOL='false'
-INDEXER_INTERVAL_SECONDS='15'
-EOF
-chown -R 10001:10001 state/data state/control state/pool state/config/generated || true
-COMPOSE_PARALLEL_LIMIT=1 docker compose --env-file .env -f compose.yaml up -d --build veiron-node veiron-rpc veiron-indexer veiron-control
+python3 - "$root" "$repo" "$base" "$node" "$email" "$controller" "$token" "$bundle" "$host" "${seeds[@]}" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+root, repo, base, node, email, controller, token, bundle, host, *seeds = sys.argv[1:]
+values = {
+    "COMPOSE_PROJECT_NAME": f"vireon-agent-{node}",
+    "STACK_VERSION": "2.1.0-no-autoupdate",
+    "VIREON_HOST_WORKSPACE": root,
+    "VIREON_HOST_REPO": repo,
+    "VIREON_VERSION": "2.1.0-no-autoupdate",
+    "BASE_DOMAIN": base,
+    "NODE_NAME": node,
+    "ADMIN_EMAIL": email,
+    "CONTROL_ROLE": "agent",
+    "CONTROLLER_URL": controller,
+    "ENROLLMENT_TOKEN": token,
+    "RELEASE_BUNDLE_URL": bundle,
+    "P2P_HOST": host,
+    "P2P_PORT": "20787",
+    "SEED_NODES_TOML": ", ".join(json.dumps(seed) for seed in seeds),
+    "CLOUDFLARE_MODE": "disabled",
+    "ENABLE_POOL": "false",
+    "INDEXER_INTERVAL_SECONDS": "15",
+}
+Path(".env").write_text(
+    "\n".join(f"{key}={json.dumps(value)}" for key, value in values.items()) + "\n",
+    encoding="utf-8",
+)
+PY
+"$root/scripts/prepare-state.sh"
+COMPOSE_PARALLEL_LIMIT=1 docker compose --env-file .env -f compose.yaml up -d --build vireon-node vireon-rpc vireon-indexer vireon-control

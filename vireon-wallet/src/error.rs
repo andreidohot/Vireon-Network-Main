@@ -9,9 +9,9 @@ pub enum WalletError {
     #[error("HTTP error: {0}")]
     Http(#[from] reqwest::Error),
     #[error("core error: {0}")]
-    Core(#[from] veiron_core::VeironError),
+    Core(#[from] vireon_core::VireonError),
     #[error("node error: {0}")]
-    Node(#[from] veiron_node::NodeError),
+    Node(#[from] vireon_node::NodeError),
     #[error("wallet not found at {0}")]
     WalletNotFound(String),
     #[error("wallet storage path is unavailable")]

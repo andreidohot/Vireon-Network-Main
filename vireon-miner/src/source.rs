@@ -6,7 +6,7 @@ use reqwest::blocking::Client;
 use std::fs;
 use std::path::PathBuf;
 use std::time::Duration;
-use veiron_core::{Address, Block};
+use vireon_core::{Address, Block};
 
 pub trait WorkSource {
     fn fetch_template(&self, miner_address: &str) -> Result<MiningTemplate>;

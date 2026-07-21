@@ -5,7 +5,7 @@ This package contains no automatic updater. There is no Watchtower, updater serv
 An upgrade is an explicit operator procedure:
 
 ```bash
-cd /home/apps/veiron-network/veiron-release/vps-control-plane
+cd /home/apps/vireon-network/vireon-release/vps-control-plane
 ./scripts/backup-now.sh
 git status
 git fetch --all --tags

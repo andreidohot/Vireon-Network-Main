@@ -1,9 +1,9 @@
 use crate::crypto::Hash;
-use crate::errors::{Result, VeironError};
+use crate::errors::{Result, VireonError};
 use crate::network::Network;
 use serde::Serialize;
 
-pub const CHECKPOINT_POLICY_ID: &str = "veiron-hardcoded-checkpoints-v1";
+pub const CHECKPOINT_POLICY_ID: &str = "vireon-hardcoded-checkpoints-v1";
 pub const CHECKPOINT_POLICY_MODE: &str = "social-hardcoded-early-network";
 pub const CHECKPOINT_POLICY_RELAXATION: &str =
     "Checkpoints remain active for early environments and can be reduced later only through an explicit follow-up protocol freeze.";
@@ -28,7 +28,7 @@ const DEVNET_CHECKPOINTS: [ChainCheckpoint; 0] = [];
 const TESTNET_CHECKPOINTS: [ChainCheckpoint; 0] = [];
 const MAINNET_CANDIDATE_CHECKPOINTS: [ChainCheckpoint; 1] = [ChainCheckpoint {
     height: 0,
-    // Genesis re-mined under FiroPoW 0.9.4 (VeironPoW v1). Prior Blake3 pin retired.
+    // Genesis re-mined under FiroPoW 0.9.4 (VireonPoW v1). Prior Blake3 pin retired.
     hash_hex: "0000f156b7271a3807b16efdf96d21ac30011fbdcd2ce68af7fdd3bc77ae4f3d",
     status_label: "Planned / Mainnet Candidate",
 }];
@@ -53,9 +53,9 @@ pub fn validate_checkpoint(network: Network, height: u64, actual_hash: Hash) -> 
         return Ok(());
     };
     let expected_hash =
-        Hash::from_hex(checkpoint.hash_hex).map_err(VeironError::InvalidCheckpointDefinition)?;
+        Hash::from_hex(checkpoint.hash_hex).map_err(VireonError::InvalidCheckpointDefinition)?;
     if actual_hash != expected_hash {
-        return Err(VeironError::InvalidCheckpoint {
+        return Err(VireonError::InvalidCheckpoint {
             height,
             expected: expected_hash,
             actual: actual_hash,
@@ -113,6 +113,6 @@ mod tests {
 
         let error = validate_checkpoint(Network::MainnetCandidate, 0, wrong_hash)
             .expect_err("wrong checkpoint hash must fail");
-        assert!(matches!(error, VeironError::InvalidCheckpoint { .. }));
+        assert!(matches!(error, VireonError::InvalidCheckpoint { .. }));
     }
 }

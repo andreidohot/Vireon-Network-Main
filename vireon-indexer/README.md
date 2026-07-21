@@ -1,4 +1,4 @@
-# veiron-indexer
+# vireon-indexer
 
 Status: Draft / Mainnet Candidate / Prototype
 
@@ -10,7 +10,7 @@ Primary candidate commands:
 - `find-block` / `find-tx` / `find-address` / `latest-block`
 
 Current storage:
-- candidate default index path: user home `.veiron-mainnet/indexer/`
+- candidate default index path: user home `.vireon-mainnet/indexer/`
 - local snapshot: `index.json` written **atomically** (crash-safe)
 
 Reorg / tip change:

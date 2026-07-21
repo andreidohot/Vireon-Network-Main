@@ -17,7 +17,7 @@ pub enum MinerError {
     #[error("TOML error: {0}")]
     Toml(#[from] toml::de::Error),
     #[error("core error: {0}")]
-    Core(#[from] veiron_core::VeironError),
+    Core(#[from] vireon_core::VireonError),
     #[error("worker thread panicked")]
     WorkerPanicked,
     #[error("GPU mining error: {0}")]

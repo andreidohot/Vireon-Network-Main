@@ -2,7 +2,7 @@ use crate::error::{NodeError, NodeResult};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
-use veiron_core::{launch_protocol_parameters, Network};
+use vireon_core::{launch_protocol_parameters, Network};
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct NetworkConfig {

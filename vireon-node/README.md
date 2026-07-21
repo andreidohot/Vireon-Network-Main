@@ -1,10 +1,10 @@
-# veiron-node
+# vireon-node
 
 Status: Mainnet Candidate / Prototype / not public Mainnet
 
-`veiron-node` owns canonical chain persistence, mempool admission, mining
+`vireon-node` owns canonical chain persistence, mempool admission, mining
 templates, submitted-block validation, and libp2p synchronization around
-`veiron-core` consensus.
+`vireon-core` consensus.
 
 ## P2P v3 and fork choice
 

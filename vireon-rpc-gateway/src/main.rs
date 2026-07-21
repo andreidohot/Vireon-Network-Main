@@ -3,18 +3,18 @@ use clap::Parser;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use tokio::net::TcpListener;
-use veiron_rpc_gateway::{router, RpcConfig, RpcState};
+use vireon_rpc_gateway::{router, RpcConfig, RpcState};
 
 const DEFAULT_RPC_CONFIG_PATH: &str = "configs/rpc.mainnet-candidate.toml";
 const DEFAULT_NODE_CONFIG_PATH: &str = "configs/mainnet-candidate.toml";
 const RPC_EXAMPLES: &str = "\
 Examples:
-  veiron-rpc-gateway --config configs/rpc.local.toml --node-config configs/local.toml
-  veiron-rpc-gateway --config configs/rpc.mainnet-candidate.toml --node-config configs/mainnet-candidate.toml
+  vireon-rpc-gateway --config configs/rpc.local.toml --node-config configs/local.toml
+  vireon-rpc-gateway --config configs/rpc.mainnet-candidate.toml --node-config configs/mainnet-candidate.toml
 ";
 
 #[derive(Debug, Parser)]
-#[command(name = "veiron-rpc-gateway")]
+#[command(name = "vireon-rpc-gateway")]
 #[command(about = "Mainnet Candidate RPC gateway with explicit endpoint exposure profiles")]
 #[command(after_help = RPC_EXAMPLES)]
 struct Cli {
@@ -38,17 +38,17 @@ async fn main() {
                 config.network_id,
                 config.access_mode
             );
-            return Ok::<(), veiron_rpc_gateway::RpcError>(());
+            return Ok::<(), vireon_rpc_gateway::RpcError>(());
         }
         let state = RpcState::new(config.clone()).with_node_config_path(cli.node_config.clone());
         let app = router(state);
         let addr: SocketAddr = format!("{}:{}", config.bind_host, config.bind_port)
             .parse::<SocketAddr>()
-            .map_err(|error| veiron_rpc_gateway::RpcError::Config(error.to_string()))?;
+            .map_err(|error| vireon_rpc_gateway::RpcError::Config(error.to_string()))?;
 
         let listener = TcpListener::bind(addr).await?;
         println!(
-            "veiron-rpc-gateway listening on http://{}:{} (config={}, node_config={}, network_id={}, {}, access_mode={:?})",
+            "vireon-rpc-gateway listening on http://{}:{} (config={}, node_config={}, network_id={}, {}, access_mode={:?})",
             config.bind_host,
             config.bind_port,
             cli.config.display(),
@@ -58,12 +58,12 @@ async fn main() {
             config.access_mode
         );
         serve(listener, app).await?;
-        Ok::<(), veiron_rpc_gateway::RpcError>(())
+        Ok::<(), vireon_rpc_gateway::RpcError>(())
     }
     .await;
 
     if let Err(error) = result {
-        eprintln!("veiron-rpc-gateway error: {error}");
+        eprintln!("vireon-rpc-gateway error: {error}");
         std::process::exit(1);
     }
 }

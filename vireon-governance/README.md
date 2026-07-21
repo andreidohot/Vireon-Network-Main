@@ -1,4 +1,4 @@
-# veiron-governance
+# vireon-governance
 
 Reserved for governance process documents and possible future governance mechanisms.
 

@@ -2,13 +2,13 @@
 
 ## Decision
 
-`veiron-desktop-tauri` is the **only** desktop Control Center. The former Electron tree (`veiron-desktop-electron`) has been **removed** from the repository so it cannot be confused with Tauri packaging or release.
+`vireon-desktop-tauri` is the **only** desktop Control Center. The former Electron tree (`vireon-desktop-electron`) has been **removed** from the repository so it cannot be confused with Tauri packaging or release.
 
 ## Completed
 
 - [x] Scaffold Tauri 2 + React + Vite
 - [x] Port Control Center pages + design system
-- [x] `window.veiron` → Tauri `invoke` bridge
+- [x] `window.vireon` → Tauri `invoke` bridge
 - [x] Rust: network snapshot, seeds, wallet, txs, operator, logs, paths
 - [x] Full Settings (12 sections) + `settings.json` persistence
 - [x] Theme / density / accent / reduce-motion
@@ -32,7 +32,7 @@
 ## Run
 
 ```powershell
-cd veiron-desktop-tauri
+cd vireon-desktop-tauri
 npm install
 npm run tauri:dev
 ```

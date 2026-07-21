@@ -25,7 +25,7 @@ export function Send() {
   const prepare = async () => {
     setBusy(true);
     try {
-      const next = await window.veiron.transactions.prepare(recipient, amount, tip);
+      const next = await window.vireon.transactions.prepare(recipient, amount, tip);
       setPrepared(next);
       setConfirmed(false);
       setSignOpen(true);
@@ -55,7 +55,7 @@ export function Send() {
     if (!prepared) return;
     setBusy(true);
     try {
-      const result = await window.veiron.transactions.signAndSubmit(prepared, confirmed);
+      const result = await window.vireon.transactions.signAndSubmit(prepared, confirmed);
       setPrepared(null);
       setConfirmed(false);
       setSignOpen(false);

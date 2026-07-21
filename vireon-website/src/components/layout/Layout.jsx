@@ -88,7 +88,7 @@ function Header({ path }) {
   return (
     <header className="fixed left-0 right-0 top-0 z-40 border-b border-line bg-void/72 backdrop-blur-xl">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
-        <a href="/" aria-label="Veiron Network home">
+        <a href="/" aria-label="Vireon Network home">
           <Logo />
         </a>
 
@@ -162,7 +162,7 @@ function Footer() {
         <div>
           <Logo />
           <p className="mt-5 max-w-md text-sm leading-7 text-frost/58">
-            A premium public website prototype for Veiron Network. Built to communicate the project without overstating readiness.
+            A premium public website prototype for Vireon Network. Built to communicate the project without overstating readiness.
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
@@ -179,7 +179,7 @@ function Footer() {
         </div>
       </div>
       <div className="mx-auto mt-10 flex max-w-7xl flex-col gap-3 border-t border-line pt-6 text-xs text-frost/42 sm:flex-row sm:items-center sm:justify-between">
-        <span>Veiron Network / VIRE. Mainnet Candidate interface.</span>
+        <span>Vireon Network / VIRE. Mainnet Candidate interface.</span>
         <span>Candidate wallet, explorer and pool exist; public production Mainnet, staking and contracts are not claimed.</span>
       </div>
     </footer>

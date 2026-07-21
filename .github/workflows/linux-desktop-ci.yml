@@ -4,29 +4,29 @@ on:
   push:
     branches: [main]
     paths:
-      - "veiron-desktop-tauri/**"
-      - "veiron-core/**"
-      - "veiron-node/**"
-      - "veiron-rpc-gateway/**"
-      - "veiron-indexer/**"
-      - "veiron-miner/**"
-      - "veiron-wallet/**"
+      - "vireon-desktop-tauri/**"
+      - "vireon-core/**"
+      - "vireon-node/**"
+      - "vireon-rpc-gateway/**"
+      - "vireon-indexer/**"
+      - "vireon-miner/**"
+      - "vireon-wallet/**"
       - "scripts/release/build-linux-desktop.sh"
       - "scripts/local/**"
-      - "veiron.sh"
+      - "vireon.sh"
       - ".github/workflows/linux-desktop-ci.yml"
   pull_request:
     paths:
-      - "veiron-desktop-tauri/**"
-      - "veiron-core/**"
-      - "veiron-node/**"
-      - "veiron-rpc-gateway/**"
-      - "veiron-indexer/**"
-      - "veiron-miner/**"
-      - "veiron-wallet/**"
+      - "vireon-desktop-tauri/**"
+      - "vireon-core/**"
+      - "vireon-node/**"
+      - "vireon-rpc-gateway/**"
+      - "vireon-indexer/**"
+      - "vireon-miner/**"
+      - "vireon-wallet/**"
       - "scripts/release/build-linux-desktop.sh"
       - "scripts/local/**"
-      - "veiron.sh"
+      - "vireon.sh"
       - ".github/workflows/linux-desktop-ci.yml"
   workflow_dispatch:
 
@@ -42,8 +42,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4
         with:
           components: clippy,rustfmt
       - uses: Jimver/cuda-toolkit@3d45d157f327c09c04b50ee6ccdea2d9d017ec76
@@ -51,11 +51,11 @@ jobs:
           cuda: "13.2.0"
           method: network
           sub-packages: '["nvcc", "cudart-dev"]'
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: veiron-desktop-tauri/package-lock.json
+          cache-dependency-path: vireon-desktop-tauri/package-lock.json
 
       - name: Install Linux packaging dependencies
         run: >-
@@ -68,8 +68,8 @@ jobs:
         run: bash scripts/release/build-linux-desktop.sh
 
       - name: Upload Linux packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: veiron-linux-desktop
+          name: vireon-linux-desktop
           if-no-files-found: error
-          path: veiron-release/apps/linux/*
+          path: vireon-release/apps/linux/*

@@ -1,5 +1,5 @@
 [package]
-name = "veiron-keystore-helper"
+name = "vireon-keystore-helper"
 version = "1.0.0"
 edition = "2021"
 publish = false
@@ -7,7 +7,7 @@ publish = false
 [workspace]
 
 [[bin]]
-name = "veiron-keystore-helper"
+name = "vireon-keystore-helper"
 path = "src/main.rs"
 
 [dependencies]
@@ -15,9 +15,9 @@ dirs = "6"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
-veiron-core = { path = "../../../veiron-core" }
-veiron-sdk-rust = { path = "../../../veiron-sdk-rust", features = ["native", "blocking"] }
-veiron-wallet = { path = "../../../veiron-wallet" }
+vireon-core = { path = "../../../vireon-core" }
+vireon-sdk-rust = { path = "../../../vireon-sdk-rust", features = ["native", "blocking"] }
+vireon-wallet = { path = "../../../vireon-wallet" }
 zeroize = "1"
 
 [target.'cfg(windows)'.dependencies]

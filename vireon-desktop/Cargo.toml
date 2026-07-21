@@ -1,9 +1,9 @@
 [package]
-name = "veiron-desktop"
+name = "vireon-desktop"
 version = "1.0.0"
 edition = "2021"
 license = "Apache-2.0"
-description = "Windows 11 desktop wallet and operator prototype for Veiron Network"
+description = "Windows 11 desktop wallet and operator prototype for Vireon Network"
 
 [dependencies]
 dirs = "6"
@@ -12,8 +12,8 @@ reqwest = { version = "0.12", default-features = false, features = ["blocking", 
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
-veiron-core = { path = "../veiron-core" }
-veiron-wallet = { path = "../veiron-wallet" }
+vireon-core = { path = "../vireon-core" }
+vireon-wallet = { path = "../vireon-wallet" }
 zeroize = "1.8"
 webbrowser = "1"
 

@@ -2,10 +2,10 @@
  * Print gateway health + chain tip for Mainnet Candidate.
  * Usage: node scripts/chain-status.mjs [rpcUrl]
  */
-import { createVeironClient } from "../../veiron-sdk/dist/index.js";
+import { createVireonClient } from "../../vireon-sdk/dist/index.js";
 
-const rpcUrl = process.argv[2] ?? process.env.VEIRON_RPC_URL ?? "https://rpcnode.dohotstudio.com";
-const client = createVeironClient({ rpcUrl });
+const rpcUrl = process.argv[2] ?? process.env.VIREON_RPC_URL ?? "https://rpcnode.dohotstudio.com";
+const client = createVireonClient({ rpcUrl });
 
 const [health, status] = await Promise.all([client.health(), client.status()]);
 

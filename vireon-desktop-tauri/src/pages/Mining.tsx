@@ -28,8 +28,8 @@ import { useApp } from "../model";
 
 type BackendMode = "cuda";
 
-const FORM_KEY = "veiron.miner.form.v3";
-const LOG_SESSION_KEY = "veiron.miner.sessionLog.v1";
+const FORM_KEY = "vireon.miner.form.v3";
+const LOG_SESSION_KEY = "vireon.miner.sessionLog.v1";
 const CONSOLE_LINES = 400;
 
 function normalizeBackend(_raw: unknown): BackendMode {
@@ -204,7 +204,7 @@ export function Mining() {
     let cancelled = false;
     const load = async () => {
       try {
-        const chunk = await window.veiron.logs.recent("miner", CONSOLE_LINES);
+        const chunk = await window.vireon.logs.recent("miner", CONSOLE_LINES);
         if (cancelled) return;
         // Drop TRACE/DEBUG noise only; keep hashrate/status/error lines.
         const filtered = (chunk || "")
@@ -273,7 +273,7 @@ export function Mining() {
     setDevicesLoading(true);
     setDevicesError(null);
     try {
-      const list = (await window.veiron.miner.devices()) as MiningDeviceInfo[];
+      const list = (await window.vireon.miner.devices()) as MiningDeviceInfo[];
       const rows = Array.isArray(list) ? list : [];
       setDevices(rows);
       const gpuIds = rows
@@ -409,7 +409,7 @@ export function Mining() {
 
   const exportConsole = async () => {
     try {
-      const path = await window.veiron.logs.export("miner");
+      const path = await window.vireon.logs.export("miner");
       if (path) setNotice({ error: false, text: `Exported logs to ${path}` });
     } catch (error) {
       setNotice({ error: true, text: String(error).replace(/^Error:\s*/i, "") });

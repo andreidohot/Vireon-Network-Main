@@ -3,7 +3,7 @@ import {
   ScrollText, Send, Settings, WalletCards
 } from "lucide-react";
 import type { PageId } from "../../model";
-import { VeironLogo } from "../brand/VeironLogo";
+import { VireonLogo } from "../brand/VireonLogo";
 
 type NavItem = { id: PageId; label: string; icon: typeof Activity };
 
@@ -58,9 +58,9 @@ export function Sidebar({
     <aside className="sidebar">
       <div className="brand">
         <div className={`brand-mark ${live ? "is-online" : "is-offline"}`}>
-          <VeironLogo size="lg" alt="Veiron Network" />
+          <VireonLogo size="lg" alt="Vireon Network" />
         </div>
-        <div className="brand-name">VEIRON</div>
+        <div className="brand-name">VIREON</div>
         <div className="brand-subtitle">Control Center</div>
       </div>
 

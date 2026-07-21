@@ -1,4 +1,4 @@
-# Workspace Clippy defaults for Veiron.
+# Workspace Clippy defaults for Vireon.
 # Members inherit only when they set: [lints] workspace = true
 # Full policy: docs/engineering/WORKSPACE_AND_LINTS.md
 #

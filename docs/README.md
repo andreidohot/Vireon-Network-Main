@@ -1,6 +1,6 @@
 # Docs
 
-Canonical documentation root for Veiron Network.
+Canonical documentation root for Vireon Network.
 
 Status: Current documentation index / mixed maturity
 

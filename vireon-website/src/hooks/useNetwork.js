@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-const RPC_BASE_URL = (import.meta.env.VITE_VEIRON_RPC_URL || 'https://rpcnode.dohotstudio.com').replace(/\/+$/, '')
+const RPC_BASE_URL = (import.meta.env.VITE_VIREON_RPC_URL || 'https://rpcnode.dohotstudio.com').replace(/\/+$/, '')
 const ATOMIC_UNITS = 100_000_000
 const INITIAL_REWARD_ATOMIC = 1_902_587_519
 const HALVING_INTERVAL = 1_576_800
@@ -8,7 +8,7 @@ const HALVING_INTERVAL = 1_576_800
 const fallbackStats = {
   mode: 'mainnet_candidate',
   networkId: 'veiron-mainnet-candidate',
-  networkName: 'Veiron Mainnet Candidate',
+  networkName: 'Vireon Mainnet Candidate',
   statusLabel: 'Planned / Mainnet Candidate',
   height: -1,
   currentSupply: '0.00000000',
@@ -33,7 +33,7 @@ function rewardAtHeight(height) {
 
 async function fetchJson(path) {
   const response = await fetch(`${RPC_BASE_URL}${path}`)
-  if (!response.ok) throw new Error(`Veiron RPC request failed with ${response.status}`)
+  if (!response.ok) throw new Error(`Vireon RPC request failed with ${response.status}`)
   return response.json()
 }
 

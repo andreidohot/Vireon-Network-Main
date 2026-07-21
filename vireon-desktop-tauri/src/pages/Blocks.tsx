@@ -51,7 +51,7 @@ export function Blocks() {
       return;
     }
     try {
-      const result = await window.veiron.explorer.lookup(hash);
+      const result = await window.vireon.explorer.lookup(hash);
       if (result.kind === "transaction" && result.data) {
         setTxDetail(
           normalizeTx(((result.raw ?? result.data) as unknown as DesktopTransaction))

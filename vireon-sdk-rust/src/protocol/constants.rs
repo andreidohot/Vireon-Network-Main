@@ -1,4 +1,4 @@
-pub const PROJECT_NAME: &str = "Veiron Network";
+pub const PROJECT_NAME: &str = "Vireon Network";
 pub const TICKER: &str = "VIRE";
 pub const ADDRESS_PREFIX: &str = "vire";
 pub const DEVNET_ADDRESS_PREFIX: &str = "dvire";
@@ -16,7 +16,7 @@ pub const CONSENSUS_STATUS: &str = "PoW first";
 pub const POW_HASH_ALGORITHM: &str = "Blake3";
 pub const DAA_ALGORITHM: &str = "LWMA";
 pub const DAA_WINDOW_BLOCKS: usize = 60;
-// Allow DAA to observe up to 12Ã— target (12 min) of slow blocks so difficulty
+// Allow DAA to observe up to 12x target (12 min) of slow blocks so difficulty
 // recovers faster after hashrate drops (still targets BLOCK_TIME_SECONDS=60).
 pub const DAA_SOLVETIME_CLAMP_MULTIPLIER: u64 = 12;
 pub const FEE_POLICY: &str = "EIP-1559-like base fee burn plus priority tip";

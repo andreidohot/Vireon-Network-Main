@@ -38,7 +38,7 @@ export function AddressDetailsPage() {
     <>
       <PageHeader
         title="Address Details"
-        description="Local balance snapshot and indexed activity for one Veiron network address."
+        description="Local balance snapshot and indexed activity for one Vireon network address."
       />
       {error ? <ErrorPanel message={error} /> : null}
       {!activity && !error ? <LoadingPanel message="Loading indexed address activity..." /> : null}

@@ -56,7 +56,7 @@ scripts/release/release-gate.ps1 --help
 - `cargo test --workspace`
 - `cargo clippy --workspace --all-targets -- -D warnings`
 - `cargo build --workspace --release`
-- `npm install` and `npm run build` for `veiron-explorer` when present
+- `npm install` and `npm run build` for `vireon-explorer` when present
 - Required release and security documentation files
 - Required mainnet-candidate config files
 

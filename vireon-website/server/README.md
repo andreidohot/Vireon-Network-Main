@@ -1,6 +1,6 @@
-# Veiron Network Server
+# Vireon Network Server
 
-Node.js + Express + PostgreSQL + Prisma backend foundation for Veiron Network.
+Node.js + Express + PostgreSQL + Prisma backend foundation for Vireon Network.
 
 ## Scope
 
@@ -25,7 +25,7 @@ Implemented Mainnet Candidate network adapter:
 
 - Read-only Rust RPC provider behind the `INetworkProvider` abstraction.
 - No synthetic block worker and no generated network history.
-- Candidate block, supply and reward data read from `VEIRON_RPC_URL`.
+- Candidate block, supply and reward data read from `VIREON_RPC_URL`.
 - Public explorer/mining/status API labeled as `mainnet_candidate`.
 
 Implemented Phase 4 admin backend foundation:

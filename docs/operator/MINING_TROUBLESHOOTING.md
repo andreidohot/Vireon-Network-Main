@@ -1,6 +1,6 @@
 # Mining troubleshooting (Mainnet Candidate)
 
-Veiron 1.0.0 mines FiroPoW 0.9.4 on supported NVIDIA CUDA GPUs only. The
+Vireon 1.0.0 mines FiroPoW 0.9.4 on supported NVIDIA CUDA GPUs only. The
 product miner has no CPU, OpenCL, or host-emulated fallback.
 
 ## Startup before the first hashrate sample
@@ -12,7 +12,7 @@ must progress through `building FiroPoW DAG in VRAM` and `FiroPoW DAG ready`.
 
 If startup never completes:
 
-1. Run `veiron-miner devices` and confirm the intended NVIDIA device appears.
+1. Run `vireon-miner devices` and confirm the intended NVIDIA device appears.
 2. Confirm the NVIDIA display driver is installed and the GPU has enough free
    VRAM for the reported DAG size.
 3. Check that the release log says the CUDA FiroPoW kernels were linked. A
@@ -62,5 +62,5 @@ incompatible change can make stored chain data fail validation.
 
 1. Verify the downloaded release against `SHA256SUMS`.
 2. Install the matching 1.0.0 Control Center and VPS control-plane artifacts.
-3. Confirm `veiron-miner devices` reports CUDA and no CPU/OpenCL backend.
+3. Confirm `vireon-miner devices` reports CUDA and no CPU/OpenCL backend.
 4. Start pool mining and confirm accepted shares and a non-zero hashrate.

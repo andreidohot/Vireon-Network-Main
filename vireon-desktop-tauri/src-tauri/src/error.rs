@@ -31,8 +31,8 @@ impl AppError {
     }
 }
 
-impl From<veiron_sdk_rust::SdkError> for AppError {
-    fn from(value: veiron_sdk_rust::SdkError) -> Self {
+impl From<vireon_sdk_rust::SdkError> for AppError {
+    fn from(value: vireon_sdk_rust::SdkError) -> Self {
         Self::Message(value.to_string())
     }
 }

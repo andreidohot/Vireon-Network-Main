@@ -1,4 +1,4 @@
-# veiron-marketplace
+# vireon-marketplace
 
 Reserved for future marketplace product-layer components.
 

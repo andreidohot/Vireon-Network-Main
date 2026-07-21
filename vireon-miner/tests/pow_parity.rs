@@ -1,16 +1,16 @@
 //! FiroPoW layout / GPU parity regression vectors.
 //!
-//! Consensus rules live in veiron-core. Product continuous mining is GPU-only;
+//! Consensus rules live in vireon-core. Product continuous mining is GPU-only;
 //! these tests cover seed preimage layout, core hash/target, and optional GPU parity.
 
 use std::time::Duration;
-use veiron_core::{
+use vireon_core::{
     check_pow, firopow, leading_zero_bits, Amount, Block, Hash, Network, PrivateKey, Transaction,
 };
-use veiron_miner::{BackendConfig, CudaGpuBackend, MiningBackend, MiningJob, MiningMode};
+use vireon_miner::{BackendConfig, CudaGpuBackend, MiningBackend, MiningJob, MiningMode};
 
 fn sample_block(network: Network, height: u64, difficulty: u8) -> Block {
-    let address = veiron_core::Address::from_public_key_for_network(
+    let address = vireon_core::Address::from_public_key_for_network(
         &PrivateKey::generate().public_key(),
         network,
     )
@@ -102,7 +102,7 @@ fn mining_seed_length_is_within_gpu_kernel_limit() {
 
 #[test]
 fn cuda_gpu_hashes_match_core_when_device_present() {
-    let require_cuda = std::env::var_os("VEIRON_REQUIRE_CUDA_TEST").is_some();
+    let require_cuda = std::env::var_os("VIREON_REQUIRE_CUDA_TEST").is_some();
     let block = sample_block(Network::Devnet, 7, 0);
     let mut gpu = CudaGpuBackend::default();
     if let Err(error) = gpu.initialize(BackendConfig {

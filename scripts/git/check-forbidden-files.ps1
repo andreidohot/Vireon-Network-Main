@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $forbiddenNames = @(".env", ".env.local", ".env.production")
 $forbiddenExtensions = @(".key", ".pem", ".seed", ".wallet")
-$forbiddenTrackedPatterns = @(".veiron-dev/", ".veiron-testnet/", ".veiron-mainnet/", "target/", "node_modules/")
+$forbiddenTrackedPatterns = @(".vireon-dev/", ".vireon-testnet/", ".vireon-mainnet/", "target/", "node_modules/")
 $secretPatterns = @(
   "PRIVATE_KEY=",
   "WALLET_SEED=",

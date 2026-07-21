@@ -30,27 +30,27 @@ describe('authService.loginWithPassword', () => {
   it('returns null for a missing user', async () => {
     mockPrisma.user.findUnique.mockResolvedValue(null)
 
-    await expect(loginWithPassword({ email: 'missing@veiron.network', password: 'Password123!' })).resolves.toBeNull()
+    await expect(loginWithPassword({ email: 'missing@vireon.network', password: 'Password123!' })).resolves.toBeNull()
     expect(mockPrisma.refreshToken.create).not.toHaveBeenCalled()
   })
 
   it('returns null for an inactive user', async () => {
     mockPrisma.user.findUnique.mockResolvedValue({
       id: 'user-1',
-      email: 'off@veiron.network',
+      email: 'off@vireon.network',
       passwordHash: await bcrypt.hash('Password123!', 4),
       role: 'content_editor',
       isActive: false,
     })
 
-    await expect(loginWithPassword({ email: 'off@veiron.network', password: 'Password123!' })).resolves.toBeNull()
+    await expect(loginWithPassword({ email: 'off@vireon.network', password: 'Password123!' })).resolves.toBeNull()
     expect(mockPrisma.user.update).not.toHaveBeenCalled()
   })
 
   it('updates last login, creates refresh token and returns a public session', async () => {
     const user = {
       id: 'user-1',
-      email: 'admin@veiron.network',
+      email: 'admin@vireon.network',
       passwordHash: await bcrypt.hash('Password123!', 4),
       role: 'superadmin',
       isActive: true,

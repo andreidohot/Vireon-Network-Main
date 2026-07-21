@@ -4,7 +4,7 @@ use fs2::FileExt;
 use std::fs::{self, File, OpenOptions};
 use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
-use veiron_core::{hash_to_hex, Block};
+use vireon_core::{hash_to_hex, Block};
 
 pub const CHAIN_FILE_NAME: &str = "chain.jsonl";
 pub const CHAIN_LOCK_FILE_NAME: &str = "chain.lock";
@@ -308,12 +308,12 @@ pub fn reset_data_dir(data_dir: &Path) -> NodeResult<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use veiron_core::{devnet_genesis, Address, PrivateKey};
+    use vireon_core::{devnet_genesis, Address, PrivateKey};
 
     fn miner_address() -> String {
         Address::from_public_key_for_network(
             &PrivateKey::generate().public_key(),
-            veiron_core::Network::Devnet,
+            vireon_core::Network::Devnet,
         )
         .to_string()
     }
@@ -369,7 +369,7 @@ mod tests {
         let mut orphan = genesis.clone();
         orphan.header.height = 1;
         // Intentionally wrong previous_hash (not tip).
-        orphan.header.previous_hash = veiron_core::Hash::zero();
+        orphan.header.previous_hash = vireon_core::Hash::zero();
         store
             .append_unchecked(&orphan)
             .expect("write corrupt fixture");

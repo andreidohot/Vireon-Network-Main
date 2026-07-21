@@ -10,7 +10,7 @@ pub enum NodeError {
     #[error("TOML error: {0}")]
     Toml(#[from] toml::de::Error),
     #[error("core validation error: {0}")]
-    Core(#[from] veiron_core::VeironError),
+    Core(#[from] vireon_core::VireonError),
     #[error("network config mismatch: {0}")]
     ConfigMismatch(String),
     #[error("invalid local input: {0}")]

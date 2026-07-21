@@ -1,4 +1,4 @@
-# Register veiron-browser-host for Chrome / Edge / Brave native messaging (Windows).
+# Register vireon-browser-host for Chrome / Edge / Brave native messaging (Windows).
 # Usage:
 #   .\scripts\browser\register-native-host.ps1 -ExtensionId <id>
 #   .\scripts\browser\register-native-host.ps1 -ExtensionId <id> -Build -Browser All
@@ -28,9 +28,9 @@ $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..\..")
 Set-Location $RepoRoot
 
 if ($Build -or [string]::IsNullOrWhiteSpace($HostBinary)) {
-    Write-Host "Building veiron-browser-host (release)..."
-    cargo build -p veiron-browser-host --release
-    $defaultBin = Join-Path $RepoRoot "target\release\veiron-browser-host.exe"
+    Write-Host "Building vireon-browser-host (release)..."
+    cargo build -p vireon-browser-host --release
+    $defaultBin = Join-Path $RepoRoot "target\release\vireon-browser-host.exe"
     if (-not (Test-Path $defaultBin)) {
         throw "Host binary not found at $defaultBin"
     }
@@ -45,15 +45,15 @@ if (-not (Test-Path $HostBinary)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($InstallDir)) {
-    $InstallDir = Join-Path $env:LOCALAPPDATA "Veiron\browser-host"
+    $InstallDir = Join-Path $env:LOCALAPPDATA "Vireon\browser-host"
 }
 New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
 
-$InstalledBinary = Join-Path $InstallDir "veiron-browser-host.exe"
+$InstalledBinary = Join-Path $InstallDir "vireon-browser-host.exe"
 Copy-Item -Force -Path $HostBinary -Destination $InstalledBinary
 
 # Optional launcher that injects flags for native messaging children.
-$LauncherPath = Join-Path $InstallDir "veiron-browser-host-launcher.cmd"
+$LauncherPath = Join-Path $InstallDir "vireon-browser-host-launcher.cmd"
 $launcherArgs = @()
 if ($RequireOsConfirm) { $launcherArgs += "--require-os-confirm" }
 if ($LocalRpc) { $launcherArgs += "--local" }
@@ -63,13 +63,13 @@ $launcherArgLine = ($launcherArgs -join " ")
 "$InstalledBinary" $launcherArgLine %*
 "@ | Set-Content -Encoding ASCII -Path $LauncherPath
 
-$HostName = "com.veiron.browser_host"
+$HostName = "com.vireon.browser_host"
 $ManifestPath = Join-Path $InstallDir "$HostName.json"
 $Origin = "chrome-extension://$ExtensionId/"
 
 $manifestObject = [ordered]@{
     name            = $HostName
-    description     = "Veiron Network browser native messaging host (Mainnet Candidate)"
+    description     = "Vireon Network browser native messaging host (Mainnet Candidate)"
     path            = $LauncherPath
     type            = "stdio"
     allowed_origins = @($Origin)
@@ -114,7 +114,7 @@ Write-Host "  Manifest    : $ManifestPath"
 Write-Host "  Extension   : $Origin"
 Write-Host ""
 Write-Host "Next:"
-Write-Host "  1. Chrome/Edge -> Extensions -> Load unpacked -> veiron-browser/extension"
+Write-Host "  1. Chrome/Edge -> Extensions -> Load unpacked -> vireon-browser/extension"
 Write-Host "  2. Copy the extension ID into this script if it changed, then re-run."
 Write-Host "  3. Open the popup and press Ping."
 Write-Host ""

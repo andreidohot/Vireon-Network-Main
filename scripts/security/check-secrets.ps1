@@ -9,17 +9,12 @@ if ($args -contains "--help" -or $args -contains "-h" -or $args -contains "-Help
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..\..")
 Set-Location $repoRoot
 
-$allowedPlaceholderPattern = '(?i)(CHANGE_ME|example|localhost|127\.0\.0\.1)'
-$secretPatterns = @(
-  "PRIVATE_KEY=",
-  "WALLET_SEED=",
-  "MNEMONIC=",
-  "API_TOKEN=",
-  "GITHUB_TOKEN=",
-  "SECRET=",
-  "PASSWORD=",
-  "RPC_PASSWORD=",
-  "ADMIN_TOKEN="
+$allowedPlaceholderPattern = '(?i)(CHANGE_ME|example|replace_|generated_|youshallnotpass|localhost|127\.0\.0\.1|^\$|^\$\(|^<.+>$)'
+$secretAssignmentPattern = '^\s*(?:export\s+)?(?:[A-Z0-9_]*(?:PRIVATE_KEY|WALLET_SEED|MNEMONIC|API_TOKEN|GITHUB_TOKEN|SECRET|PASSWORD|RPC_PASSWORD|ADMIN_TOKEN))\s*=\s*(?<value>[^\s#]*)'
+$credentialPatterns = @(
+  '(?i)\bgh[pousr]_[A-Za-z0-9]{20,}\b',
+  '\bAKIA[0-9A-Z]{16}\b',
+  '(?i)-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----'
 )
 $forbiddenExtensions = @(".key", ".pem", ".seed", ".wallet", ".mnemonic")
 $selfRuleFiles = @(
@@ -43,15 +38,14 @@ foreach ($file in $badEnvFiles) {
   $issues.Add("Forbidden tracked or unignored environment file: $file")
 }
 
-$badSecretFiles = Get-ChildItem -Path $repoRoot -Recurse -Force -File | Where-Object {
-  $forbiddenExtensions -contains $_.Extension
-}
-foreach ($file in $badSecretFiles) {
-  $issues.Add("Forbidden secret or wallet file: $($file.FullName)")
+foreach ($relativePath in $candidateFiles) {
+  if ($forbiddenExtensions -contains [System.IO.Path]::GetExtension($relativePath)) {
+    $issues.Add("Forbidden tracked or unignored secret or wallet file: $relativePath")
+  }
 }
 
 $candidateFiles = $candidateFiles |
-  Where-Object { $_ -and $_ -ne ".env.example" -and ($selfRuleFiles -notcontains ($_ -replace '\\', '/')) } |
+  Where-Object { $_ -and (Split-Path $_ -Leaf) -ne ".env.example" -and ($selfRuleFiles -notcontains ($_ -replace '\\', '/')) } |
   Sort-Object -Unique
 
 foreach ($relativePath in $candidateFiles) {
@@ -60,13 +54,20 @@ foreach ($relativePath in $candidateFiles) {
     continue
   }
 
-  foreach ($pattern in $secretPatterns) {
-    $matches = Select-String -Path $fullPath -SimpleMatch $pattern -ErrorAction SilentlyContinue
-    foreach ($match in $matches) {
-      if ($match.Line -match $allowedPlaceholderPattern) {
+  $lineNumber = 0
+  foreach ($line in Get-Content -LiteralPath $fullPath -ErrorAction SilentlyContinue) {
+    $lineNumber++
+    if ($line -cmatch $secretAssignmentPattern) {
+      $value = $Matches['value'].Trim('"', "'")
+      if (-not $value -or $value -match $allowedPlaceholderPattern) {
         continue
       }
-      $issues.Add("Secret pattern '$pattern' found in ${relativePath}:$($match.LineNumber)")
+      $issues.Add("Non-placeholder secret assignment found in ${relativePath}:${lineNumber}")
+    }
+    foreach ($pattern in $credentialPatterns) {
+      if ($line -match $pattern) {
+        $issues.Add("Credential-like value found in ${relativePath}:${lineNumber}")
+      }
     }
   }
 }

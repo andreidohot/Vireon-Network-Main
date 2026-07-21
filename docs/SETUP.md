@@ -1,4 +1,4 @@
-# Install the Tauri-style Veiron documentation theme
+# Install the Tauri-style Vireon documentation theme
 
 Copy these files into the repository's existing `docs/` directory:
 
@@ -20,7 +20,7 @@ Then run:
 git switch main
 git pull origin main
 git add docs
-git commit -m "docs: align website with Veiron Control Center design"
+git commit -m "docs: align website with Vireon Control Center design"
 git push origin main
 ```
 
@@ -36,9 +36,9 @@ Folder: /docs
 Public URL:
 
 ```text
-https://andreidohot.github.io/Veiron-Network-Main/
+https://andreidohot.github.io/Vireon-Network-Main/
 ```
 
-The logo is loaded from the canonical `veiron-desktop-tauri/public/logo-mark.png`
+The logo is loaded from the canonical `vireon-desktop-tauri/public/logo-mark.png`
 asset through GitHub's raw content URL so the documentation uses the same mark
-as Veiron Control Center.
+as Vireon Control Center.

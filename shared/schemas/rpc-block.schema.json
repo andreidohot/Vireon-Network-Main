@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://veiron.local/schemas/rpc-block.schema.json",
-  "title": "Veiron RPC Block Response",
+  "$id": "https://vireon.local/schemas/rpc-block.schema.json",
+  "title": "Vireon RPC Block Response",
   "type": "object",
   "required": [
     "height",

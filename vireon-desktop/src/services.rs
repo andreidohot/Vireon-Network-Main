@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
-use veiron_core::{
+use vireon_core::{
     generate_mnemonic, hash_to_hex, next_base_fee, Address, Amount, MnemonicWordCount, Network,
     PrivateKey, Transaction, WalletDerivationPath,
 };
@@ -348,7 +348,7 @@ pub fn network_snapshot(
     });
     recent_transactions.truncate(20);
     let balance = wallet
-        .map(|wallet| veiron_wallet::balance(RPC_URL, &wallet.address))
+        .map(|wallet| vireon_wallet::balance(RPC_URL, &wallet.address))
         .transpose()
         .map_err(service_error)?
         .map(|response| response.balance_atomic);
@@ -448,7 +448,7 @@ pub fn prepare_transaction(
         ));
     }
 
-    let chain = veiron_wallet::wallet::load_chain(&workspace.join(".veiron-local/chain"))
+    let chain = vireon_wallet::wallet::load_chain(&workspace.join(".vireon-local/chain"))
         .map_err(service_error)?;
     if chain.network() != Network::MainnetCandidate {
         return Err(DesktopError::Service(
@@ -531,7 +531,7 @@ pub fn sign_and_submit(
                 None,
             )
             .map_err(service_error)?;
-            let response = veiron_wallet::rpc::submit_transaction(RPC_URL, &transaction)
+            let response = vireon_wallet::rpc::submit_transaction(RPC_URL, &transaction)
                 .map_err(service_error)?;
             Ok(SubmissionResult {
                 tx_hash: response.tx_hash,
@@ -549,7 +549,7 @@ pub fn run_operator(
     miner_address: Option<&str>,
     miner_threads: usize,
 ) -> Result<String> {
-    let script = workspace.join("veiron.ps1");
+    let script = workspace.join("vireon.ps1");
     if !script.exists() {
         return Err(DesktopError::Service(format!(
             "operator script not found at {}",
@@ -627,12 +627,12 @@ pub fn open_explorer_path(path: &str) -> Result<()> {
 }
 
 fn local_root(workspace: &Path) -> PathBuf {
-    if workspace.join("bin/veiron-node.exe").exists() {
+    if workspace.join("bin/vireon-node.exe").exists() {
         dirs::data_local_dir()
             .unwrap_or_else(|| workspace.to_path_buf())
-            .join("Veiron/ControlCenter/.veiron-local")
+            .join("Vireon/ControlCenter/.vireon-local")
     } else {
-        workspace.join(".veiron-local")
+        workspace.join(".vireon-local")
     }
 }
 
@@ -652,7 +652,7 @@ fn managed_process_running(local_root: &Path, name: &str) -> bool {
 }
 
 pub fn find_workspace_root() -> PathBuf {
-    if let Some(value) = std::env::var_os("VEIRON_WORKSPACE_ROOT") {
+    if let Some(value) = std::env::var_os("VIREON_WORKSPACE_ROOT") {
         let path = PathBuf::from(value);
         if is_workspace(&path) {
             return path;
@@ -672,10 +672,10 @@ pub fn find_workspace_root() -> PathBuf {
 }
 
 fn is_workspace(path: &Path) -> bool {
-    path.join("scripts/local/veiron-local.ps1").exists()
+    path.join("scripts/local/vireon-local.ps1").exists()
 }
 
-fn next_nonce(blocks: &[veiron_core::Block], address: &str) -> u64 {
+fn next_nonce(blocks: &[vireon_core::Block], address: &str) -> u64 {
     blocks
         .iter()
         .flat_map(|block| block.transactions.iter())
@@ -688,8 +688,8 @@ fn next_nonce(blocks: &[veiron_core::Block], address: &str) -> u64 {
 pub fn format_atomic(value: u64) -> String {
     format!(
         "{}.{:08}",
-        value / veiron_core::ATOMIC_UNITS_PER_VIRE,
-        value % veiron_core::ATOMIC_UNITS_PER_VIRE
+        value / vireon_core::ATOMIC_UNITS_PER_VIRE,
+        value % vireon_core::ATOMIC_UNITS_PER_VIRE
     )
 }
 

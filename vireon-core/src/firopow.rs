@@ -1,27 +1,27 @@
-//! FiroPoW 0.9.4 — canonical VeironPoW v1.
+//! FiroPoW 0.9.4 — canonical VireonPoW v1.
 //!
 //! Vendored from firoorg/firo (`ProgPoW` revision **0.9.4**, `period_length = 1`).
 //! Nodes use this module **only** to verify GPU-found solutions (light context).
-//! Continuous product mining is GPU-only and lives in `veiron-miner`.
+//! Continuous product mining is GPU-only and lives in `vireon-miner`.
 //!
-//! Future: `Veiron PoLW v2` activates via fixed-height upgrade (see [`crate::upgrade`]).
+//! Future: `Vireon PoLW v2` activates via fixed-height upgrade (see [`crate::upgrade`]).
 
 use crate::block::Block;
 use crate::crypto::Hash;
-use crate::errors::{Result, VeironError};
+use crate::errors::{Result, VireonError};
 use serde::{Deserialize, Serialize};
 use std::ffi::c_void;
 use std::os::raw::{c_char, c_int};
 use std::sync::OnceLock;
 
-/// Consensus algorithm id for VeironPoW v1.
+/// Consensus algorithm id for VireonPoW v1.
 pub const POW_ALGORITHM_ID: &str = "firopow-0.9.4";
 /// Human revision string (must match progpow::revision).
 pub const FIROPOW_REVISION: &str = "0.9.4";
-/// Launch PoW version number (VeironPoW v1).
+/// Launch PoW version number (VireonPoW v1).
 pub const POW_VERSION: u32 = 1;
 /// Reserved future algorithm id for energy-aware PoLW (not active).
-pub const FUTURE_POLW_V2_ALGORITHM_ID: &str = "veiron-polw-v2";
+pub const FUTURE_POLW_V2_ALGORITHM_ID: &str = "vireon-polw-v2";
 pub const FUTURE_POLW_V2_VERSION: u32 = 2;
 
 /// Firo epoch length (blocks) — ETHASH_EPOCH_LENGTH from vendored sources.
@@ -36,25 +36,25 @@ struct NativeResult {
 }
 
 extern "C" {
-    fn veiron_firopow_revision(out: *mut c_char, out_len: c_int) -> c_int;
-    fn veiron_firopow_period_length() -> c_int;
-    fn veiron_firopow_epoch_length() -> c_int;
-    fn veiron_firopow_epoch_number(block_number: c_int) -> c_int;
-    fn veiron_keccak256(data: *const u8, len: usize, out: *mut u8);
-    fn veiron_firopow_hash(
+    fn vireon_firopow_revision(out: *mut c_char, out_len: c_int) -> c_int;
+    fn vireon_firopow_period_length() -> c_int;
+    fn vireon_firopow_epoch_length() -> c_int;
+    fn vireon_firopow_epoch_number(block_number: c_int) -> c_int;
+    fn vireon_keccak256(data: *const u8, len: usize, out: *mut u8);
+    fn vireon_firopow_hash(
         block_number: c_int,
         header_hash: *const u8,
         nonce: u64,
         out: *mut NativeResult,
     ) -> c_int;
-    fn veiron_firopow_verify(
+    fn vireon_firopow_verify(
         block_number: c_int,
         header_hash: *const u8,
         mix_hash: *const u8,
         nonce: u64,
         boundary: *const u8,
     ) -> c_int;
-    fn veiron_firopow_search_light(
+    fn vireon_firopow_search_light(
         block_number: c_int,
         header_hash: *const u8,
         boundary: *const u8,
@@ -63,7 +63,7 @@ extern "C" {
         found_nonce: *mut u64,
         out: *mut NativeResult,
     ) -> c_int;
-    fn veiron_firopow_search_mt(
+    fn vireon_firopow_search_mt(
         block_number: c_int,
         header_hash: *const u8,
         boundary: *const u8,
@@ -75,8 +75,8 @@ extern "C" {
         out: *mut NativeResult,
         hashes_done: *mut u64,
     ) -> c_int;
-    fn veiron_firopow_prewarm_full(block_number: c_int) -> c_int;
-    fn veiron_firopow_export_full_dag(
+    fn vireon_firopow_prewarm_full(block_number: c_int) -> c_int;
+    fn vireon_firopow_export_full_dag(
         block_number: c_int,
         dag_out: *mut *const u8,
         dag_bytes_out: *mut u64,
@@ -84,7 +84,7 @@ extern "C" {
         l1_words_out: *mut u32,
         full_dataset_num_items_out: *mut c_int,
     ) -> c_int;
-    fn veiron_firopow_export_light_cache(
+    fn vireon_firopow_export_light_cache(
         block_number: c_int,
         light_out: *mut *const u32,
         light_items_out: *mut u32,
@@ -92,8 +92,8 @@ extern "C" {
         l1_words_out: *mut u32,
         full_dataset_num_items_out: *mut c_int,
     ) -> c_int;
-    fn veiron_firopow_dataset_item_1024(block_number: c_int, index: u32, out: *mut u8) -> c_int;
-    fn veiron_firopow_full_dataset_bytes(block_number: c_int) -> u64;
+    fn vireon_firopow_dataset_item_1024(block_number: c_int, index: u32, out: *mut u8) -> c_int;
+    fn vireon_firopow_full_dataset_bytes(block_number: c_int) -> u64;
 }
 
 /// Wire/documentation identity of the active PoW algorithm.
@@ -141,7 +141,7 @@ pub struct PowValidation {
 pub fn keccak256(data: &[u8]) -> Hash {
     let mut out = [0u8; 32];
     unsafe {
-        veiron_keccak256(data.as_ptr(), data.len(), out.as_mut_ptr());
+        vireon_keccak256(data.as_ptr(), data.len(), out.as_mut_ptr());
     }
     Hash::from_bytes(out)
 }
@@ -149,12 +149,12 @@ pub fn keccak256(data: &[u8]) -> Hash {
 /// Epoch number for a block height (height is treated as block_number).
 pub fn epoch_number(block_height: u64) -> i32 {
     let bn = height_as_i32(block_height);
-    unsafe { veiron_firopow_epoch_number(bn) }
+    unsafe { vireon_firopow_epoch_number(bn) }
 }
 
 /// Native FiroPoW epoch length (blocks). Must match [`EPOCH_LENGTH`].
 pub fn epoch_length() -> i32 {
-    unsafe { veiron_firopow_epoch_length() }
+    unsafe { vireon_firopow_epoch_length() }
 }
 
 fn height_as_i32(height: u64) -> i32 {
@@ -243,7 +243,7 @@ pub fn firopow_hash(block_height: u64, header_hash: &Hash, nonce: u64) -> Result
         mix_hash: [0u8; 32],
     };
     let rc = unsafe {
-        veiron_firopow_hash(
+        vireon_firopow_hash(
             height_as_i32(block_height),
             header_hash.as_bytes().as_ptr(),
             nonce,
@@ -251,7 +251,7 @@ pub fn firopow_hash(block_height: u64, header_hash: &Hash, nonce: u64) -> Result
         )
     };
     if rc != 0 {
-        return Err(VeironError::InvalidPow {
+        return Err(VireonError::InvalidPow {
             required: 0,
             actual: 0,
         });
@@ -271,7 +271,7 @@ pub fn firopow_verify(
     boundary: &[u8; 32],
 ) -> bool {
     unsafe {
-        veiron_firopow_verify(
+        vireon_firopow_verify(
             height_as_i32(block_height),
             header_hash.as_bytes().as_ptr(),
             mix_hash.as_bytes().as_ptr(),
@@ -295,7 +295,7 @@ pub fn firopow_search_light(
         mix_hash: [0u8; 32],
     };
     let rc = unsafe {
-        veiron_firopow_search_light(
+        vireon_firopow_search_light(
             height_as_i32(block_height),
             header_hash.as_bytes().as_ptr(),
             boundary.as_ptr(),
@@ -314,7 +314,7 @@ pub fn firopow_search_light(
                 mix_hash: Hash::from_bytes(out.mix_hash),
             },
         ))),
-        _ => Err(VeironError::InvalidPow {
+        _ => Err(VireonError::InvalidPow {
             required: 0,
             actual: 0,
         }),
@@ -342,7 +342,7 @@ pub fn firopow_search_mt(
         .map(|c| c as *const std::sync::atomic::AtomicI32 as *const c_int)
         .unwrap_or(std::ptr::null());
     let rc = unsafe {
-        veiron_firopow_search_mt(
+        vireon_firopow_search_mt(
             height_as_i32(block_height),
             header_hash.as_bytes().as_ptr(),
             boundary.as_ptr(),
@@ -365,7 +365,7 @@ pub fn firopow_search_mt(
             },
             hashes_done,
         ))),
-        _ => Err(VeironError::InvalidPow {
+        _ => Err(VireonError::InvalidPow {
             required: 0,
             actual: 0,
         }),
@@ -374,11 +374,11 @@ pub fn firopow_search_mt(
 
 /// Pre-allocate full epoch DAG (lazy slots) for faster subsequent searches.
 pub fn firopow_prewarm(block_height: u64) -> Result<()> {
-    let rc = unsafe { veiron_firopow_prewarm_full(height_as_i32(block_height)) };
+    let rc = unsafe { vireon_firopow_prewarm_full(height_as_i32(block_height)) };
     if rc == 0 {
         Ok(())
     } else {
-        Err(VeironError::InvalidPow {
+        Err(VireonError::InvalidPow {
             required: 0,
             actual: 0,
         })
@@ -422,7 +422,7 @@ pub fn firopow_export_light_cache(block_height: u64) -> Result<FiroPowLightCache
     let mut l1_words = 0u32;
     let mut full_dataset_num_items: c_int = 0;
     let rc = unsafe {
-        veiron_firopow_export_light_cache(
+        vireon_firopow_export_light_cache(
             height_as_i32(block_height),
             &mut light_cache_ptr,
             &mut light_cache_items,
@@ -438,7 +438,7 @@ pub fn firopow_export_light_cache(block_height: u64) -> Result<FiroPowLightCache
         || l1_words == 0
         || full_dataset_num_items <= 0
     {
-        return Err(VeironError::InvalidPow {
+        return Err(VireonError::InvalidPow {
             required: 0,
             actual: 0,
         });
@@ -456,12 +456,12 @@ pub fn firopow_export_light_cache(block_height: u64) -> Result<FiroPowLightCache
 pub fn firopow_dataset_item_1024(block_height: u64, index: u32) -> Result<[u8; 128]> {
     let mut output = [0u8; 128];
     let rc = unsafe {
-        veiron_firopow_dataset_item_1024(height_as_i32(block_height), index, output.as_mut_ptr())
+        vireon_firopow_dataset_item_1024(height_as_i32(block_height), index, output.as_mut_ptr())
     };
     if rc == 0 {
         Ok(output)
     } else {
-        Err(VeironError::InvalidPow {
+        Err(VireonError::InvalidPow {
             required: 0,
             actual: 0,
         })
@@ -480,7 +480,7 @@ pub fn firopow_export_full_dag(block_height: u64) -> Result<FiroPowDagView> {
     let mut l1_words: u32 = 0;
     let mut num_items: c_int = 0;
     let rc = unsafe {
-        veiron_firopow_export_full_dag(
+        vireon_firopow_export_full_dag(
             height_as_i32(block_height),
             &mut dag_ptr,
             &mut dag_bytes,
@@ -490,7 +490,7 @@ pub fn firopow_export_full_dag(block_height: u64) -> Result<FiroPowDagView> {
         )
     };
     if rc != 0 || dag_ptr.is_null() || l1_ptr.is_null() || dag_bytes == 0 {
-        return Err(VeironError::InvalidPow {
+        return Err(VireonError::InvalidPow {
             required: 0,
             actual: 0,
         });
@@ -506,10 +506,10 @@ pub fn firopow_export_full_dag(block_height: u64) -> Result<FiroPowDagView> {
 
 /// Full dataset size in bytes for the epoch of `block_height`.
 pub fn firopow_full_dataset_bytes(block_height: u64) -> u64 {
-    unsafe { veiron_firopow_full_dataset_bytes(height_as_i32(block_height)) }
+    unsafe { vireon_firopow_full_dataset_bytes(height_as_i32(block_height)) }
 }
 
-/// Canonical FiroPoW engine for VeironPoW v1.
+/// Canonical FiroPoW engine for VireonPoW v1.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct FiroPow;
 
@@ -571,7 +571,7 @@ impl FiroPow {
         let result = self.validate_block_header(block)?;
         if !result.meets_target {
             let actual = leading_zero_bits_be(&result.final_hash);
-            return Err(VeironError::InvalidPow {
+            return Err(VireonError::InvalidPow {
                 required: block.header.difficulty_leading_zero_bits,
                 actual,
             });
@@ -599,7 +599,7 @@ pub fn validate_pow(block: &Block) -> Result<PowValidation> {
 }
 
 /// Mine a solution for tests/genesis (multi-thread immutable light-context search).
-/// Product continuous mining is GPU-orchestrated in `veiron-miner`.
+/// Product continuous mining is GPU-orchestrated in `vireon-miner`.
 pub fn mine_firopow_solution(
     block: &Block,
     required_leading_zero_bits: u8,
@@ -631,9 +631,9 @@ pub fn native_available() -> bool {
     *NATIVE_OK.get_or_init(|| {
         // c_char is i8 on Windows, u8 on Android/Linux — do not hardcode i8.
         let mut buf = [0 as c_char; 16];
-        let n = unsafe { veiron_firopow_revision(buf.as_mut_ptr(), buf.len() as c_int) };
+        let n = unsafe { vireon_firopow_revision(buf.as_mut_ptr(), buf.len() as c_int) };
         n > 0
-            && unsafe { veiron_firopow_period_length() } == PERIOD_LENGTH
+            && unsafe { vireon_firopow_period_length() } == PERIOD_LENGTH
             && epoch_length() == EPOCH_LENGTH
     })
 }
@@ -657,8 +657,8 @@ mod tests {
     #[test]
     fn native_reports_firopow_094_period_1() {
         assert!(native_available());
-        assert_eq!(unsafe { veiron_firopow_period_length() }, 1);
-        assert_eq!(unsafe { veiron_firopow_epoch_length() }, EPOCH_LENGTH);
+        assert_eq!(unsafe { vireon_firopow_period_length() }, 1);
+        assert_eq!(unsafe { vireon_firopow_epoch_length() }, EPOCH_LENGTH);
     }
 
     #[test]

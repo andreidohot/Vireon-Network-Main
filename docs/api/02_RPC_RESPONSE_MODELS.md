@@ -2,7 +2,7 @@
 
 Status: Implemented / Mainnet Candidate
 
-The Rust structs in `veiron-rpc-gateway/src/models.rs` are the field-level source
+The Rust structs in `vireon-rpc-gateway/src/models.rs` are the field-level source
 of truth. This document defines model groups and invariants without copying an
 exhaustive field list that can drift.
 

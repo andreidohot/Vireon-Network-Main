@@ -8,43 +8,43 @@ import type {
   PoolStatus,
   SignedTransactionBody,
   SubmitTransactionResponse,
-  VeironClientOptions
+  VireonClientOptions
 } from "./types.js";
 import { poolBlockMaturity } from "./maturity.js";
 
 const DEFAULT_RPC = "https://rpcnode.dohotstudio.com";
 const DEFAULT_POOL = "https://rpcnode.dohotstudio.com/pool";
 
-/** Matches veiron-core FIRST_ACCOUNT_NONCE. */
-export const VEIRON_FIRST_ACCOUNT_NONCE = 1;
+/** Matches vireon-core FIRST_ACCOUNT_NONCE. */
+export const VIREON_FIRST_ACCOUNT_NONCE = 1;
 
 function trimSlash(url: string): string {
   return url.trim().replace(/\/+$/, "");
 }
 
-export class VeironError extends Error {
+export class VireonError extends Error {
   readonly status?: number;
   readonly url?: string;
 
   constructor(message: string, opts?: { status?: number; url?: string; cause?: unknown }) {
     super(message, opts?.cause !== undefined ? { cause: opts.cause } : undefined);
-    this.name = "VeironError";
+    this.name = "VireonError";
     this.status = opts?.status;
     this.url = opts?.url;
   }
 }
 
 /**
- * Veiron client for Mainnet Candidate gateways.
+ * Vireon client for Mainnet Candidate gateways.
  * Read APIs + relay of pre-signed transactions. Does not hold keys or implement contracts.
  */
-export class VeironClient {
+export class VireonClient {
   readonly rpcUrl: string;
   readonly poolUrl: string;
   private readonly fetchImpl: typeof fetch;
   private readonly timeoutMs: number;
 
-  constructor(options: VeironClientOptions = {}) {
+  constructor(options: VireonClientOptions = {}) {
     this.rpcUrl = trimSlash(options.rpcUrl ?? DEFAULT_RPC);
     this.poolUrl = trimSlash(options.poolUrl ?? DEFAULT_POOL);
     this.fetchImpl = options.fetch ?? fetch.bind(globalThis);
@@ -80,7 +80,7 @@ export class VeironClient {
         } catch {
           /* ignore */
         }
-        throw new VeironError(
+        throw new VireonError(
           `HTTP ${response.status} for ${url}${detail ? `: ${detail}` : ""}`,
           {
             status: response.status,
@@ -90,8 +90,8 @@ export class VeironClient {
       }
       return (await response.json()) as T;
     } catch (error) {
-      if (error instanceof VeironError) throw error;
-      throw new VeironError(`Request failed for ${url}: ${String(error)}`, {
+      if (error instanceof VireonError) throw error;
+      throw new VireonError(`Request failed for ${url}: ${String(error)}`, {
         url,
         cause: error
       });
@@ -120,7 +120,7 @@ export class VeironClient {
 
   blockByHeight(height: number): Promise<unknown> {
     if (!Number.isInteger(height) || height < 0) {
-      return Promise.reject(new VeironError("height must be a non-negative integer"));
+      return Promise.reject(new VireonError("height must be a non-negative integer"));
     }
     return this.getJson(this.rpcUrl, `/blocks/${height}`);
   }
@@ -128,7 +128,7 @@ export class VeironClient {
   transaction(hash: string): Promise<unknown> {
     const h = hash.trim().toLowerCase().replace(/^0x/, "");
     if (!/^[a-f0-9]{64}$/.test(h)) {
-      return Promise.reject(new VeironError("transaction hash must be 64 hex chars"));
+      return Promise.reject(new VireonError("transaction hash must be 64 hex chars"));
     }
     return this.getJson(this.rpcUrl, `/transactions/${h}`);
   }
@@ -136,7 +136,7 @@ export class VeironClient {
   addressBalance(address: string): Promise<AddressBalance> {
     const a = address.trim();
     if (!a.startsWith("vire1")) {
-      return Promise.reject(new VeironError("address must be a vire1… Mainnet Candidate address"));
+      return Promise.reject(new VireonError("address must be a vire1… Mainnet Candidate address"));
     }
     return this.getJson(this.rpcUrl, `/addresses/${encodeURIComponent(a)}/balance`);
   }
@@ -144,7 +144,7 @@ export class VeironClient {
   addressAccount(address: string): Promise<AddressAccount> {
     const a = address.trim();
     if (!a.startsWith("vire1")) {
-      return Promise.reject(new VeironError("address must be a vire1… Mainnet Candidate address"));
+      return Promise.reject(new VireonError("address must be a vire1… Mainnet Candidate address"));
     }
     return this.getJson(this.rpcUrl, `/addresses/${encodeURIComponent(a)}/account`);
   }
@@ -156,8 +156,8 @@ export class VeironClient {
   async nextNonce(address: string): Promise<number> {
     const account = await this.addressAccount(address);
     const n = Number(account.next_nonce);
-    if (!Number.isFinite(n) || n < VEIRON_FIRST_ACCOUNT_NONCE) {
-      return VEIRON_FIRST_ACCOUNT_NONCE;
+    if (!Number.isFinite(n) || n < VIREON_FIRST_ACCOUNT_NONCE) {
+      return VIREON_FIRST_ACCOUNT_NONCE;
     }
     return Math.trunc(n);
   }
@@ -173,14 +173,14 @@ export class VeironClient {
    */
   submitTransaction(tx: SignedTransactionBody): Promise<SubmitTransactionResponse> {
     if (!tx || typeof tx !== "object") {
-      return Promise.reject(new VeironError("transaction body is required"));
+      return Promise.reject(new VireonError("transaction body is required"));
     }
     if (!tx.from || !tx.to || tx.nonce === undefined) {
-      return Promise.reject(new VeironError("transaction requires from, to, and nonce"));
+      return Promise.reject(new VireonError("transaction requires from, to, and nonce"));
     }
     if (!tx.signature && !tx.sender_public_key) {
       return Promise.reject(
-        new VeironError("unsigned transactions cannot be submitted (missing signature fields)")
+        new VireonError("unsigned transactions cannot be submitted (missing signature fields)")
       );
     }
     return this.requestJson(this.rpcUrl, "/transactions", {
@@ -210,7 +210,7 @@ export class VeironClient {
   poolMiner(address: string): Promise<unknown> {
     const a = address.trim();
     if (!a.startsWith("vire1")) {
-      return Promise.reject(new VeironError("miner address must be vire1…"));
+      return Promise.reject(new VireonError("miner address must be vire1…"));
     }
     return this.getJson(this.poolUrl, `/api/v1/miners/${encodeURIComponent(a)}`);
   }
@@ -251,6 +251,6 @@ export class VeironClient {
   }
 }
 
-export function createVeironClient(options?: VeironClientOptions): VeironClient {
-  return new VeironClient(options);
+export function createVireonClient(options?: VireonClientOptions): VireonClient {
+  return new VireonClient(options);
 }

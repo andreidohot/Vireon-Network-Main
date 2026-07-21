@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Veiron Network (Candidate)",
+  "name": "Vireon Network (Candidate)",
   "version": "0.1.0",
-  "description": "Veiron Mainnet Candidate browser shell. Keys stay in the native host — not in the extension.",
+  "description": "Vireon Mainnet Candidate browser shell. Keys stay in the native host — not in the extension.",
   "action": {
-    "default_title": "Veiron Candidate",
+    "default_title": "Vireon Candidate",
     "default_popup": "popup.html"
   },
   "background": {

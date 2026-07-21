@@ -6,10 +6,10 @@ use rand::RngCore;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
-use veiron_sdk_rust::{Address, Network, PrivateKey, WalletAccount};
+use vireon_sdk_rust::{Address, Network, PrivateKey, WalletAccount};
 use zeroize::Zeroize;
 
-pub const SCHEMA_ENCRYPTED_V1: &str = "veiron-browser-host-encrypted-v1";
+pub const SCHEMA_ENCRYPTED_V1: &str = "vireon-browser-host-encrypted-v1";
 pub const DEFAULT_KEYSTORE_FILE: &str = "browser-host-wallet.json";
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -270,7 +270,7 @@ pub fn delete_wallet(dir: &Path, network: Network, passphrase: &str) -> Result<(
 mod tests {
     use super::*;
     use tempfile::tempdir;
-    use veiron_sdk_rust::{MnemonicWordCount, Network, WalletAccount, WalletDerivationPath};
+    use vireon_sdk_rust::{MnemonicWordCount, Network, WalletAccount, WalletDerivationPath};
 
     #[test]
     fn create_unlock_roundtrip() {

@@ -53,7 +53,7 @@ fn runtime_roots() -> AppResult<(PathBuf, PathBuf)> {
         // Packaged fallback: resource dir itself is the workspace.
         resource_root().ok_or_else(|| {
             AppError::msg(
-                "Cannot locate Veiron install resources. Reinstall Control Center or set VEIRON_WORKSPACE_ROOT.",
+                "Cannot locate Vireon install resources. Reinstall Control Center or set VIREON_WORKSPACE_ROOT.",
             )
         })
     })?;
@@ -133,7 +133,7 @@ pub async fn run_operator(
         )));
     }
 
-    // Mining never goes through veiron.ps1 - spawn the binary directly against the VPS RPC/pool.
+    // Mining never goes through vireon.ps1 - spawn the binary directly against the VPS RPC/pool.
     if command == "miner-start" {
         return start_remote_miner(miner_address, miner_options).await;
     }
@@ -212,7 +212,7 @@ async fn start_remote_miner(
         .trim_end_matches('/')
         .to_string();
     if pool_url.is_empty() {
-        pool_url = veiron_sdk_rust::DEFAULT_MAINNET_CANDIDATE_POOL.into();
+        pool_url = vireon_sdk_rust::DEFAULT_MAINNET_CANDIDATE_POOL.into();
     }
     let worker_name = options
         .worker_name
@@ -238,7 +238,7 @@ async fn start_remote_miner(
         let response = light.get(&probe).send().await.map_err(|e| {
             AppError::msg(format!(
                 "Pool unreachable at {pool_url}: {e}. Expected {}. Check Settings > Network / Mining defaults for the pool URL.",
-                veiron_sdk_rust::DEFAULT_MAINNET_CANDIDATE_POOL
+                vireon_sdk_rust::DEFAULT_MAINNET_CANDIDATE_POOL
             ))
         })?;
         let pool_status = response.status();
@@ -265,11 +265,11 @@ async fn start_remote_miner(
                     )));
                 }
                 eprintln!(
-                    "veiron: pool work probe HTTP {status} (starting miner anyway). Body: {body}"
+                    "vireon: pool work probe HTTP {status} (starting miner anyway). Body: {body}"
                 );
             }
             Err(err) => {
-                eprintln!("veiron: pool work probe failed ({err}); starting miner anyway");
+                eprintln!("vireon: pool work probe failed ({err}); starting miner anyway");
             }
         }
     } else {
@@ -281,12 +281,12 @@ async fn start_remote_miner(
             Ok(health) => {
                 let code = health.status().as_u16();
                 eprintln!(
-                    "veiron: RPC health HTTP {code} at {health_url}; continuing with template probe"
+                    "vireon: RPC health HTTP {code} at {health_url}; continuing with template probe"
                 );
             }
             Err(err) => {
                 eprintln!(
-                    "veiron: RPC health unreachable at {health_url} ({err}); continuing with template probe"
+                    "vireon: RPC health unreachable at {health_url} ({err}); continuing with template probe"
                 );
             }
         }
@@ -409,13 +409,13 @@ kernel_validation = true
         .to_string(),
     );
 
-    let miner_bin = resolve_binary("veiron-miner")?;
+    let miner_bin = resolve_binary("vireon-miner")?;
     let stdout_path = logs_dir.join("miner.log");
     let stderr_path = logs_dir.join("miner.err.log");
 
     // Write a startup banner so the console is never empty.
     let banner = format!(
-        "starting veiron-miner\nbinary={}\nconfig={}\nwork_mode={mode}\nbackend={backend}\ngpu_intensity={gpu_intensity}\nrpc={rpc_url}\npool={pool_url}\naddress={address}\n",
+        "starting vireon-miner\nbinary={}\nconfig={}\nwork_mode={mode}\nbackend={backend}\ngpu_intensity={gpu_intensity}\nrpc={rpc_url}\npool={pool_url}\naddress={address}\n",
         miner_bin.display(),
         config_path.display()
     );
@@ -438,9 +438,9 @@ kernel_validation = true
     let mut cmd = Command::new(&miner_bin);
     cmd.args(["--config", &config_arg, "mine"])
         .current_dir(&workspace)
-        .env("VEIRON_LOCAL_ROOT", &local)
-        .env("VEIRON_WORKSPACE_ROOT", &workspace)
-        .env("VEIRON_RPC_URL", &rpc_url)
+        .env("VIREON_LOCAL_ROOT", &local)
+        .env("VIREON_WORKSPACE_ROOT", &workspace)
+        .env("VIREON_RPC_URL", &rpc_url)
         .stdout(Stdio::from(stdout_file))
         .stderr(Stdio::from(stderr_file))
         .kill_on_drop(false);
@@ -452,7 +452,7 @@ kernel_validation = true
 
     let child = cmd.spawn().map_err(|err| {
         AppError::msg(format!(
-            "Failed to spawn miner binary {}:\n{err}\nInstall resources must include bin/veiron-miner (or veiron-miner.exe on Windows).",
+            "Failed to spawn miner binary {}:\n{err}\nInstall resources must include bin/vireon-miner (or vireon-miner.exe on Windows).",
             miner_bin.display()
         ))
     })?;
@@ -513,7 +513,7 @@ async fn stop_managed_service(name: &str) -> AppResult<String> {
     if name == "miner" {
         if cfg!(windows) {
             let mut cmd = Command::new("taskkill.exe");
-            cmd.args(["/IM", "veiron-miner.exe", "/F"]);
+            cmd.args(["/IM", "vireon-miner.exe", "/F"]);
             #[cfg(windows)]
             {
                 cmd.creation_flags(CREATE_NO_WINDOW);
@@ -521,7 +521,7 @@ async fn stop_managed_service(name: &str) -> AppResult<String> {
             let _ = cmd.output().await;
         } else {
             let _ = Command::new("pkill")
-                .args(["-f", "veiron-miner"])
+                .args(["-f", "vireon-miner"])
                 .output()
                 .await;
         }
@@ -628,9 +628,9 @@ async fn run_local_stack_operator(
 
     let windows = cfg!(windows);
     let script = if windows {
-        workspace.join("veiron.ps1")
+        workspace.join("vireon.ps1")
     } else {
-        workspace.join("veiron.sh")
+        workspace.join("vireon.sh")
     };
     if !script.exists() {
         return Err(AppError::msg(format!(
@@ -705,9 +705,9 @@ async fn run_local_stack_operator(
 
     let rpc_url = get_rpc_url();
     cmd.current_dir(&workspace)
-        .env("VEIRON_LOCAL_ROOT", &local)
-        .env("VEIRON_WORKSPACE_ROOT", &workspace)
-        .env("VEIRON_RPC_URL", &rpc_url)
+        .env("VIREON_LOCAL_ROOT", &local)
+        .env("VIREON_WORKSPACE_ROOT", &workspace)
+        .env("VIREON_RPC_URL", &rpc_url)
         .env("PATH", path_value)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -785,9 +785,9 @@ pub fn node_config_present() -> bool {
         .unwrap_or(false)
 }
 
-/// Enumerate NVIDIA CUDA devices via the bundled veiron-miner binary.
+/// Enumerate NVIDIA CUDA devices via the bundled vireon-miner binary.
 pub async fn list_mining_devices() -> AppResult<serde_json::Value> {
-    let miner_bin = resolve_binary("veiron-miner")?;
+    let miner_bin = resolve_binary("vireon-miner")?;
 
     // Prefer subcommand flag (`devices --json`); fall back to global (`--json devices`)
     // for older sidecars that only accepted the global form.
@@ -828,13 +828,13 @@ pub async fn list_mining_devices() -> AppResult<serde_json::Value> {
             }
             return serde_json::from_str(&stdout).map_err(|err| {
                 AppError::msg(format!(
-                    "Invalid devices JSON from veiron-miner: {err}\n{stdout}"
+                    "Invalid devices JSON from vireon-miner: {err}\n{stdout}"
                 ))
             });
         }
         last_err = if stderr.is_empty() {
             format!(
-                "veiron-miner {:?} failed (exit {}). Install a supported NVIDIA driver and use the CUDA-enabled sidecar.",
+                "vireon-miner {:?} failed (exit {}). Install a supported NVIDIA driver and use the CUDA-enabled sidecar.",
                 args, output.status
             )
         } else {

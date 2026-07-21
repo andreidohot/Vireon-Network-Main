@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://veiron.local/schemas/rpc-transaction.schema.json",
-  "title": "Veiron RPC Transaction Response",
+  "$id": "https://vireon.local/schemas/rpc-transaction.schema.json",
+  "title": "Vireon RPC Transaction Response",
   "type": "object",
   "required": [
     "hash",

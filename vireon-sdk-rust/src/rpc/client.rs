@@ -11,7 +11,7 @@ use crate::error::{Result, SdkError};
 use crate::maturity::{pool_block_maturity, DEFAULT_BLOCK_MATURITY_CONFIRMATIONS};
 use std::time::{Duration, Instant};
 
-/// Async JSON HTTP client for the Veiron RPC gateway + public pool APIs.
+/// Async JSON HTTP client for the Vireon RPC gateway + public pool APIs.
 #[derive(Clone, Debug)]
 pub struct RpcClient {
     config: NetworkConfig,
@@ -21,7 +21,7 @@ pub struct RpcClient {
 impl RpcClient {
     pub fn new(config: NetworkConfig) -> Result<Self> {
         let http = reqwest::Client::builder()
-            .user_agent(concat!("veiron-sdk-rust/", env!("CARGO_PKG_VERSION")))
+            .user_agent(concat!("vireon-sdk-rust/", env!("CARGO_PKG_VERSION")))
             .build()
             .map_err(|error| SdkError::rpc(error.to_string()))?;
         Ok(Self { config, http })
@@ -300,7 +300,7 @@ pub mod blocking {
     impl BlockingRpcClient {
         pub fn new(config: NetworkConfig) -> Result<Self> {
             let http = reqwest::blocking::Client::builder()
-                .user_agent(concat!("veiron-sdk-rust/", env!("CARGO_PKG_VERSION")))
+                .user_agent(concat!("vireon-sdk-rust/", env!("CARGO_PKG_VERSION")))
                 .build()
                 .map_err(|error| SdkError::rpc(error.to_string()))?;
             Ok(Self { config, http })

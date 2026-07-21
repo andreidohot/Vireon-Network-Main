@@ -1,4 +1,4 @@
-# Linux Desktop - Veiron Control Center
+# Linux Desktop - Vireon Control Center
 
 Status: **1.0.0 Mainnet Candidate / Prototype** (not public Mainnet)
 
@@ -53,11 +53,11 @@ To select packages:
 bash scripts/release/build-linux-desktop.sh --bundles deb,appimage,rpm
 ```
 
-The script sets `VEIRON_REQUIRE_CUDA=1`; it fails instead of producing a
+The script sets `VIREON_REQUIRE_CUDA=1`; it fails instead of producing a
 CPU-mining or stub-mining artifact. Output is collected under:
 
 ```text
-veiron-release/apps/linux/
+vireon-release/apps/linux/
   *.deb
   *.AppImage
   *.rpm
@@ -69,14 +69,14 @@ veiron-release/apps/linux/
 
 ```bash
 # Ubuntu / Debian
-sudo apt install ./veiron-release/apps/linux/*.deb
+sudo apt install ./vireon-release/apps/linux/*.deb
 
 # AppImage
-chmod +x veiron-release/apps/linux/*.AppImage
-./veiron-release/apps/linux/*.AppImage
+chmod +x vireon-release/apps/linux/*.AppImage
+./vireon-release/apps/linux/*.AppImage
 
 # Fedora
-sudo dnf install ./veiron-release/apps/linux/*.rpm
+sudo dnf install ./vireon-release/apps/linux/*.rpm
 ```
 
 Wallet secrets use Secret Service (GNOME Keyring/KWallet through libsecret).

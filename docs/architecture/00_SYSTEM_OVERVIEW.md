@@ -1,8 +1,8 @@
-# Veiron System Overview
+# Vireon System Overview
 
 Status: Mainnet Candidate architecture / mixed implementation maturity
 
-Veiron is one system with three logical layers. A layer describes ownership and
+Vireon is one system with three logical layers. A layer describes ownership and
 trust boundaries; it does not imply that every planned feature in that layer is
 implemented.
 
@@ -16,11 +16,11 @@ implemented.
 
 ## Sources of truth
 
-- `veiron-core` owns protocol validity.
-- `veiron-node` owns canonical chain acceptance and persistence.
+- `vireon-core` owns protocol validity.
+- `vireon-node` owns canonical chain acceptance and persistence.
 - `shared/` owns schemas, units, identifiers, and cross-language constants.
 - `docs/` owns intended behavior and maturity boundaries.
-- `veiron-website` owns public presentation, not protocol truth.
+- `vireon-website` owns public presentation, not protocol truth.
 
 ## Cross-system rule
 
@@ -28,5 +28,5 @@ A change in consensus, serialization, fees, addresses, mining work, or network
 identity must be reviewed across core, node, wallet, RPC, indexer, explorer,
 miner, pool, clients, operations, shared types, and documentation.
 
-See `../source-info/VEIRON_02_ARCHITECTURE_AND_PRODUCT_LAYERS.md` for the
+See `../source-info/VIREON_02_ARCHITECTURE_AND_PRODUCT_LAYERS.md` for the
 canonical layer map.

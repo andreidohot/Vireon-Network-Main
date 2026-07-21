@@ -56,7 +56,7 @@ export default function DocsPage({ path = '/docs' }) {
     <>
       <PageHero
         eyebrow="Documentation"
-        title="One searchable source for Veiron documentation."
+        title="One searchable source for Vireon documentation."
         text="Read the repository Markdown directly in the web interface. Current implementation, accepted decisions, planned work, and historical records are labeled separately."
       />
       <section className="px-5 pb-24">

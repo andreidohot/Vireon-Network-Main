@@ -27,18 +27,18 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::limit::RequestBodyLimitLayer;
 use tower_http::services::{ServeDir, ServeFile};
-use veiron_core::{hash_to_hex, next_base_fee, Block, Chain, Transaction};
-use veiron_indexer::{
+use vireon_core::{hash_to_hex, next_base_fee, Block, Chain, Transaction};
+use vireon_indexer::{
     load_index as load_index_snapshot, AddressActivity, IndexData, IndexedBlock,
     IndexedTransaction, IndexerStatus, INDEXER_MODE,
 };
-use veiron_node::{
+use vireon_node::{
     create_block_template, load_p2p_status, load_pending_transactions,
     mempool_status as load_mempool_status, runtime_dir_for_data_dir, storage, submit_mined_block,
     submit_transaction as submit_pending_transaction, NetworkConfig, P2pStatus,
 };
 
-const MINING_PROTOCOL: &str = "veiron-mining-v1";
+const MINING_PROTOCOL: &str = "vireon-mining-v1";
 const MINING_TEMPLATE_TTL_SECONDS: u64 = 90;
 /// Prefer reusing an existing template while it has at least this much life left.
 /// Prevents miners from thrashing nonce search on a new timestamp every poll.
@@ -131,7 +131,7 @@ fn chain_file_fingerprint(chain_data_path: &FsPath) -> (u64, u64) {
 }
 
 fn index_file_fingerprint(index_data_path: &FsPath) -> (u64, u64) {
-    file_fingerprint(&veiron_indexer::storage::index_file_path(index_data_path))
+    file_fingerprint(&vireon_indexer::storage::index_file_path(index_data_path))
 }
 
 pub fn router(state: RpcState) -> Router {
@@ -355,7 +355,7 @@ async fn mining_submit(
     let mut candidate = stored.block;
     candidate.header.nonce = request.nonce;
     if !request.mix_hash.trim().is_empty() {
-        candidate.header.mix_hash = veiron_core::Hash::from_hex(request.mix_hash.trim())
+        candidate.header.mix_hash = vireon_core::Hash::from_hex(request.mix_hash.trim())
             .map_err(|e| RpcError::BadRequest(format!("invalid mix_hash: {e}")))?;
     }
     let computed_hash = hash_to_hex(&candidate.hash());
@@ -387,7 +387,7 @@ async fn mining_submit(
             height: Some(summary.block_height),
             reason: None,
         })),
-        Err(veiron_node::NodeError::Core(veiron_core::VeironError::InvalidPreviousHash {
+        Err(vireon_node::NodeError::Core(vireon_core::VireonError::InvalidPreviousHash {
             ..
         })) => Ok(Json(MiningSubmitResponse {
             protocol: MINING_PROTOCOL,
@@ -446,7 +446,7 @@ pub fn load_chain(state: &RpcState) -> RpcResult<LoadedChain> {
     let blocks = storage::load_blocks(chain_path)?;
     if blocks.is_empty() {
         *guard = None;
-        return Err(RpcError::Node(veiron_node::NodeError::ChainNotInitialized(
+        return Err(RpcError::Node(vireon_node::NodeError::ChainNotInitialized(
             storage::chain_file_path(chain_path),
         )));
     }
@@ -554,7 +554,7 @@ fn cached_indexer_status(
                 lag_blocks,
             }
         }
-        Err(RpcError::Indexer(veiron_indexer::IndexerError::IndexNotInitialized(_))) => {
+        Err(RpcError::Indexer(vireon_indexer::IndexerError::IndexNotInitialized(_))) => {
             IndexerStatus {
                 mode: INDEXER_MODE.to_owned(),
                 network_id: None,
@@ -584,7 +584,7 @@ fn cached_indexer_status(
 
 fn load_mempool_transactions(
     state: &RpcState,
-) -> RpcResult<Vec<veiron_node::PendingTransactionRecord>> {
+) -> RpcResult<Vec<vireon_node::PendingTransactionRecord>> {
     load_pending_transactions(FsPath::new(&state.config.mempool_data_path)).map_err(Into::into)
 }
 
@@ -599,10 +599,13 @@ async fn health(State(state): State<RpcState>) -> Json<HealthResponse> {
                 "Public submit (mining disabled)"
             }
         }
+        crate::config::RpcAccessMode::PrivateMining => {
+            "Private container-network mining (no published host port)"
+        }
     };
     Json(HealthResponse {
         ok: true,
-        service: "veiron-rpc-gateway",
+        service: "vireon-rpc-gateway",
         mode: format!("{} / {exposure}", state.config.status_label),
         network_id: state.config.network_id.clone(),
         network_name: state.config.human_name.clone(),
@@ -611,7 +614,7 @@ async fn health(State(state): State<RpcState>) -> Json<HealthResponse> {
 }
 
 async fn network(State(state): State<RpcState>) -> Json<NetworkResponse> {
-    let protocol = veiron_core::launch_protocol_parameters(state.config.network);
+    let protocol = vireon_core::launch_protocol_parameters(state.config.network);
     Json(NetworkResponse {
         protocol_parameters_id: protocol.parameters_id,
         protocol_version: protocol.protocol_version,
@@ -621,17 +624,17 @@ async fn network(State(state): State<RpcState>) -> Json<NetworkResponse> {
         status_label: state.config.status_label.clone(),
         ticker: protocol.ticker,
         address_prefix: protocol.address_prefix.to_owned(),
-        address_standard_id: veiron_core::launch_address_standard(state.config.network).standard_id,
-        address_encoding: veiron_core::launch_address_standard(state.config.network).encoding,
-        address_checksum_rule: veiron_core::launch_address_standard(state.config.network)
+        address_standard_id: vireon_core::launch_address_standard(state.config.network).standard_id,
+        address_encoding: vireon_core::launch_address_standard(state.config.network).encoding,
+        address_checksum_rule: vireon_core::launch_address_standard(state.config.network)
             .checksum_rule,
-        address_payload_version: veiron_core::launch_address_standard(state.config.network)
+        address_payload_version: vireon_core::launch_address_standard(state.config.network)
             .payload_version,
-        public_key_scheme: veiron_core::launch_signing_standard().public_key_scheme,
-        signature_standard_id: veiron_core::launch_signing_standard().standard_id,
-        signature_scheme: veiron_core::launch_signing_standard().signature_scheme,
-        tx_signing_domain: veiron_core::launch_signing_standard().tx_signing_domain,
-        key_derivation_policy_id: veiron_core::launch_key_derivation_policy().policy_id,
+        public_key_scheme: vireon_core::launch_signing_standard().public_key_scheme,
+        signature_standard_id: vireon_core::launch_signing_standard().standard_id,
+        signature_scheme: vireon_core::launch_signing_standard().signature_scheme,
+        tx_signing_domain: vireon_core::launch_signing_standard().tx_signing_domain,
+        key_derivation_policy_id: vireon_core::launch_key_derivation_policy().policy_id,
         block_time_seconds: protocol.block_time_seconds,
         decimals: protocol.decimals,
         atomic_units_per_vire: protocol.atomic_units_per_vire,
@@ -647,7 +650,7 @@ async fn network(State(state): State<RpcState>) -> Json<NetworkResponse> {
         max_transaction_wire_bytes: protocol.max_transaction_wire_bytes,
         median_time_past_window: protocol.median_time_past_window,
         max_future_block_drift_seconds: protocol.max_future_block_drift_seconds,
-        first_account_nonce: veiron_core::FIRST_ACCOUNT_NONCE,
+        first_account_nonce: vireon_core::FIRST_ACCOUNT_NONCE,
     })
 }
 
@@ -671,7 +674,7 @@ async fn status(State(state): State<RpcState>) -> Result<Json<StatusResponse>, R
                 cumulative_work: loaded.cumulative_work,
             }))
         }
-        Err(RpcError::Node(veiron_node::NodeError::ChainNotInitialized(_))) => {
+        Err(RpcError::Node(vireon_node::NodeError::ChainNotInitialized(_))) => {
             Ok(Json(StatusResponse {
                 network_id: state.config.network_id.clone(),
                 network_name: state.config.human_name.clone(),
@@ -695,7 +698,7 @@ async fn status(State(state): State<RpcState>) -> Result<Json<StatusResponse>, R
 async fn sync_status(State(state): State<RpcState>) -> Result<Json<SyncStatusResponse>, RpcError> {
     let local_height = match load_chain(&state) {
         Ok(loaded) => loaded.height,
-        Err(RpcError::Node(veiron_node::NodeError::ChainNotInitialized(_))) => None,
+        Err(RpcError::Node(vireon_node::NodeError::ChainNotInitialized(_))) => None,
         Err(error) => return Err(error),
     };
     let node_config = NetworkConfig::load_from_path(&state.node_config_path)?;
@@ -901,7 +904,7 @@ async fn transactions_by_hash(
                 "mined",
                 Some(block.header.height),
                 Some(&block_hash),
-                veiron_core::Amount::from_atomic(block.header.base_fee_atomic),
+                vireon_core::Amount::from_atomic(block.header.base_fee_atomic),
             )));
         }
     }
@@ -986,7 +989,7 @@ async fn mempool_status(
 async fn indexer_status(State(state): State<RpcState>) -> Result<Json<IndexerStatus>, RpcError> {
     let (chain_height, chain_tip_hash) = match load_chain(&state) {
         Ok(loaded) => (loaded.height, loaded.tip_hash),
-        Err(RpcError::Node(veiron_node::NodeError::ChainNotInitialized(_))) => (None, None),
+        Err(RpcError::Node(vireon_node::NodeError::ChainNotInitialized(_))) => (None, None),
         Err(error) => return Err(error),
     };
     Ok(Json(cached_indexer_status(
@@ -1178,10 +1181,10 @@ async fn indexer_address(
     Ok(Json(activity))
 }
 
-fn map_submission_error(error: veiron_node::NodeError) -> RpcError {
+fn map_submission_error(error: vireon_node::NodeError) -> RpcError {
     match error {
-        veiron_node::NodeError::Input(message) => RpcError::BadRequest(message),
-        veiron_node::NodeError::Core(core_error) => RpcError::BadRequest(core_error.to_string()),
+        vireon_node::NodeError::Input(message) => RpcError::BadRequest(message),
+        vireon_node::NodeError::Core(core_error) => RpcError::BadRequest(core_error.to_string()),
         other => RpcError::Node(other),
     }
 }

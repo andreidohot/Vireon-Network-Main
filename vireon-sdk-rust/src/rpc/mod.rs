@@ -1,4 +1,4 @@
-//! RPC + public pool client surface for Veiron Mainnet Candidate.
+//! RPC + public pool client surface for Vireon Mainnet Candidate.
 //!
 //! Includes L1 gateway reads/writes and **public** mining-pool read APIs.
 //! Does not include pool admin / private payout mutation endpoints.

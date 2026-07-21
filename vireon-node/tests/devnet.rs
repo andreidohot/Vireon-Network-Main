@@ -2,13 +2,13 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use tempfile::tempdir;
-use veiron_core::{
+use vireon_core::{
     check_pow, devnet_child_block_with_difficulty, devnet_genesis_with_difficulty,
     genesis_with_timestamp_for_network, mine_block as mine_core_block, Address, Amount, Hash,
-    Network, PrivateKey, Transaction, VeironError, BLOCK_TIME_SECONDS, INITIAL_BASE_FEE_ATOMIC,
+    Network, PrivateKey, Transaction, VireonError, BLOCK_TIME_SECONDS, INITIAL_BASE_FEE_ATOMIC,
     INITIAL_BLOCK_REWARD_ATOMIC, MAX_SUPPLY_ATOMIC,
 };
-use veiron_node::{
+use vireon_node::{
     adopt_candidate_chain, approve_genesis, balance, create_block_template, default_miner_address,
     genesis_approval_status, genesis_hash_hex_from_config, genesis_review_manifest, init_devnet,
     load_pending_transactions, local_p2p_handshake, mempool_status, mine_dev_blocks,
@@ -21,7 +21,7 @@ use veiron_node::{
 #[test]
 fn higher_work_branch_is_atomically_adopted() {
     let (temp, config_path, data_dir, mempool_dir) = setup_paths();
-    let candidate_dir = temp.path().join(".veiron-dev/candidate-chain");
+    let candidate_dir = temp.path().join(".vireon-dev/candidate-chain");
     let current_miner = generate_address().1;
     let candidate_miner = generate_address().1;
     init_devnet(&config_path, &data_dir, &current_miner).expect("current genesis");
@@ -45,7 +45,7 @@ fn higher_work_branch_is_atomically_adopted() {
 #[test]
 fn invalid_reorg_candidate_never_changes_canonical_storage() {
     let (temp, config_path, data_dir, mempool_dir) = setup_paths();
-    let candidate_dir = temp.path().join(".veiron-dev/invalid-candidate-chain");
+    let candidate_dir = temp.path().join(".vireon-dev/invalid-candidate-chain");
     let miner = generate_address().1;
     init_devnet(&config_path, &data_dir, &miner).expect("current genesis");
     clone_genesis_fixture(&data_dir, &candidate_dir);
@@ -66,7 +66,7 @@ fn invalid_reorg_candidate_never_changes_canonical_storage() {
 #[test]
 fn detached_valid_transaction_returns_to_mempool_after_reorg() {
     let (temp, config_path, data_dir, mempool_dir) = setup_paths();
-    let candidate_dir = temp.path().join(".veiron-dev/reorg-candidate-chain");
+    let candidate_dir = temp.path().join(".vireon-dev/reorg-candidate-chain");
     let sender_key = PrivateKey::generate();
     let sender =
         Address::from_public_key_for_network(&sender_key.public_key(), Network::Devnet).to_string();
@@ -86,7 +86,7 @@ fn detached_valid_transaction_returns_to_mempool_after_reorg() {
         None,
     )
     .expect("signed transaction");
-    let tx_hash = veiron_core::hash_to_hex(&transaction.tx_hash());
+    let tx_hash = vireon_core::hash_to_hex(&transaction.tx_hash());
     submit_transaction(&data_dir, &mempool_dir, 8, &transaction).expect("submit transaction");
     mine_pending_block(&config_path, &data_dir, &mempool_dir, &sender)
         .expect("mine transaction on detached branch");
@@ -170,9 +170,9 @@ allow_mainnet_candidate = {allow_mainnet_candidate}
 
 fn setup_paths() -> (tempfile::TempDir, PathBuf, PathBuf, PathBuf) {
     let temp_dir = tempdir().expect("tempdir");
-    let config_path = temp_dir.path().join("veiron-devnet/config/devnet.toml");
-    let data_dir = temp_dir.path().join(".veiron-dev/chain");
-    let mempool_dir = temp_dir.path().join(".veiron-dev/mempool");
+    let config_path = temp_dir.path().join("vireon-devnet/config/devnet.toml");
+    let data_dir = temp_dir.path().join(".vireon-dev/chain");
+    let mempool_dir = temp_dir.path().join(".vireon-dev/mempool");
     write_network_config(&config_path, Network::Devnet, None);
     (temp_dir, config_path, data_dir, mempool_dir)
 }
@@ -180,8 +180,8 @@ fn setup_paths() -> (tempfile::TempDir, PathBuf, PathBuf, PathBuf) {
 fn setup_mainnet_candidate_paths() -> (tempfile::TempDir, PathBuf, PathBuf, PathBuf, PathBuf) {
     let temp_dir = tempdir().expect("tempdir");
     let config_path = temp_dir.path().join("configs/mainnet-candidate.toml");
-    let data_dir = temp_dir.path().join(".veiron-mainnet/chain");
-    let mempool_dir = temp_dir.path().join(".veiron-mainnet/mempool");
+    let data_dir = temp_dir.path().join(".vireon-mainnet/chain");
+    let mempool_dir = temp_dir.path().join(".vireon-mainnet/mempool");
     let approval_path = temp_dir
         .path()
         .join("docs/release/GENESIS_APPROVAL.mainnet-candidate.json");
@@ -329,15 +329,15 @@ fn valid_transaction_enters_mempool() {
     let (_recipient_key, recipient_address) = generate_address();
     init_devnet(&config_path, &data_dir, &miner_address).expect("init devnet");
 
-    let transaction = veiron_core::Transaction::new_signed(
+    let transaction = vireon_core::Transaction::new_signed(
         1,
         1,
         Network::Devnet,
         &miner_key,
         recipient_address,
-        veiron_core::Amount::from_atomic(100),
-        veiron_core::Amount::from_atomic(veiron_core::INITIAL_BASE_FEE_ATOMIC + 1),
-        veiron_core::Amount::from_atomic(1),
+        vireon_core::Amount::from_atomic(100),
+        vireon_core::Amount::from_atomic(vireon_core::INITIAL_BASE_FEE_ATOMIC + 1),
+        vireon_core::Amount::from_atomic(1),
         None,
     )
     .expect("signed tx");
@@ -358,15 +358,15 @@ fn duplicate_transaction_is_rejected() {
     let (_recipient_key, recipient_address) = generate_address();
     init_devnet(&config_path, &data_dir, &miner_address).expect("init devnet");
 
-    let transaction = veiron_core::Transaction::new_signed(
+    let transaction = vireon_core::Transaction::new_signed(
         1,
         1,
         Network::Devnet,
         &miner_key,
         recipient_address,
-        veiron_core::Amount::from_atomic(100),
-        veiron_core::Amount::from_atomic(veiron_core::INITIAL_BASE_FEE_ATOMIC + 1),
-        veiron_core::Amount::from_atomic(1),
+        vireon_core::Amount::from_atomic(100),
+        vireon_core::Amount::from_atomic(vireon_core::INITIAL_BASE_FEE_ATOMIC + 1),
+        vireon_core::Amount::from_atomic(1),
         None,
     )
     .expect("signed tx");
@@ -421,15 +421,15 @@ fn invalid_signature_is_rejected_by_mempool() {
     let (_recipient_key, recipient_address) = generate_address();
     init_devnet(&config_path, &data_dir, &miner_address).expect("init devnet");
 
-    let mut transaction = veiron_core::Transaction::new_signed(
+    let mut transaction = vireon_core::Transaction::new_signed(
         1,
         1,
         Network::Devnet,
         &miner_key,
         recipient_address,
-        veiron_core::Amount::from_atomic(100),
-        veiron_core::Amount::from_atomic(veiron_core::INITIAL_BASE_FEE_ATOMIC + 1),
-        veiron_core::Amount::from_atomic(1),
+        vireon_core::Amount::from_atomic(100),
+        vireon_core::Amount::from_atomic(vireon_core::INITIAL_BASE_FEE_ATOMIC + 1),
+        vireon_core::Amount::from_atomic(1),
         None,
     )
     .expect("signed tx");
@@ -439,7 +439,7 @@ fn invalid_signature_is_rejected_by_mempool() {
         .expect_err("invalid signature must fail");
     assert!(matches!(
         error,
-        NodeError::Core(veiron_core::VeironError::InvalidSignature(_))
+        NodeError::Core(vireon_core::VireonError::InvalidSignature(_))
     ));
 }
 
@@ -450,15 +450,15 @@ fn insufficient_balance_is_rejected_by_mempool() {
     let (_recipient_key, recipient_address) = generate_address();
     init_devnet(&config_path, &data_dir, &miner_address).expect("init devnet");
 
-    let transaction = veiron_core::Transaction::new_signed(
+    let transaction = vireon_core::Transaction::new_signed(
         1,
         1,
         Network::Devnet,
         &miner_key,
         recipient_address,
-        veiron_core::Amount::from_atomic(veiron_core::INITIAL_BLOCK_REWARD_ATOMIC + 1),
-        veiron_core::Amount::from_atomic(veiron_core::INITIAL_BASE_FEE_ATOMIC + 1),
-        veiron_core::Amount::from_atomic(1),
+        vireon_core::Amount::from_atomic(vireon_core::INITIAL_BLOCK_REWARD_ATOMIC + 1),
+        vireon_core::Amount::from_atomic(vireon_core::INITIAL_BASE_FEE_ATOMIC + 1),
+        vireon_core::Amount::from_atomic(1),
         None,
     )
     .expect("signed tx");
@@ -467,7 +467,7 @@ fn insufficient_balance_is_rejected_by_mempool() {
         .expect_err("insufficient balance must fail");
     assert!(matches!(
         error,
-        NodeError::Core(veiron_core::VeironError::InsufficientBalance { .. })
+        NodeError::Core(vireon_core::VireonError::InsufficientBalance { .. })
     ));
 }
 
@@ -478,19 +478,19 @@ fn mining_pending_transactions_updates_chain_and_clears_mempool() {
     let (_recipient_key, recipient_address) = generate_address();
     init_devnet(&config_path, &data_dir, &miner_address).expect("init devnet");
 
-    let transaction = veiron_core::Transaction::new_signed(
+    let transaction = vireon_core::Transaction::new_signed(
         1,
         1,
         Network::Devnet,
         &miner_key,
         recipient_address.clone(),
-        veiron_core::Amount::from_atomic(100),
-        veiron_core::Amount::from_atomic(veiron_core::INITIAL_BASE_FEE_ATOMIC + 7),
-        veiron_core::Amount::from_atomic(7),
+        vireon_core::Amount::from_atomic(100),
+        vireon_core::Amount::from_atomic(vireon_core::INITIAL_BASE_FEE_ATOMIC + 7),
+        vireon_core::Amount::from_atomic(7),
         None,
     )
     .expect("signed tx");
-    let tx_hash = veiron_core::hash_to_hex(&transaction.tx_hash());
+    let tx_hash = vireon_core::hash_to_hex(&transaction.tx_hash());
     submit_transaction(&data_dir, &mempool_dir, 8, &transaction).expect("submit tx");
 
     let mined = mine_pending_block(&config_path, &data_dir, &mempool_dir, &miner_address)
@@ -556,7 +556,7 @@ fn rejected_remote_block_does_not_change_persisted_chain() {
 
     assert!(matches!(
         error,
-        NodeError::Core(VeironError::InvalidMerkleRoot)
+        NodeError::Core(VireonError::InvalidMerkleRoot)
     ));
     assert_eq!(summary.height, 0);
     assert_eq!(summary.block_count, 1);
@@ -606,9 +606,9 @@ fn mainnet_candidate_reset_is_rejected() {
     let temp_dir = tempdir().expect("tempdir");
     let config_path = temp_dir
         .path()
-        .join("veiron-devnet/config/mainnet-candidate.toml");
-    let data_dir = temp_dir.path().join(".veiron-mainnet/chain");
-    let mempool_dir = temp_dir.path().join(".veiron-mainnet/mempool");
+        .join("vireon-devnet/config/mainnet-candidate.toml");
+    let data_dir = temp_dir.path().join(".vireon-mainnet/chain");
+    let mempool_dir = temp_dir.path().join(".vireon-mainnet/mempool");
     let approval_path = temp_dir
         .path()
         .join("docs/release/GENESIS_APPROVAL.mainnet-candidate.json");
@@ -699,7 +699,7 @@ fn broken_previous_hash_is_rejected() {
         matches!(error, NodeError::InvalidChainFile { .. })
             || matches!(
                 error,
-                NodeError::Core(VeironError::InvalidPreviousHash { .. })
+                NodeError::Core(VireonError::InvalidPreviousHash { .. })
             ),
         "unexpected error: {error}"
     );
@@ -727,7 +727,7 @@ fn invalid_merkle_root_is_rejected() {
     let error = validate_chain(&config_path, &data_dir).expect_err("invalid merkle root");
     assert!(matches!(
         error,
-        NodeError::Core(VeironError::InvalidMerkleRoot)
+        NodeError::Core(VireonError::InvalidMerkleRoot)
     ));
 }
 
@@ -755,7 +755,7 @@ fn invalid_pow_is_rejected() {
     let error = validate_chain(&config_path, &data_dir).expect_err("invalid pow");
     assert!(matches!(
         error,
-        NodeError::Core(VeironError::InvalidPow { .. })
+        NodeError::Core(VireonError::InvalidPow { .. })
     ));
 }
 
@@ -775,7 +775,7 @@ fn zero_amount_is_rejected() {
         None,
     )
     .expect_err("zero amount must fail");
-    assert!(matches!(error, VeironError::ZeroAmountTransaction));
+    assert!(matches!(error, VireonError::ZeroAmountTransaction));
 }
 
 #[test]
@@ -794,7 +794,7 @@ fn invalid_fee_is_rejected() {
         None,
     )
     .expect_err("fee over max supply bound must fail");
-    assert!(matches!(error, VeironError::InvalidFee(_)));
+    assert!(matches!(error, VireonError::InvalidFee(_)));
 }
 
 #[test]
@@ -811,27 +811,27 @@ fn coinbase_reward_above_allowed_reward_is_rejected() {
         Amount::from_atomic(INITIAL_BLOCK_REWARD_ATOMIC + 1),
     )
     .expect("coinbase");
-    let mut invalid_block = veiron_core::Block::new(
+    let mut invalid_block = vireon_core::Block::new(
         Network::Devnet,
         1,
         genesis.hash(),
-        veiron_core::initial_base_fee().as_atomic(),
+        vireon_core::initial_base_fee().as_atomic(),
         genesis.header.timestamp + BLOCK_TIME_SECONDS,
         4,
         vec![excessive_coinbase],
     )
     .expect("invalid block");
     // Proper FiroPoW mine so validation fails on coinbase amount, not PoW/mix.
-    veiron_core::mine_block(&mut invalid_block);
+    vireon_core::mine_block(&mut invalid_block);
     storage::append_block(&data_dir, &invalid_block).expect("append invalid block");
 
     let error = validate_chain(&config_path, &data_dir).expect_err("reward overflow");
     assert!(
         matches!(
             error,
-            NodeError::Core(VeironError::InvalidCoinbaseReward { .. })
-                | NodeError::Core(VeironError::InvalidCoinbaseAmount { .. })
-                | NodeError::Core(VeironError::InvalidDifficultyAdjustment { .. })
+            NodeError::Core(VireonError::InvalidCoinbaseReward { .. })
+                | NodeError::Core(VireonError::InvalidCoinbaseAmount { .. })
+                | NodeError::Core(VireonError::InvalidDifficultyAdjustment { .. })
         ),
         "unexpected error: {error:?}"
     );
@@ -840,7 +840,7 @@ fn coinbase_reward_above_allowed_reward_is_rejected() {
 #[test]
 fn wrong_network_p2p_handshake_is_rejected() {
     let (_temp_dir, config_path, _data_dir, _mempool_dir) = setup_paths();
-    let config = veiron_node::NetworkConfig::load_from_path(&config_path).expect("config");
+    let config = vireon_node::NetworkConfig::load_from_path(&config_path).expect("config");
     let mut remote = local_p2p_handshake(&config);
     remote.network_id = Network::Testnet.network_id().to_owned();
 
@@ -851,7 +851,7 @@ fn wrong_network_p2p_handshake_is_rejected() {
 #[test]
 fn wrong_chain_magic_p2p_handshake_is_rejected() {
     let (_temp_dir, config_path, _data_dir, _mempool_dir) = setup_paths();
-    let config = veiron_node::NetworkConfig::load_from_path(&config_path).expect("config");
+    let config = vireon_node::NetworkConfig::load_from_path(&config_path).expect("config");
     let remote = P2pHandshake {
         network_id: Network::Devnet.network_id().to_owned(),
         chain_magic_hex: "00000000".to_owned(),
@@ -954,11 +954,11 @@ fn tampered_genesis_approval_hash_is_rejected() {
 #[test]
 fn wrong_network_config_is_rejected() {
     let temp_dir = tempdir().expect("tempdir");
-    let config_path = temp_dir.path().join("veiron-devnet/config/devnet.toml");
+    let config_path = temp_dir.path().join("vireon-devnet/config/devnet.toml");
     let invalid = r#"
 network = "devnet"
 network_id = "veiron-devnet"
-human_name = "Veiron Devnet"
+human_name = "Vireon Devnet"
 status_label = "Draft / Private Devnet"
 block_time_seconds = 60
 difficulty_leading_zero_bits = 4
@@ -970,7 +970,7 @@ initial_block_reward = "19.02587519"
 default_rpc_port = 8787
 default_p2p_port = 18787
 max_mempool_transactions = 8
-genesis_config_path = "veiron-devnet/config/genesis-devnet.json"
+genesis_config_path = "vireon-devnet/config/genesis-devnet.json"
 chain_magic_hex = "56444556"
 allow_mainnet_candidate = false
 "#;
@@ -998,7 +998,7 @@ fn chain_validates_on_startup() {
 fn local_operator_root_is_accepted_for_mainnet_candidate_status() {
     let temp_dir = tempdir().expect("tempdir");
     let config_path = temp_dir.path().join("configs/local.toml");
-    let data_dir = temp_dir.path().join(".veiron-local/chain");
+    let data_dir = temp_dir.path().join(".vireon-local/chain");
     let approval_path = temp_dir
         .path()
         .join("docs/release/GENESIS_APPROVAL.mainnet-candidate.json");
@@ -1014,7 +1014,7 @@ fn local_operator_root_is_accepted_for_mainnet_candidate_status() {
             data_dir: actual_path,
             ..
         } => {
-            assert!(actual_path.contains(".veiron-local"));
+            assert!(actual_path.contains(".vireon-local"));
         }
         StatusReport::Ready(_) => panic!("local operator chain should not be initialized"),
     }
@@ -1035,10 +1035,10 @@ fn forbidden_files_are_not_tracked() {
     let tracked = String::from_utf8(output.stdout).expect("utf8");
     let forbidden_patterns = [
         ".env",
-        ".veiron-dev/",
-        ".veiron-testnet/",
-        ".veiron-mainnet/",
-        ".veiron-local/",
+        ".vireon-dev/",
+        ".vireon-testnet/",
+        ".vireon-mainnet/",
+        ".vireon-local/",
         ".wallet",
         ".seed",
         ".pem",

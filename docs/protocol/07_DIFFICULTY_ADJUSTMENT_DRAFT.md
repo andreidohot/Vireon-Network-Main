@@ -2,7 +2,7 @@
 
 Status: Implemented / Mainnet Candidate
 
-Veiron uses an LWMA-style next-difficulty rule over a 60-block window and a
+Vireon uses an LWMA-style next-difficulty rule over a 60-block window and a
 60-second solve-time target. Solve times are bounded before weighting to limit
 extreme timestamp effects. Each block must encode the exact next difficulty
 derived from validated history.

@@ -40,7 +40,7 @@ pub use consensus::{
 };
 pub use constants::*;
 pub use crypto::{blake3_hash, double_sha256, hash_to_hex, leading_zero_bits, sha256, Hash};
-pub use errors::{Result, VeironError};
+pub use errors::{Result, VireonError};
 pub use firopow::{FiroPow, FiroPowOutput, FIROPOW_REVISION, PERIOD_LENGTH};
 pub use genesis::{
     child_block_with_consensus_difficulty, devnet_child_block, devnet_child_block_with_difficulty,
@@ -284,7 +284,7 @@ mod tests {
         let error = chain
             .append_block(wrong_child)
             .expect_err("previous hash must fail");
-        assert!(matches!(error, VeironError::InvalidNetwork { .. }));
+        assert!(matches!(error, VireonError::InvalidNetwork { .. }));
     }
 
     #[test]
@@ -317,7 +317,7 @@ mod tests {
         let error = chain
             .append_block(invalid_block)
             .expect_err("coinbase reward above allowed reward must fail");
-        assert!(matches!(error, VeironError::InvalidCoinbaseAmount { .. }));
+        assert!(matches!(error, VireonError::InvalidCoinbaseAmount { .. }));
     }
 
     #[test]
@@ -348,7 +348,7 @@ mod tests {
         let error = chain
             .append_block(invalid_block)
             .expect_err("coinbase underpayment must fail");
-        assert!(matches!(error, VeironError::InvalidCoinbaseAmount { .. }));
+        assert!(matches!(error, VireonError::InvalidCoinbaseAmount { .. }));
     }
 
     #[test]
@@ -372,7 +372,7 @@ mod tests {
         let too_far = now + MAX_FUTURE_BLOCK_DRIFT_SECONDS + 1;
         let err = validate_block_not_too_far_in_future(too_far, now)
             .expect_err("far-future timestamp must fail");
-        assert!(matches!(err, VeironError::InvalidFutureTimestamp { .. }));
+        assert!(matches!(err, VireonError::InvalidFutureTimestamp { .. }));
         validate_block_not_too_far_in_future(now + MAX_FUTURE_BLOCK_DRIFT_SECONDS, now)
             .expect("exactly max drift is allowed");
         validate_block_not_too_far_in_future(now.saturating_sub(60), now).expect("past ok");
@@ -414,7 +414,7 @@ mod tests {
             .append_block(bloated)
             .expect_err("over-cap block must fail");
         assert!(
-            matches!(err, VeironError::TooManyTransactions { .. }),
+            matches!(err, VireonError::TooManyTransactions { .. }),
             "got {err:?}"
         );
     }
@@ -447,7 +447,7 @@ mod tests {
         bad.header.previous_hash = blocks.last().expect("tip").hash();
         bad.header.timestamp = mtp;
         let err = validate_median_time_past(&blocks, &bad).expect_err("mtp floor");
-        assert!(matches!(err, VeironError::InvalidMedianTimePast { .. }));
+        assert!(matches!(err, VireonError::InvalidMedianTimePast { .. }));
     }
 
     #[test]
@@ -479,7 +479,7 @@ mod tests {
             .expect_err("equal timestamp must fail");
         assert!(matches!(
             error,
-            VeironError::InvalidTimestamp {
+            VireonError::InvalidTimestamp {
                 previous,
                 actual
             } if previous == genesis.header.timestamp && actual == genesis.header.timestamp
@@ -514,7 +514,7 @@ mod tests {
         let error = chain
             .append_block(invalid)
             .expect_err("backdated timestamp must fail");
-        assert!(matches!(error, VeironError::InvalidTimestamp { .. }));
+        assert!(matches!(error, VireonError::InvalidTimestamp { .. }));
     }
 
     #[test]
@@ -544,7 +544,7 @@ mod tests {
 
         let error = validate_block_against_state(&state, &same_ts)
             .expect_err("state must enforce timestamp monotonicity");
-        assert!(matches!(error, VeironError::InvalidTimestamp { .. }));
+        assert!(matches!(error, VireonError::InvalidTimestamp { .. }));
     }
 
     #[test]
@@ -575,7 +575,7 @@ mod tests {
         let tampered = String::from_utf8(tampered).expect("valid string");
 
         let error = Address::parse(&tampered).expect_err("checksum must fail");
-        assert!(matches!(error, VeironError::InvalidAddress(_)));
+        assert!(matches!(error, VireonError::InvalidAddress(_)));
     }
 
     #[test]
@@ -587,7 +587,7 @@ mod tests {
                 .to_uppercase();
 
         let error = Address::parse(&address).expect_err("uppercase address must fail");
-        assert!(matches!(error, VeironError::InvalidAddress(_)));
+        assert!(matches!(error, VireonError::InvalidAddress(_)));
     }
 
     #[test]
@@ -619,7 +619,7 @@ mod tests {
     fn keypair_can_sign_and_verify_a_message() {
         let private_key = PrivateKey::generate();
         let public_key = private_key.public_key();
-        let message = b"veiron message";
+        let message = b"vireon message";
         let signature = private_key.sign(message);
 
         public_key
@@ -641,7 +641,7 @@ mod tests {
         let error = transaction
             .verify()
             .expect_err("tampering should break the signature");
-        assert!(matches!(error, VeironError::InvalidSignature(_)));
+        assert!(matches!(error, VireonError::InvalidSignature(_)));
     }
 
     #[test]
@@ -691,7 +691,7 @@ mod tests {
         let error = chain
             .append_block(block)
             .expect_err("wrong block version must fail");
-        assert!(matches!(error, VeironError::InvalidBlockVersion { .. }));
+        assert!(matches!(error, VireonError::InvalidBlockVersion { .. }));
     }
 
     #[test]
@@ -728,7 +728,7 @@ mod tests {
         let error = chain
             .append_block(wrong_genesis)
             .expect_err("checkpoint mismatch must fail");
-        assert!(matches!(error, VeironError::InvalidCheckpoint { .. }));
+        assert!(matches!(error, VireonError::InvalidCheckpoint { .. }));
     }
 
     #[test]
@@ -765,7 +765,7 @@ mod tests {
         let error = chain
             .append_block(block)
             .expect_err("invalid signed transaction must be rejected");
-        assert!(matches!(error, VeironError::InvalidSignature(_)));
+        assert!(matches!(error, VireonError::InvalidSignature(_)));
     }
 
     #[test]
@@ -805,7 +805,7 @@ mod tests {
         let error = chain
             .append_block(block)
             .expect_err("duplicate tx hash must fail");
-        assert!(matches!(error, VeironError::DuplicateTransactionHash(_)));
+        assert!(matches!(error, VireonError::DuplicateTransactionHash(_)));
     }
 
     #[test]
@@ -936,7 +936,7 @@ mod tests {
             .expect_err("wrong adjusted difficulty must fail");
         assert!(matches!(
             error,
-            VeironError::InvalidDifficultyAdjustment { .. }
+            VireonError::InvalidDifficultyAdjustment { .. }
         ));
     }
 }

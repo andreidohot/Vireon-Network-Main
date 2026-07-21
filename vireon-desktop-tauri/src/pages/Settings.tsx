@@ -3,7 +3,7 @@ import {
   Bell, Boxes, Cpu, FolderOpen, HardDrive, Info, KeyRound, Monitor, Network,
   RefreshCw, RotateCcw, Shield, ShieldAlert, SlidersHorizontal, Trash2
 } from "lucide-react";
-import { VeironLogo } from "../components/brand/VeironLogo";
+import { VireonLogo } from "../components/brand/VireonLogo";
 import type {
   AppSettings, DiagnosticsInfo, LanguageId, PathInfo, ThemeId, DensityId, AccentId
 } from "@shared/types";
@@ -138,9 +138,9 @@ export function Settings() {
 
   const loadMeta = useCallback(async () => {
     const [pathInfo, diag, appVersion] = await Promise.all([
-      window.veiron.settings.paths(),
-      window.veiron.settings.diagnostics(),
-      window.veiron.app.version()
+      window.vireon.settings.paths(),
+      window.vireon.settings.diagnostics(),
+      window.vireon.app.version()
     ]);
     setPaths(pathInfo);
     setDiagnostics(diag);
@@ -166,7 +166,7 @@ export function Settings() {
   const saveRpc = async () => {
     setSaving(true);
     try {
-      const applied = await window.veiron.settings.setRpcUrl(rpcDraft);
+      const applied = await window.vireon.settings.setRpcUrl(rpcDraft);
       await update({ rpc_url: applied });
       setRpcDraft(applied);
       setNotice({ error: false, text: `RPC endpoint set to ${applied}. New requests use it immediately.` });
@@ -197,7 +197,7 @@ export function Settings() {
   const removeWallet = async () => {
     setDisconnectBusy(true);
     try {
-      await window.veiron.wallet.remove();
+      await window.vireon.wallet.remove();
       await reloadWallet();
       setDisconnectOpen(false);
       setNotice({
@@ -215,7 +215,7 @@ export function Settings() {
   const importRecoveryPhrase = async (walletName: string) => {
     setRecoveryBusy(true);
     try {
-      await window.veiron.wallet.import(walletName);
+      await window.vireon.wallet.import(walletName);
       await reloadWallet();
       setRecoveryImportOpen(false);
       setNotice({
@@ -239,7 +239,7 @@ export function Settings() {
     }
     setRecoveryBusy(true);
     try {
-      await window.veiron.wallet.create(name);
+      await window.vireon.wallet.create(name);
       await reloadWallet();
       setNotice({
         error: false,
@@ -268,7 +268,7 @@ export function Settings() {
 
   const openPath = async (kind: "workspace" | "local_root" | "logs" | "user_data" | "settings_file") => {
     try {
-      await window.veiron.settings.openPath(kind);
+      await window.vireon.settings.openPath(kind);
     } catch (error) {
       setNotice({ error: true, text: String(error) });
     }
@@ -437,9 +437,9 @@ export function Settings() {
             <Panel title="Theme" detail="Dark / light shell + variants">
               <Segmented<ThemeId>
                 value={
-                  settings.theme === "veiron-dark"
+                  settings.theme === "vireon-dark"
                     ? "dark"
-                    : settings.theme === "veiron-midnight"
+                    : settings.theme === "vireon-midnight"
                       ? "midnight"
                       : settings.theme
                 }
@@ -466,7 +466,7 @@ export function Settings() {
                 value={settings.accent}
                 onChange={(accent) => void patch({ accent })}
                 options={[
-                  { id: "cyan", label: "Cyan", detail: "Primary Veiron accent" },
+                  { id: "cyan", label: "Cyan", detail: "Primary Vireon accent" },
                   { id: "gold", label: "Gold", detail: "Reward-forward accent" },
                   { id: "emerald", label: "Emerald", detail: "Status-forward accent" }
                 ]}
@@ -524,7 +524,7 @@ export function Settings() {
                   disabled={saving || settings.rpc_url === "https://rpcnode.dohotstudio.com"}
                   onClick={() => {
                     setRpcDraft("https://rpcnode.dohotstudio.com");
-                    void window.veiron.settings.setRpcUrl("https://rpcnode.dohotstudio.com").then(async (applied) => {
+                    void window.vireon.settings.setRpcUrl("https://rpcnode.dohotstudio.com").then(async (applied) => {
                       await update({ rpc_url: applied });
                       setNotice({ error: false, text: `RPC reset to ${applied}` });
                       await refresh();
@@ -538,7 +538,7 @@ export function Settings() {
                   disabled={saving}
                   onClick={() => {
                     setRpcDraft("http://127.0.0.1:10787");
-                    void window.veiron.settings.setRpcUrl("http://127.0.0.1:10787").then(async (applied) => {
+                    void window.vireon.settings.setRpcUrl("http://127.0.0.1:10787").then(async (applied) => {
                       await update({ rpc_url: applied });
                       setNotice({ error: false, text: `RPC set to local ${applied}` });
                       await refresh();
@@ -653,7 +653,7 @@ export function Settings() {
                 <ShieldAlert size={18} />
                 <span>
                   The 24-word recovery phrase is the only way to restore this wallet on another device
-                  or after disconnect. Veiron never keeps a copy. Support will never ask for these words.
+                  or after disconnect. Vireon never keeps a copy. Support will never ask for these words.
                 </span>
               </div>
               <KeyValue label="Storage policy">Not persisted by Control Center or the WebView</KeyValue>
@@ -757,7 +757,7 @@ export function Settings() {
                 />
               </div>
               <div className="button-row" style={{ marginTop: 12 }}>
-                <button className="button primary" onClick={() => void window.veiron.updates.check()}>
+                <button className="button primary" onClick={() => void window.vireon.updates.check()}>
                   Check now
                 </button>
               </div>
@@ -805,7 +805,7 @@ export function Settings() {
                   <button
                     key={service}
                     className="button"
-                    onClick={() => void window.veiron.logs.export(service).then((path) => {
+                    onClick={() => void window.vireon.logs.export(service).then((path) => {
                       setNotice({
                         error: false,
                         text: path ? `Exported ${service} log to ${path}` : "Log export cancelled."
@@ -832,7 +832,7 @@ export function Settings() {
               <KeyValue label="metrics.json">{diagnostics?.metrics_present ? "Present" : "Missing"}</KeyValue>
               <KeyValue label="node.toml">{diagnostics?.node_config_present ? "Present" : "Missing"}</KeyValue>
             </Panel>
-            <Panel title="Operator actions" detail="Uses veiron.ps1 / veiron.sh">
+            <Panel title="Operator actions" detail="Uses vireon.ps1 / vireon.sh">
               <Toggle
                 checked={settings.confirm_before_operator}
                 onChange={(confirm_before_operator) => void patch({ confirm_before_operator })}
@@ -879,7 +879,7 @@ export function Settings() {
             <Panel title="Developer surface" detail="Prototype controls">
               <KeyValue label="Shell engine">Tauri 2</KeyValue>
               <KeyValue label="Packaged">{paths?.packaged ? "Yes" : "Development"}</KeyValue>
-              <KeyValue label="Platform">{paths?.platform ?? window.veiron.app.platform}</KeyValue>
+              <KeyValue label="Platform">{paths?.platform ?? window.vireon.app.platform}</KeyValue>
               <p className="muted">
                 Advanced flags that would expose unsafe remote debugging remain intentionally unavailable
                 in production candidate builds.
@@ -903,12 +903,12 @@ export function Settings() {
 
         {section === "about" && (
           <div className="grid settings-stack">
-            <Panel title="Veiron Control Center" detail="Tauri edition">
+            <Panel title="Vireon Control Center" detail="Tauri edition">
               <div className="settings-about-hero">
-                <VeironLogo size="lg" alt="Veiron Network logo" />
+                <VireonLogo size="lg" alt="Vireon Network logo" />
                 <div>
                   <div className="eyebrow">Identity</div>
-                  <h3 style={{ margin: "4px 0 8px" }}>Veiron Network</h3>
+                  <h3 style={{ margin: "4px 0 8px" }}>Vireon Network</h3>
                   <p className="muted" style={{ margin: 0, lineHeight: 1.5 }}>
                     Control Center shell for Mainnet Candidate operations — wallet, node, miner and chain visibility.
                   </p>

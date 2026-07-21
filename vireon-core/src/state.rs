@@ -3,7 +3,7 @@ use crate::block::Block;
 use crate::consensus::{block_reward, expected_coinbase_amount, validate_coinbase_structure};
 use crate::constants::MAX_SUPPLY_ATOMIC;
 use crate::crypto::Hash;
-use crate::errors::{Result, VeironError};
+use crate::errors::{Result, VireonError};
 use crate::hash_to_hex;
 use crate::transaction::Transaction;
 use std::collections::{BTreeMap, BTreeSet};
@@ -113,7 +113,7 @@ impl LedgerState {
     fn ensure_transaction_hash_is_new(&self, transaction: &Transaction) -> Result<()> {
         let tx_hash = hash_to_hex(&transaction.tx_hash());
         if self.applied_transaction_hashes.contains(&tx_hash) {
-            return Err(VeironError::DuplicateTransactionHash(tx_hash));
+            return Err(VireonError::DuplicateTransactionHash(tx_hash));
         }
         Ok(())
     }
@@ -132,15 +132,15 @@ pub fn validate_transaction_against_state(
     transaction.verify()?;
     transaction.validate_fee_against_base_fee(base_fee)?;
     if transaction.amount == Amount::ZERO {
-        return Err(VeironError::ZeroAmountTransaction);
+        return Err(VireonError::ZeroAmountTransaction);
     }
 
     let sender = transaction.from.as_deref().ok_or_else(|| {
-        VeironError::InvalidTransaction("non-coinbase transaction requires sender".to_owned())
+        VireonError::InvalidTransaction("non-coinbase transaction requires sender".to_owned())
     })?;
     let expected_nonce = state.next_nonce_of(sender);
     if transaction.nonce != expected_nonce {
-        return Err(VeironError::InvalidNonce {
+        return Err(VireonError::InvalidNonce {
             address: sender.to_owned(),
             expected: expected_nonce,
             actual: transaction.nonce,
@@ -149,7 +149,7 @@ pub fn validate_transaction_against_state(
     let required = transaction.total_debit(base_fee)?;
     let available = state.balance_of(sender);
     if available < required {
-        return Err(VeironError::InsufficientBalance {
+        return Err(VireonError::InsufficientBalance {
             address: sender.to_owned(),
             available: available.as_atomic(),
             required: required.as_atomic(),
@@ -168,7 +168,7 @@ pub fn apply_transaction(
         state.ensure_transaction_hash_is_new(transaction)?;
         let tx_hash = hash_to_hex(&transaction.tx_hash());
         if transaction.amount == Amount::ZERO {
-            return Err(VeironError::ZeroAmountTransaction);
+            return Err(VireonError::ZeroAmountTransaction);
         }
         state.credit_balance(&transaction.to, transaction.amount)?;
         state.applied_transaction_hashes.insert(tx_hash);
@@ -178,7 +178,7 @@ pub fn apply_transaction(
     validate_transaction_against_state(state, transaction, base_fee)?;
     let tx_hash = hash_to_hex(&transaction.tx_hash());
     let sender = transaction.from.as_deref().ok_or_else(|| {
-        VeironError::InvalidTransaction(
+        VireonError::InvalidTransaction(
             "non-coinbase transaction is missing sender after validation".to_owned(),
         )
     })?;
@@ -206,7 +206,7 @@ pub fn validate_block_against_state(
 ) -> Result<BlockLedgerSummary> {
     let expected_height = state.applied_block_height.map_or(0, |height| height + 1);
     if block.header.height != expected_height {
-        return Err(VeironError::InvalidHeight {
+        return Err(VireonError::InvalidHeight {
             expected: expected_height,
             actual: block.header.height,
         });
@@ -214,7 +214,7 @@ pub fn validate_block_against_state(
 
     let expected_previous_hash = state.tip_hash.unwrap_or_else(Hash::zero);
     if block.header.previous_hash != expected_previous_hash {
-        return Err(VeironError::InvalidPreviousHash {
+        return Err(VireonError::InvalidPreviousHash {
             expected: expected_previous_hash,
             actual: block.header.previous_hash,
         });
@@ -223,7 +223,7 @@ pub fn validate_block_against_state(
     // Same timestamp rule as structural consensus (defense in depth for state-only apply).
     if let Some(previous_ts) = state.tip_timestamp {
         if block.header.timestamp <= previous_ts {
-            return Err(VeironError::InvalidTimestamp {
+            return Err(VireonError::InvalidTimestamp {
                 previous: previous_ts,
                 actual: block.header.timestamp,
             });
@@ -238,15 +238,15 @@ pub fn validate_block_against_state(
     let coinbase = block
         .transactions
         .first()
-        .ok_or(VeironError::MissingCoinbase)?;
+        .ok_or(VireonError::MissingCoinbase)?;
     if coinbase.amount != expected_amount {
-        return Err(VeironError::InvalidCoinbaseAmount {
+        return Err(VireonError::InvalidCoinbaseAmount {
             expected: expected_amount.as_atomic(),
             actual: coinbase.amount.as_atomic(),
         });
     }
     if coinbase.amount == Amount::ZERO {
-        return Err(VeironError::ZeroAmountTransaction);
+        return Err(VireonError::ZeroAmountTransaction);
     }
 
     // Reject duplicate nonces from the same sender inside one block before apply
@@ -256,7 +256,7 @@ pub fn validate_block_against_state(
         for transaction in block.transactions.iter().skip(1) {
             if let Some(sender) = transaction.from.as_deref() {
                 if !seen_sender_nonce.insert((sender.to_owned(), transaction.nonce)) {
-                    return Err(VeironError::InvalidNonce {
+                    return Err(VireonError::InvalidNonce {
                         address: sender.to_owned(),
                         expected: state.next_nonce_of(sender),
                         actual: transaction.nonce,
@@ -281,7 +281,7 @@ pub fn validate_block_against_state(
     let coinbase_reward = block_reward(block.header.height);
     let expected_from_sim = coinbase_reward.checked_add(priority_fees)?;
     if coinbase.amount != expected_from_sim {
-        return Err(VeironError::InvalidCoinbaseAmount {
+        return Err(VireonError::InvalidCoinbaseAmount {
             expected: expected_from_sim.as_atomic(),
             actual: coinbase.amount.as_atomic(),
         });
@@ -289,7 +289,7 @@ pub fn validate_block_against_state(
 
     let updated_supply = state.emitted_supply.checked_add(coinbase_reward)?;
     if updated_supply.as_atomic() > MAX_SUPPLY_ATOMIC {
-        return Err(VeironError::SupplyOverflow);
+        return Err(VireonError::SupplyOverflow);
     }
 
     Ok(BlockLedgerSummary {
@@ -312,7 +312,7 @@ pub fn apply_block(state: &mut LedgerState, block: &Block) -> Result<BlockLedger
     let coinbase = block
         .transactions
         .first()
-        .ok_or(VeironError::MissingCoinbase)?;
+        .ok_or(VireonError::MissingCoinbase)?;
     apply_transaction(state, coinbase, base_fee)?;
     state.emitted_supply = state.emitted_supply.checked_add(summary.coinbase_reward)?;
     state
@@ -361,7 +361,7 @@ mod tests {
     };
     use crate::network::Network;
     use crate::signing::PrivateKey;
-    use crate::{Amount, Transaction, VeironError};
+    use crate::{Amount, Transaction, VireonError};
 
     fn make_signed_transfer(
         sender: &PrivateKey,
@@ -513,7 +513,7 @@ mod tests {
             Amount::from_atomic(INITIAL_BASE_FEE_ATOMIC),
         )
         .expect_err("insufficient balance must fail");
-        assert!(matches!(error, VeironError::InsufficientBalance { .. }));
+        assert!(matches!(error, VireonError::InsufficientBalance { .. }));
     }
 
     #[test]
@@ -538,7 +538,7 @@ mod tests {
         .expect_err("nonce gap must fail");
         assert!(matches!(
             error,
-            VeironError::InvalidNonce {
+            VireonError::InvalidNonce {
                 expected: 1,
                 actual: 2,
                 ..
@@ -568,7 +568,7 @@ mod tests {
         let mut state = LedgerState::new();
         apply_block(&mut state, &genesis).expect("first apply");
         let error = apply_block(&mut state, &genesis).expect_err("duplicate block must fail");
-        assert!(matches!(error, VeironError::InvalidHeight { .. }));
+        assert!(matches!(error, VireonError::InvalidHeight { .. }));
     }
 
     #[test]
@@ -582,6 +582,6 @@ mod tests {
         state.emitted_supply = Amount::from_atomic(MAX_SUPPLY_ATOMIC);
         let error =
             validate_block_against_state(&state, &genesis).expect_err("supply overflow must fail");
-        assert!(matches!(error, VeironError::SupplyOverflow));
+        assert!(matches!(error, VireonError::SupplyOverflow));
     }
 }

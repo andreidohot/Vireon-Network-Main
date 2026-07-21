@@ -1,6 +1,6 @@
-# Veiron multi-agent pipeline
+# Vireon multi-agent pipeline
 
-Continuous agent workflow for [andreidohot/veiron-network](https://github.com/andreidohot/veiron-network).
+Continuous agent workflow for [andreidohot/vireon-network](https://github.com/andreidohot/vireon-network).
 
 ## GitHub is the source of truth
 

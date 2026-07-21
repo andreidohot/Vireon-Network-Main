@@ -1,5 +1,5 @@
 # Whitepaper Docs
 
-Whitepaper drafts and review notes for Veiron Network.
+Whitepaper drafts and review notes for Vireon Network.
 
 Status: Draft

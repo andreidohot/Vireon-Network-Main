@@ -2,7 +2,7 @@
   "approval_standard_id": "veiron-genesis-approval-v1",
   "review_standard_id": "veiron-genesis-review-v1",
   "network_id": "veiron-mainnet-candidate",
-  "human_name": "Veiron Mainnet Candidate",
+  "human_name": "Vireon Mainnet Candidate",
   "status_label": "Planned / Mainnet Candidate",
   "deterministic_genesis_hash": "0000f156b7271a3807b16efdf96d21ac30011fbdcd2ce68af7fdd3bc77ae4f3d",
   "approved_review_hash": "751e18b949e408119505cee9150739ce8f35db179d73a9e17b06c4df0e3cbe08",

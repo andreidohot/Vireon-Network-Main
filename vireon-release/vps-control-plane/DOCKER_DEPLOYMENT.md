@@ -1,10 +1,10 @@
-# Veiron Docker Control Plane 2.1.0-no-autoupdate
+# Vireon Docker Control Plane 2.1.0-no-autoupdate
 
-This is the corrected Docker-first overlay for Veiron Mainnet Candidate / Prototype.
+This is the corrected Docker-first overlay for Vireon Mainnet Candidate / Prototype.
 
 Implemented corrections:
 
-- runtime storage is mounted at `/data/.veiron-mainnet`, so node paths are `/data/.veiron-mainnet/chain`, `/mempool`, `/indexer` and `/node`;
+- runtime storage is mounted at `/data/.vireon-mainnet`, so node paths are `/data/.vireon-mainnet/chain`, `/mempool`, `/indexer` and `/node`;
 - PostgreSQL and postgres-exporter are absent until a real indexer database adapter exists;
 - the web UI, backup scheduler and log collector do not mount Docker socket;
 - one non-public, token-authenticated broker owns the single Docker socket mount and exposes an action allow-list only;
@@ -21,12 +21,12 @@ The package has no Watchtower, updater container, update script, update/rollback
 Apply this overlay over the full repository, then:
 
 ```bash
-cd veiron-release/vps-control-plane
+cd vireon-release/vps-control-plane
 chmod +x scripts/*.sh docker/*.sh docker/caddy/*.sh docker/backup-scheduler/*.sh
 ./scripts/install-docker-stack.sh
 ```
 
-Use the SSH tunnel printed by the installer. The installer builds from the checked-out repository; it does not pull a newer Veiron runtime.
+Use the SSH tunnel printed by the installer. The installer builds from the checked-out repository; it does not pull a newer Vireon runtime.
 
 ## Repair an earlier installation
 
@@ -36,4 +36,4 @@ Preserve `.env` and `state/`, apply the overlay, then:
 ./scripts/repair-existing-installation.sh
 ```
 
-Never run `docker compose down -v` unless permanent destruction of all Veiron state is intentional.
+Never run `docker compose down -v` unless permanent destruction of all Vireon state is intentional.
