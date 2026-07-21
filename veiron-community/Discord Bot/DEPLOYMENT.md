@@ -1,3 +1,5 @@
+> VBOS 7.36.4 targets **Node.js 24.x**. Docker uses `node:24-bookworm-slim`. Local non-Docker deployments should use Node 24.x before running `npm ci`. Docker Compose uses `NODE_IMAGE=${NODE_IMAGE:-node:24-bookworm-slim}` by default.
+
 # VBOS Deployment
 
 ## Local Run
@@ -110,3 +112,24 @@ The `/health` endpoint includes configured Lavalink nodes, ready nodes, player s
 - Use HTTPS before exposing the dashboard publicly.
 - Keep `./data` backed up.
 - Never commit `.env`.
+
+## Docker build stuck at npm ci
+
+VBOS 7.36.4 no longer runs a silent `npm ci` inside Docker. The Dockerfile runs `scripts/npm-ci-heartbeat.js`, which prints an install heartbeat every 15 seconds and stops with a useful error after the configured timeout.
+
+Recommended rebuild:
+
+```bash
+docker compose down
+docker builder prune -f
+docker compose build --no-cache --progress=plain vbos
+docker compose up -d
+```
+
+For very slow VPS/network environments you can increase the timeout:
+
+```bash
+VBOS_NPM_CI_TIMEOUT_MS=2400000 docker compose build --no-cache --progress=plain vbos
+```
+
+The default image is `node:24-bookworm-slim`. It is intentionally not Alpine, because Debian/glibc is more predictable for native dependencies such as Prisma engines and canvas packages.

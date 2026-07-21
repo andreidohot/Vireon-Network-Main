@@ -9,7 +9,8 @@ MAJOR.MEDIUM.MINOR
 Current version:
 
 ```text
-7.36.0
+7.36.4
+- Patch runtime release: Docker and npm preflight now target Node.js 24.x.
 ```
 
 ## Version Meaning

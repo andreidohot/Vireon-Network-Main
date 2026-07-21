@@ -1,5 +1,38 @@
 # Changelog
 
+## 7.36.4 - Docker npm install reliability
+
+- Changed the default Docker runtime image to `node:24-bookworm-slim` for better native dependency compatibility than Alpine on first VPS builds.
+- Added `scripts/npm-ci-heartbeat.js` so Docker builds show visible npm install progress instead of appearing frozen at `npm ci`.
+- Added a controlled npm install timeout and troubleshooting output for registry/network/RAM issues.
+- Kept Node.js 24 as the required runtime for this VBOS build.
+
+
+## 7.36.3 - Node.js 24 runtime target
+
+- Rebuilt Docker runtime on `node:24-bookworm-slim` instead of Node 20.
+- Updated package engine metadata to require Node.js 24.x for this VBOS build.
+- Hardened npm preflight so Docker/local installs fail clearly when the runtime is not Node 24.x.
+- Documented Node 24 as the supported runtime for Docker and non-Docker deployments.
+- Added `.nvmrc` and `.node-version` with Node 24 for local tooling.
+- Added `NODE_IMAGE` build arg in Docker Compose, defaulting to `node:24-bookworm-slim`.
+
+
+## 7.36.2 - Clean Docker install + native PWA service worker
+
+- Removed `vite-plugin-pwa` / Workbox from the dashboard build chain to stop deprecated transitive install warnings from `source-map@0.8.0-beta.0` and `glob@11.1.0`.
+- Added a native VBOS service worker for Admin Web installability, navigation fallback, cached icons/assets and push notification click handling.
+- Added a static `manifest.webmanifest` and explicit dashboard manifest/theme metadata.
+- Kept the same PWA user-facing behavior while making `npm ci` cleaner and smaller in Docker builds.
+
+## 7.36.1 - Docker npm install hardening
+
+- Hardened Docker build npm install step with explicit no-audit/no-fund/progress-off settings.
+- Added npm preflight check for Node.js and registry reachability.
+- Added visible Docker build messages so `npm ci` no longer looks frozen during first build.
+- Added debug build helpers: `scripts/docker-build-debug.sh` and `scripts/docker-build-debug.ps1`.
+
+
 ## 7.36.0
 
 - Added **Web Workspace** at `/admin/#web` as a personal Admin Web control room for VBOS staff.

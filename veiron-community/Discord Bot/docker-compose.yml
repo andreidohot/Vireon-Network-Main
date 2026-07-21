@@ -3,6 +3,7 @@ services:
     build:
       context: .
       args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:24-bookworm-slim}
         DATABASE_PROVIDER: ${DATABASE_PROVIDER:-postgresql}
         DATABASE_URL: ${DATABASE_URL:-postgresql://vireon:${POSTGRES_PASSWORD:-vbos_change_me}@postgres:5432/vbos?schema=public}
         DATABASE_URL_LEDGER: ${DATABASE_URL_LEDGER:-postgresql://vireon:${POSTGRES_LEDGER_PASSWORD:-vbos_ledger_change_me}@postgres-ledger:5432/vbos_ledger?schema=public}

@@ -2,7 +2,10 @@
 
 VBOS (Vireon Bot Operations Studio) is the all-in-one Discord operations bot and admin web panel for Vireon Network.
 
-Current version: **7.36.0**.
+Current version: **7.36.4**.
+
+Runtime target: **Node.js 24.x**. Docker uses `node:24-bookworm-slim`; local non-Docker installs should use Node 24 as well.
+Docker Compose also exposes `NODE_IMAGE`, defaulting to `node:24-bookworm-slim`, so advanced builds can pin a full patch image without editing the Dockerfile.
 
 The goal is one strong operations system, not many disconnected bots. This release includes server setup, onboarding roles, permission control with visual admin UI, VBOS-styled embeds, moderation, tickets, live-config automod, anti-raid alerts, anti-spam, persistent audit logging, automated database backups, announcements, scheduled announcements, proposals/voting, welcome/goodbye events, XP/level tracking, server-only Shards social currency, custom tags, custom triggers, Lavalink music commands, saved playlists, audio filters, interactive now-playing controls, live Vireon chain status and reward queries via the configured adapter, Docker deployment and an installable React SPA admin dashboard.
 
@@ -20,7 +23,7 @@ The goal is one strong operations system, not many disconnected bots. This relea
 - Automation Studio: `/admin/#automations` lets staff build no-code Discord flows with safe triggers/actions, dry-run preview, admin testing, cooldowns, audit log and runtime execution on messages and member join/leave.
 - Command Center: `/admin/#commands` shows the full VBOS command surface, categories, runtime stats, modules, custom commands, automations and audit tail for staff.
 - Module Center: `/admin/#modules` acts as a Feature Marketplace for VBOS modules, with categories, risk levels, dependency warnings, audited enable/disable controls, JSON bundle export/import and dry-run validation.
-- PWA support: Android-installable manifest, iconset, Workbox service worker and cached read-only dashboard fallback.
+- PWA support: Android-installable manifest, iconset, native VBOS service worker and cached read-only dashboard fallback.
 - Web push foundation: VAPID-based subscription endpoints, test alerts, new-ticket alerts and critical automod alerts for subscribed admins.
 - Moderation: warn, mute, unmute, purge and case history.
 - Escalation moderation: kick and ban commands.
@@ -430,7 +433,7 @@ For frontend-only development, use:
 npm run dashboard:dev
 ```
 
-The dashboard is installable on Android when served over HTTPS or localhost. It includes a Workbox service worker, manifest, iconset and read-only cached dashboard data for offline viewing.
+The dashboard is installable on Android when served over HTTPS or localhost. It includes a native VBOS service worker, manifest, iconset and read-only cached dashboard data for offline viewing. Workbox/vite-plugin-pwa is no longer required for current builds, which keeps Docker `npm ci` cleaner and avoids deprecated transitive dependency warnings from the old PWA build chain.
 
 Optional web push notifications require VAPID keys:
 
@@ -752,3 +755,22 @@ Remaining work before a public, serious crypto community:
 - Do not present VIRE as an investment or guaranteed return.
 - Do not mark mainnet, wallet, explorer, mining pool, DAO or marketplace as live until each one is implemented, verified and documented.
 - Security disclosures should go to the private security channels.
+
+
+### Docker build hangs at `npm ci`
+
+The Docker build is pinned to Node.js 24. If you run commands outside Docker, check `node -v` first and use Node 24.x.
+
+If the first Docker build looks stuck at `RUN npm ci`, use the debug build command to print full progress:
+
+```bash
+./scripts/docker-build-debug.sh
+```
+
+On Windows PowerShell:
+
+```powershell
+.\scripts\docker-build-debug.ps1
+```
+
+Most slow installs are caused by npm package downloads or Prisma/canvas native package downloads on the first build. The Dockerfile now uses `node:24-bookworm-slim`, runs `scripts/npm-ci-heartbeat.js`, prints periodic install heartbeats, applies a controlled timeout, and runs a preflight registry check before installing dependencies.
