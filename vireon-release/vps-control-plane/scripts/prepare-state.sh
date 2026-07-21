@@ -19,6 +19,7 @@ create_owned() {
 
 create_owned 10001 10001 \
   state/config/generated \
+  state/data \
   state/data/chain state/data/mempool state/data/indexer state/data/node \
   state/control state/pool state/loki
 create_owned 65534 65534 state/prometheus state/alertmanager

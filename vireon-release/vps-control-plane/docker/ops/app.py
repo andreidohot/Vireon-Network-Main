@@ -43,6 +43,7 @@ def ensure_layout() -> None:
     directories = {
         GENERATED_DIR: (10001, 10001),
         LOG_DIR: (0, 0),
+        STATE_DIR / "data": (10001, 10001),
         STATE_DIR / "data" / "chain": (10001, 10001),
         STATE_DIR / "data" / "mempool": (10001, 10001),
         STATE_DIR / "data" / "indexer": (10001, 10001),
@@ -52,7 +53,7 @@ def ensure_layout() -> None:
         STATE_DIR / "prometheus": (65534, 65534),
         STATE_DIR / "grafana": (472, 472),
         STATE_DIR / "loki": (10001, 10001),
-        STATE_DIR / "alloy": (0, 0),
+        STATE_DIR / "alloy": (473, 473),
         STATE_DIR / "alertmanager": (65534, 65534),
         STATE_DIR / "caddy" / "data": (1000, 1000),
         STATE_DIR / "caddy" / "config": (1000, 1000),
