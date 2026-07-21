@@ -20,7 +20,7 @@ describe("music Lavalink infrastructure", () => {
       LAVALINK_SECURE: "false"
     })).toEqual([
       {
-        name: "veiron-main",
+        name: "vireon-main",
         url: "http://lavalink:2444",
         auth: "secret",
         secure: false
@@ -45,7 +45,7 @@ describe("music Lavalink infrastructure", () => {
         group: undefined
       },
       {
-        name: "veiron-2",
+        name: "vireon-2",
         url: "https://lavalink-b:443",
         auth: "b",
         secure: true,
@@ -82,7 +82,7 @@ describe("music command routing", () => {
     })).toBe("filter");
     expect(resolveMusicCommand({
       isChatInputCommand: () => true,
-      commandName: "setup-veiron",
+      commandName: "setup-vireon",
       options: {}
     })).toBeNull();
   });
@@ -92,28 +92,28 @@ describe("music now-playing panel", () => {
   it("resolves supported now-playing button actions", () => {
     expect(resolveMusicButtonAction({
       isButton: () => true,
-      customId: "veiron_music:pause"
+      customId: "vireon_music:pause"
     })).toBe("pause");
     expect(resolveMusicButtonAction({
       isButton: () => true,
-      customId: "veiron_music:queue"
+      customId: "vireon_music:queue"
     })).toBe("queue");
     expect(resolveMusicButtonAction({
       isButton: () => true,
-      customId: "veiron_music:unknown"
+      customId: "vireon_music:unknown"
     })).toBeNull();
     expect(resolveMusicButtonAction({
       isButton: () => false,
-      customId: "veiron_music:pause"
+      customId: "vireon_music:pause"
     })).toBeNull();
   });
 
   it("builds pause, skip and queue Discord buttons", () => {
     const row = buildNowPlayingComponents({ paused: false })[0].toJSON();
     expect(row.components.map((component) => component.custom_id)).toEqual([
-      "veiron_music:pause",
-      "veiron_music:skip",
-      "veiron_music:queue"
+      "vireon_music:pause",
+      "vireon_music:skip",
+      "vireon_music:queue"
     ]);
     expect(row.components.map((component) => component.label)).toEqual(["Pause", "Skip", "Queue"]);
     expect(buildNowPlayingComponents({ paused: true })[0].toJSON().components[0].label).toBe("Resume");

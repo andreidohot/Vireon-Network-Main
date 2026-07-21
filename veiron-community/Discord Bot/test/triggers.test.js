@@ -102,11 +102,11 @@ describe("custom triggers", () => {
     expect(third.name).toBe("need-help");
     expect(sent).toEqual([
       {
-        content: "Hey <@user-1>, read this in Veiron Test. <@user-2> <@&role-1>",
+        content: "Hey <@user-1>, read this in Vireon Test. <@user-2> <@&role-1>",
         allowedMentions: { parse: ["users", "roles"] }
       },
       {
-        content: "Hey <@user-1>, read this in Veiron Test. <@user-2> <@&role-1>",
+        content: "Hey <@user-1>, read this in Vireon Test. <@user-2> <@&role-1>",
         allowedMentions: { parse: ["users", "roles"] }
       }
     ]);
@@ -129,7 +129,7 @@ describe("custom triggers", () => {
 });
 
 async function createStore() {
-  return new JsonStore({ dataDir: await mkdtemp(path.join(os.tmpdir(), "veiron-triggers-test-")) });
+  return new JsonStore({ dataDir: await mkdtemp(path.join(os.tmpdir(), "vireon-triggers-test-")) });
 }
 
 function createMessage({ content, sent }) {
@@ -141,7 +141,7 @@ function createMessage({ content, sent }) {
       bot: false
     },
     guild: {
-      name: "Veiron Test"
+      name: "Vireon Test"
     },
     mentions: {
       users: new Map([["user-2", { id: "user-2" }]]),

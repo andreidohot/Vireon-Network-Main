@@ -129,7 +129,7 @@ function createMessage(content) {
     },
     guild: {
       id: "guild-1",
-      name: "Veiron",
+      name: "Vireon",
       channels: {
         cache: {
           find: () => null

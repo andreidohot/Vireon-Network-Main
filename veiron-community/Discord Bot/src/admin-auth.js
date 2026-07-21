@@ -125,7 +125,7 @@ export class AdminAuthService {
     return {
       secret,
       otpauthUrl: generateURI({
-        issuer: "Veiron Community Bot",
+        issuer: "VBOS",
         label: user.email,
         secret
       })

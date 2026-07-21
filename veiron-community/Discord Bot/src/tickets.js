@@ -5,7 +5,7 @@ import {
   ChannelType,
   PermissionFlagsBits
 } from "discord.js";
-import { createVeironEmbed } from "./embed-factory.js";
+import { createVireonEmbed } from "./embed-factory.js";
 import { ROLE_NAMES } from "./template.js";
 import { writeAuditLog } from "./audit-log.js";
 import { sendPushNotification } from "./push-notifications.js";
@@ -14,7 +14,7 @@ const TICKETS_COLLECTION = "tickets";
 
 export function registerTicketHandlers({ store, permissions }) {
   return async function handleTicketCommand(interaction) {
-    if (interaction.isButton() && interaction.customId === "veiron_ticket:close") {
+    if (interaction.isButton() && interaction.customId === "vireon_ticket:close") {
       await closeTicketFromButton(interaction, store, permissions);
       return true;
     }
@@ -115,8 +115,8 @@ async function openTicket(interaction, store) {
   await channel.send({
     content: `<@${interaction.user.id}>`,
     embeds: [
-      createVeironEmbed({
-        title: "Veiron Support Ticket",
+      createVireonEmbed({
+        title: "Vireon Support Ticket",
         description: [
           `Ticket: ${ticket.id}`,
           `Topic: ${topic}`,
@@ -128,7 +128,7 @@ async function openTicket(interaction, store) {
     components: [
       new ActionRowBuilder().addComponents(
         new ButtonBuilder()
-          .setCustomId("veiron_ticket:close")
+          .setCustomId("vireon_ticket:close")
           .setLabel("Close Ticket")
           .setStyle(ButtonStyle.Danger)
       )
@@ -151,7 +151,7 @@ async function openTicket(interaction, store) {
   }, { store });
 
   await sendPushNotification(store, {
-    title: "New Veiron Ticket",
+    title: "New Vireon Ticket",
     body: `${interaction.user.tag}: ${topic}`,
     url: "/admin/#tickets"
   }, { roles: ["MODERATOR", "ADMIN", "SUPER_ADMIN"] });
@@ -238,7 +238,7 @@ async function listTickets(interaction, store, permissions) {
   await interaction.reply({
     ephemeral: true,
     embeds: [
-      createVeironEmbed({
+      createVireonEmbed({
         title: "Open Tickets",
         description: openTickets.length
           ? openTickets.map((item) => `**${item.id}** | <#${item.channelId}> | ${item.userTag} | ${item.topic}`).join("\n")

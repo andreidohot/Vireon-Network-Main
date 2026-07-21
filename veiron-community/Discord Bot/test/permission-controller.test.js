@@ -21,7 +21,7 @@ describe("PermissionController", () => {
     expect(permissions.canManageCommunityBot(interaction)).toBe(true);
   });
 
-  it("allows staff roles and ManageGuild to manage community bot", () => {
+  it("allows staff roles and ManageGuild to manage VBOS", () => {
     const permissions = new PermissionController();
 
     expect(permissions.canManageCommunityBot(createInteraction({
@@ -36,7 +36,7 @@ describe("PermissionController", () => {
     const permissions = new PermissionController();
 
     expect(permissions.canManageCommunityBot(createInteraction({
-      roles: ["Veiron Member"]
+      roles: ["Vireon Member"]
     }))).toBe(false);
   });
 

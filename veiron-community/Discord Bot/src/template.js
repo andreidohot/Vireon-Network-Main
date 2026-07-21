@@ -12,7 +12,7 @@ export const ROLE_NAMES = {
   builder: "Builder",
   partner: "Partner",
   earlySupporter: "Early Supporter",
-  member: "Veiron Member",
+  member: "Vireon Member",
   muted: "Muted",
   bot: "Bot"
 };
@@ -138,9 +138,9 @@ export const CHANNEL_TEMPLATE = [
     type: ChannelType.GuildCategory,
     visibility: "public_read",
     children: [
-      { name: "welcome", topic: "Start here. What Veiron Network is, what is planned, and what is not live yet.", readOnly: true },
+      { name: "welcome", topic: "Start here. What Vireon Network is, what is planned, and what is not live yet.", readOnly: true },
       { name: "rules", topic: "Community rules, safety rules and anti-scam warnings.", readOnly: true },
-      { name: "announcements", topic: "Official Veiron updates only.", readOnly: true },
+      { name: "announcements", topic: "Official Vireon updates only.", readOnly: true },
       { name: "roadmap", topic: "Draft roadmap, phases and public progress notes.", readOnly: true },
       { name: "faq", topic: "Short answers about VIRE, mining, wallet, explorer, testnet and mainnet status.", readOnly: true },
       { name: "roles", topic: "Role request and onboarding area.", readOnly: false }
@@ -151,20 +151,20 @@ export const CHANNEL_TEMPLATE = [
     type: ChannelType.GuildCategory,
     visibility: "members",
     children: [
-      { name: "general", topic: "General Veiron discussion." },
+      { name: "general", topic: "General Vireon discussion." },
       { name: "romana", topic: "Romanian community chat." },
       { name: "english", topic: "English community chat." },
       { name: "ideas", topic: "Community ideas. Ideas are not roadmap commitments." },
-      { name: "showcase", topic: "Show what you are building around Veiron." },
+      { name: "showcase", topic: "Show what you are building around Vireon." },
       { name: "off-topic", topic: "Relaxed community discussion." }
     ]
   },
   {
-    name: "VEIRON DEVELOPMENT",
+    name: "VIREON DEVELOPMENT",
     type: ChannelType.GuildCategory,
     visibility: "members",
     children: [
-      { name: "dev-chat", topic: "Development discussion across Veiron packages." },
+      { name: "dev-chat", topic: "Development discussion across Vireon packages." },
       { name: "protocol-design", topic: "Protocol design discussions. Draft until implemented and tested." },
       { name: "rust-core", topic: "Rust core, node, consensus, blocks, transactions and mining rules." },
       { name: "smart-contracts", topic: "Rust/WASM contract model, standards and experiments." },
@@ -244,9 +244,9 @@ export const CHANNEL_TEMPLATE = [
 export const SEED_MESSAGES = {
   welcome: [
     {
-      title: "Welcome to Veiron Network",
+      title: "Welcome to Vireon Network",
       body: [
-        "Veiron Network is a Rust-based mineable Layer 1 for digital ownership, low-fee applications, games, software licenses, NFTs, identity proofs, encrypted communication and storage-backed digital products.",
+        "Vireon Network is a Rust-based mineable Layer 1 for digital ownership, low-fee applications, games, software licenses, NFTs, identity proofs, encrypted communication and storage-backed digital products.",
         "",
         "Current status: Draft / prototype planning. Features must not be presented as live until they exist, run, and are documented.",
         "",
@@ -269,7 +269,7 @@ export const SEED_MESSAGES = {
   ],
   roadmap: [
     {
-      title: "Veiron Roadmap Snapshot",
+      title: "Vireon Roadmap Snapshot",
       body: [
         "Phase 0: Specs and workspace.",
         "Phase 1: Core minimal.",
@@ -299,9 +299,9 @@ export const SEED_MESSAGES = {
   ],
   roles: [
     {
-      title: "Choose Your Veiron Roles",
+      title: "Choose Your Vireon Roles",
       body: [
-        "Press Join Veiron to unlock the main community channels.",
+        "Press Join Vireon to unlock the main community channels.",
         "",
         "Optional roles help route discussions and future announcements:",
         "Developer, Miner, Node Operator, Builder and Early Supporter.",
@@ -334,7 +334,7 @@ export const SEED_MESSAGES = {
     {
       title: "Admin HQ",
       body: [
-        "Private coordination for Veiron staff.",
+        "Private coordination for Vireon staff.",
         "",
         "Before mainnet candidate, governance can remain founder/core-team led, but decisions should be logged clearly and not implied as DAO-controlled unless a real mechanism exists."
       ].join("\n")
@@ -343,12 +343,12 @@ export const SEED_MESSAGES = {
 };
 
 export const ROLE_BUTTONS = [
-  { customId: "veiron_role:member", label: "Join Veiron", roleKey: "member", required: true },
-  { customId: "veiron_role:developer", label: "Developer", roleKey: "developer" },
-  { customId: "veiron_role:miner", label: "Miner", roleKey: "miner" },
-  { customId: "veiron_role:nodeOperator", label: "Node Operator", roleKey: "nodeOperator" },
-  { customId: "veiron_role:builder", label: "Builder", roleKey: "builder" },
-  { customId: "veiron_role:earlySupporter", label: "Early Supporter", roleKey: "earlySupporter" }
+  { customId: "vireon_role:member", label: "Join Vireon", roleKey: "member", required: true },
+  { customId: "vireon_role:developer", label: "Developer", roleKey: "developer" },
+  { customId: "vireon_role:miner", label: "Miner", roleKey: "miner" },
+  { customId: "vireon_role:nodeOperator", label: "Node Operator", roleKey: "nodeOperator" },
+  { customId: "vireon_role:builder", label: "Builder", roleKey: "builder" },
+  { customId: "vireon_role:earlySupporter", label: "Early Supporter", roleKey: "earlySupporter" }
 ];
 
 export function permissionBits(names) {

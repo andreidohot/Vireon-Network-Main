@@ -1,5 +1,11 @@
 const NAV_ITEMS = [
   ["overview", "Overview"],
+  ["commands", "Command Center"],
+  ["control", "Control Center"],
+  ["operations", "Bot Studio"],
+  ["custom", "Custom Lab"],
+  ["automations", "Automation Studio"],
+  ["modules", "Module Center"],
   ["embeds", "Embeds"],
   ["tickets", "Tickets"],
   ["moderation", "Moderation"],
@@ -22,7 +28,7 @@ export function Shell({ route, onRouteChange, auth, status, children, onLogin, o
         <div className="brand">
           <span className="mark">V</span>
           <div>
-            <strong>Veiron Bot</strong>
+            <strong>VBOS</strong>
             <small>Community Admin</small>
           </div>
         </div>
@@ -43,7 +49,7 @@ export function Shell({ route, onRouteChange, auth, status, children, onLogin, o
       <main>
         <header>
           <div>
-            <h1>Veiron Community Bot</h1>
+            <h1>VBOS</h1>
             <p>Single control panel for Discord community operations.</p>
           </div>
           <AuthBar auth={auth} onLogin={onLogin} onLogout={onLogout} />

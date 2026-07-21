@@ -1,4 +1,4 @@
-# Veiron Community Bot Roadmap
+# VBOS Roadmap
 
 ## Phase 0 - Foundation
 
@@ -38,9 +38,23 @@
 - Persistent audit log events backed by the shared DAL and searchable from the admin dashboard.
 - Live Automod configuration with editable keywords, custom regex rules and anti-raid join-rate alerts.
 - Automated main/ledger database backups with cron-like scheduling and S3-compatible uploads.
-- Live `/veiron-status` command backed by the chain adapter for height, latest block hash, hash rate, nodes and circulating supply.
+- Live `/vireon-status` command backed by the chain adapter for height, latest block hash, hash rate, nodes and circulating supply.
 - `/rewards` command prepared for Phase 6 wallet links, with mining/staking/node reward reads through the chain adapter.
 - Active Blockchain Status dashboard panel with uptime, RPC latency, charts and down-node alert state.
+- RPC cache/rate-limit protection in the chain adapter, with stale fallback for high command traffic or temporary node issues.
+- `/register` wallet flow with custodial encrypted wallets, external challenge-response linking and tokenized payment links.
+- Custodial wallet hardening: HD master seed from env/vault, DB stores only derivation metadata, never raw derived private keys.
+- PWA payment link page with address, balance, transaction history and pending-review withdrawal requests.
+- `/payment @user <amount>` flow with wallet/balance checks, Confirm/Cancel, fee estimate, chain adapter broadcast, local ledger sync and participant notifications.
+- On-chain sync worker for transaction confirmations, reorg handling and double-spend protection across chain adapter and local ledger.
+- Bot Control Center for Discord staff operations: member search, warn/timeout/kick/ban/unban, purge, ticket status, member roles, structural server control, bot permission safety and audited mutations.
+- First-run Admin Web Setup Wizard with bootstrap mode, runtime config persistence and automatic wizard lock after finalize.
+- PostgreSQL/Prisma-first serious database profile for Discord/Admin deploy, with isolated ledger PostgreSQL database.
+- VBOS with safe console, Message Creator, templates, approval queue, admin-only direct push, channel push, scheduled posts and web-audited bot operations.
+- VBOS Control Plane for full Discord/Admin Web operations: Custom Lab, custom prefix commands, `/custom` gateway, custom buttons, bulk member roles, channel permission overwrites, channel reorder and structure-plan dry-run/apply.
+- Automation Studio for no-code Discord runtime flows with safe triggers, allowlisted actions, dry-run testing, cooldowns, audit events and message/member runtime integration.
+- Module Center / Feature Marketplace for module registry, risk/status visibility, audited feature toggles and import/export bundles.
+- Command Center for full slash-command catalog, Discord-side staff shortcuts, module controls, automation inspection, server/member/channel controls and audited command operations.
 
 ## Phase 1 - Community Operations
 
@@ -75,7 +89,7 @@
 - SPA web UI for tickets, cases, proposals, automod events and embeds.
 - Permission controller UI for setup users, manager roles and Discord permission toggles.
 - Embed builder with preview.
-- Channel/role management.
+- Channel/role/category management with web safety checks.
 - Announcement publishing.
 - Audit log view with filters for text, source, type, users, channel and date range.
 - Live Automod controls for scam keywords, custom rules, invite blocking, mass mentions and anti-raid thresholds.
@@ -100,7 +114,7 @@
 - Decision log publishing.
 - Community polls.
 
-## Phase 5 - Veiron Ecosystem Integrations
+## Phase 5 - Vireon Ecosystem Integrations
 
 - Website/admin integration.
 - Testnet status integration when real RPC exists.

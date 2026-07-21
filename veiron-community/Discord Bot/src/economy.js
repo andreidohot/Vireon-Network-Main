@@ -1,4 +1,4 @@
-import { createVeironEmbed } from "./embed-factory.js";
+import { createVireonEmbed } from "./embed-factory.js";
 import { getSettings } from "./config.js";
 
 export const ECONOMY_WALLETS_COLLECTION = "economy-wallets";
@@ -23,7 +23,7 @@ const DEFAULT_ECONOMY_SETTINGS = Object.freeze({
 });
 
 const WORK_MESSAGES = Object.freeze([
-  "helped organize the Veiron workshop",
+  "helped organize the Vireon workshop",
   "reviewed community ideas",
   "cleaned up the testnet notes",
   "supported a new member",
@@ -85,7 +85,7 @@ export async function handleDaily(interaction, store) {
 
     await interaction.reply({
       embeds: [
-        createVeironEmbed({
+        createVireonEmbed({
           title: "Daily Shards",
           description: [
             `You claimed **${formatCurrency(result.amount, settings)}**.`,
@@ -113,7 +113,7 @@ export async function handleWork(interaction, store) {
 
     await interaction.reply({
       embeds: [
-        createVeironEmbed({
+        createVireonEmbed({
           title: "Work Complete",
           description: [
             `You ${result.activity} and earned **${formatCurrency(result.amount, settings)}**.`,
@@ -141,7 +141,7 @@ export async function handleBalance(interaction, store) {
 
   await interaction.reply({
     embeds: [
-      createVeironEmbed({
+      createVireonEmbed({
         title: `${settings.currencyName} Balance`,
         description: [
           `**${target.username}** has **${formatCurrency(wallet.balance, settings)}**.`,
@@ -169,7 +169,7 @@ export async function handleEconomyLeaderboard(interaction, store) {
 
   await interaction.reply({
     embeds: [
-      createVeironEmbed({
+      createVireonEmbed({
         title: `${settings.currencyName} Leaderboard`,
         description: [
           ...formatEconomyLeaderboardLines(wallets, settings),
@@ -210,7 +210,7 @@ export async function handleTransfer(interaction, store) {
 
     await interaction.reply({
       embeds: [
-        createVeironEmbed({
+        createVireonEmbed({
           title: `${settings.currencyName} Transfer`,
           description: [
             `Transferred **${formatCurrency(amount, settings)}** from **${interaction.user.username}** to **${target.username}**.`,
@@ -229,7 +229,7 @@ export async function handleStaffAdjust(interaction, store, permissions, mode) {
   if (!permissions.canManageCommunityBot(interaction)) {
     await interaction.reply({
       ephemeral: true,
-      content: `You need community bot management permission to ${mode} Shards.`
+      content: `You need VBOS management permission to ${mode} Shards.`
     });
     return;
   }
@@ -256,7 +256,7 @@ export async function handleStaffAdjust(interaction, store, permissions, mode) {
     await interaction.reply({
       ephemeral: true,
       embeds: [
-        createVeironEmbed({
+        createVireonEmbed({
           title: `${settings.currencyName} ${mode === "take" ? "Removed" : "Granted"}`,
           description: [
             `Updated **${target.username}** by **${formatCurrency(Math.abs(amount), settings)}**.`,
@@ -303,7 +303,7 @@ export async function handleShopList(interaction, settings) {
 
   await interaction.reply({
     embeds: [
-      createVeironEmbed({
+      createVireonEmbed({
         title: `${settings.currencyName} Cosmetic Shop`,
         description: [
           ...formatShopLines(items, settings),
@@ -347,7 +347,7 @@ export async function handleShopBuy(interaction, store, settings) {
       return;
     }
 
-    await member.roles.add(role, "Veiron Shards cosmetic shop purchase.");
+    await member.roles.add(role, "Vireon Shards cosmetic shop purchase.");
     const result = await buyShopItem(store, {
       guildId: interaction.guildId,
       user: interaction.user,
@@ -357,7 +357,7 @@ export async function handleShopBuy(interaction, store, settings) {
 
     await interaction.reply({
       embeds: [
-        createVeironEmbed({
+        createVireonEmbed({
           title: "Shop Purchase Complete",
           description: [
             `You bought **${item.name}** for **${formatCurrency(item.price, settings)}**.`,
@@ -369,7 +369,7 @@ export async function handleShopBuy(interaction, store, settings) {
     });
   } catch (error) {
     if (member?.roles?.cache?.has?.(item.roleId) && typeof member.roles.remove === "function") {
-      await member.roles.remove(item.roleId, "Veiron Shards shop purchase rollback.").catch(() => null);
+      await member.roles.remove(item.roleId, "Vireon Shards shop purchase rollback.").catch(() => null);
     }
     await interaction.reply({ ephemeral: true, content: error.message });
   }

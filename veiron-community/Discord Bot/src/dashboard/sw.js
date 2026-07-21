@@ -13,7 +13,7 @@ registerRoute(
 
 registerRoute(
   ({ request, url }) => request.destination === "image" && url.pathname.startsWith("/admin/icons/"),
-  new StaleWhileRevalidate({ cacheName: "veiron-admin-icons" })
+  new StaleWhileRevalidate({ cacheName: "vbos-admin-icons" })
 );
 
 self.addEventListener("push", (event) => {
@@ -22,14 +22,14 @@ self.addEventListener("push", (event) => {
     payload = event.data?.json() ?? {};
   } catch {
     payload = {
-      title: "Veiron Alert",
-      body: event.data?.text() ?? "New Veiron community event."
+      title: "Vireon Alert",
+      body: event.data?.text() ?? "New Vireon community event."
     };
   }
 
-  const title = payload.title ?? "Veiron Alert";
+  const title = payload.title ?? "Vireon Alert";
   const options = {
-    body: payload.body ?? "Open the Veiron admin dashboard for details.",
+    body: payload.body ?? "Open the Vireon admin dashboard for details.",
     icon: "/admin/icons/icon-192.png",
     badge: "/admin/icons/icon-192.png",
     data: {

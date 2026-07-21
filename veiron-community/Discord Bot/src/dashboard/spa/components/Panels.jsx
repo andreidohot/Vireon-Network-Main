@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 export function OverviewPanel({ summary }) {
   const stats = [
     ["Channels", summary.guild?.channels ?? 0],
@@ -25,6 +27,1090 @@ export function OverviewPanel({ summary }) {
   );
 }
 
+
+export function BotOperationsPanel({
+  operations,
+  channels = [],
+  canModerate,
+  canManage,
+  onRefresh,
+  onConsole,
+  onPreview,
+  onPush,
+  onRequestApproval,
+  onReviewApproval,
+  onSaveTemplate,
+  onDeleteTemplate
+}) {
+  const [consoleCommand, setConsoleCommand] = useState("help");
+  const [consoleOutput, setConsoleOutput] = useState([]);
+  const [messagePreview, setMessagePreview] = useState(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
+  const templates = operations?.templates ?? [];
+  const pushes = operations?.pushes ?? [];
+  const approvals = operations?.approvals ?? [];
+  const pendingApprovals = approvals.filter((item) => item.status === "pending");
+  const textChannels = channels.filter((channel) => !channel.type || ["text", "announcement", "forum"].includes(channel.type));
+  const selectedTemplate = templates.find((item) => item.id === selectedTemplateId) ?? null;
+  const defaultCommandList = operations?.console?.commands ?? [];
+
+  async function handleConsoleSubmit(event) {
+    event.preventDefault();
+    const result = await onConsole(consoleCommand);
+    setConsoleOutput(result.output ?? []);
+  }
+
+  async function handleMessageSubmit(event) {
+    event.preventDefault();
+    const submitter = event.nativeEvent?.submitter;
+    const intent = submitter?.value ?? "preview";
+    const payload = readMessageCreatorPayload(event.currentTarget);
+
+    if (intent === "preview") {
+      setMessagePreview(await onPreview(payload));
+      return;
+    }
+
+    if (intent === "template") {
+      await onSaveTemplate(payload);
+      return;
+    }
+
+    if (intent === "approval") {
+      const result = await onRequestApproval(payload);
+      setMessagePreview({ approvalRequested: true, approval: result.approval });
+      return;
+    }
+
+    if (!canManage) {
+      setMessagePreview({ blocked: true, reason: "Direct push requires ADMIN. Use Request Approval instead." });
+      return;
+    }
+
+    const result = await onPush(payload);
+    setMessagePreview({
+      mode: payload.mode,
+      content: payload.content,
+      embed: payload.mode === "embed" ? {
+        title: payload.title,
+        description: payload.description,
+        color: payload.color,
+        footer: payload.footer,
+        fields: String(payload.fieldsText ?? "").split("\n").filter(Boolean)
+      } : null,
+      sent: result.sent,
+      failed: result.failed,
+      scheduled: result.scheduled
+    });
+  }
+
+  function applyTemplate(event) {
+    event.preventDefault();
+    if (!selectedTemplate) return;
+    const form = document.getElementById("bot-message-creator-form");
+    if (!form) return;
+    form.name.value = selectedTemplate.name ?? "";
+    form.mode.value = selectedTemplate.mode ?? "plain";
+    form.content.value = selectedTemplate.content ?? "";
+    form.title.value = selectedTemplate.embed?.title ?? "";
+    form.description.value = selectedTemplate.embed?.description ?? "";
+    form.color.value = selectedTemplate.embed?.color ? `#${Number(selectedTemplate.embed.color).toString(16).padStart(6, "0")}` : "#d4af37";
+    form.footer.value = selectedTemplate.embed?.footer ?? "Vireon Network";
+    form.fieldsText.value = (selectedTemplate.embed?.fields ?? []).map((field) => `${field.name} :: ${field.value}${field.inline ? " :: inline" : ""}`).join("\n");
+    form.linkButtonLabel.value = selectedTemplate.buttons?.[0]?.label ?? "";
+    form.linkButtonUrl.value = selectedTemplate.buttons?.[0]?.url ?? "";
+    setMessagePreview({
+      mode: selectedTemplate.mode,
+      content: selectedTemplate.content,
+      embed: selectedTemplate.embed,
+      buttons: selectedTemplate.buttons
+    });
+  }
+
+  async function reviewApproval(approvalId, action) {
+    const note = window.prompt(action === "approve" ? "Approval note, optional" : "Reason for rejection, optional", "") ?? "";
+    const result = await onReviewApproval(approvalId, action, note);
+    setMessagePreview({ approvalReviewed: true, action, result });
+  }
+
+  return (
+    <Panel title="VBOS">
+      {!canModerate && <PermissionNote minimumRole="MODERATOR" />}
+      <div className="control-hero ops-hero">
+        <div>
+          <span className="eyebrow">Interactive Bot Control</span>
+          <h3>{operations?.guild?.name ?? "Discord bot operations"}</h3>
+          <p>Consola este allowlist, nu shell. Moderatorii pot cere aprobare, iar adminii pot aproba, respinge sau face push direct.</p>
+        </div>
+        <button type="button" onClick={onRefresh} disabled={!canModerate}>Refresh</button>
+      </div>
+
+      <div className="stats compact-stats">
+        <div className="stat"><strong>{operations?.bot?.ready ? "Ready" : "Offline"}</strong><span>Bot</span></div>
+        <div className="stat"><strong>{operations?.bot?.pingMs ?? "-"}</strong><span>Ping ms</span></div>
+        <div className="stat"><strong>{templates.length}</strong><span>Templates</span></div>
+        <div className="stat"><strong>{pushes.length}</strong><span>Recent pushes</span></div>
+        <div className="stat"><strong>{pendingApprovals.length}</strong><span>Pending approvals</span></div>
+      </div>
+
+      <div className="ops-layout">
+        <section className="panel-mini form-grid ops-console">
+          <h3>Interactive console</h3>
+          <p className="muted">Safe commands only. Use <code>help</code>, <code>status</code>, <code>channels</code>, <code>roles</code>, <code>members andrei</code> or <code>say channelId message</code>.</p>
+          <form className="console-form" onSubmit={handleConsoleSubmit}>
+            <textarea value={consoleCommand} onChange={(event) => setConsoleCommand(event.target.value)} rows="3" disabled={!canModerate} />
+            <button type="submit" disabled={!canModerate}>Run Command</button>
+          </form>
+          <div className="console-output" aria-live="polite">
+            {(consoleOutput.length ? consoleOutput : defaultCommandList.map((value) => ({ type: "text", value }))).map((item, index) => (
+              <pre key={`${item.type}-${index}`}>{item.type === "json" ? JSON.stringify(item.value, null, 2) : item.value}</pre>
+            ))}
+          </div>
+        </section>
+
+        <section className="panel-mini form-grid ops-templates">
+          <h3>Saved templates</h3>
+          <form onSubmit={applyTemplate} className="form-grid compact-form">
+            <select value={selectedTemplateId} onChange={(event) => setSelectedTemplateId(event.target.value)} disabled={!canModerate || templates.length === 0}>
+              <option value="">Choose template</option>
+              {templates.map((template) => <option key={template.id} value={template.id}>{template.name} | {template.mode}</option>)}
+            </select>
+            <div className="button-row">
+              <button type="submit" disabled={!canModerate || !selectedTemplateId}>Load</button>
+              <button type="button" disabled={!canManage || !selectedTemplateId} onClick={() => onDeleteTemplate(selectedTemplateId)}>Delete</button>
+            </div>
+          </form>
+          <DataList items={templates.slice(0, 8)} format={(item) => `${item.mode} | ${item.actorTag ?? "admin"}`} />
+        </section>
+      </div>
+
+      <form id="bot-message-creator-form" className="panel-mini form-grid message-creator" onSubmit={handleMessageSubmit}>
+        <h3>Message Creator + Channel Push</h3>
+        <label>Template / push name</label>
+        <input name="name" placeholder="Weekly community update" disabled={!canModerate} />
+        <label>Target channels</label>
+        <select name="channelIds" multiple size="8" disabled={!canModerate}>
+          {textChannels.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>)}
+        </select>
+        <label>Mode</label>
+        <select name="mode" defaultValue="embed" disabled={!canModerate}>
+          <option value="embed">Vireon embed</option>
+          <option value="plain">Plain message</option>
+        </select>
+        <label>Plain content / message intro</label>
+        <textarea name="content" rows="4" placeholder="Optional content above embed, or full text for plain mode." disabled={!canModerate} />
+        <label>Embed title</label>
+        <input name="title" placeholder="Vireon Network Update" disabled={!canModerate} />
+        <label>Embed description</label>
+        <textarea name="description" rows="7" placeholder="Write the full embed body here..." disabled={!canModerate} />
+        <label>Embed color</label>
+        <input name="color" defaultValue="#d4af37" disabled={!canModerate} />
+        <label>Footer</label>
+        <input name="footer" defaultValue="Vireon Network" disabled={!canModerate} />
+        <label>Fields</label>
+        <textarea name="fieldsText" rows="4" placeholder="Title :: Value :: inline" disabled={!canModerate} />
+        <label>Link button label</label>
+        <input name="linkButtonLabel" placeholder="Open dashboard" disabled={!canModerate} />
+        <label>Link button URL</label>
+        <input name="linkButtonUrl" placeholder="https://..." disabled={!canModerate} />
+        <label>Custom button IDs</label>
+        <textarea name="customInteractionIds" rows="3" placeholder="Paste IDs from Custom Lab, comma or newline separated" disabled={!canModerate} />
+        <label>Schedule at</label>
+        <input name="scheduleAt" type="datetime-local" disabled={!canModerate} />
+        <label className="checkbox-row"><input type="checkbox" name="sendNow" defaultChecked disabled={!canModerate} /><span>Send now. Uncheck to schedule when date is in the future.</span></label>
+        <label>Reason</label>
+        <input name="reason" placeholder="Admin web campaign push" disabled={!canModerate} />
+        <div className="button-row">
+          <button type="submit" name="intent" value="preview" disabled={!canModerate}>Preview</button>
+          <button type="submit" name="intent" value="template" disabled={!canModerate}>Save Template</button>
+          <button type="submit" name="intent" value="approval" disabled={!canModerate}>Request Approval</button>
+          <button type="submit" name="intent" value="push" disabled={!canManage}>Admin Push / Schedule</button>
+        </div>
+      </form>
+
+      <section className="panel-mini approval-queue">
+        <h3>Approval Queue</h3>
+        <p className="muted">Moderatorii pot pregati mesajul si trimite request. Adminii aproba, resping sau trimit direct din acest panou.</p>
+        {approvals.length === 0 ? (
+          <div className="item muted">No approval requests yet.</div>
+        ) : (
+          <div className="approval-list">
+            {approvals.slice(0, 12).map((item) => (
+              <div className={`approval-card status-${item.status}`} key={item.id}>
+                <div>
+                  <strong>{item.name ?? item.id}</strong>
+                  <span>{item.status} | {(item.channelIds ?? []).length} channel(s) | {item.requesterTag ?? "staff"}</span>
+                  <small>{item.reason ?? "No reason"}</small>
+                </div>
+                <div className="button-row">
+                  <button type="button" disabled={!canManage || item.status !== "pending"} onClick={() => reviewApproval(item.id, "approve")}>Approve</button>
+                  <button type="button" disabled={!canManage || item.status !== "pending"} onClick={() => reviewApproval(item.id, "reject")}>Reject</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {messagePreview && (
+        <section className="panel-mini message-preview">
+          <h3>Preview / Last result</h3>
+          <pre>{JSON.stringify(messagePreview, null, 2)}</pre>
+        </section>
+      )}
+
+      <section className="panel-mini">
+        <h3>Push history</h3>
+        <DataList items={pushes} format={(item) => `${item.status} | ${item.name ?? item.id} | ${item.sent ?? 0} sent / ${item.failed ?? 0} failed | ${item.scheduleAt ?? item.createdAt ?? "now"}`} />
+      </section>
+    </Panel>
+  );
+}
+
+function readMessageCreatorPayload(form) {
+  const data = new FormData(form);
+  return {
+    name: String(data.get("name") ?? ""),
+    channelIds: data.getAll("channelIds").map(String),
+    mode: String(data.get("mode") ?? "embed"),
+    content: String(data.get("content") ?? ""),
+    title: String(data.get("title") ?? ""),
+    description: String(data.get("description") ?? ""),
+    color: String(data.get("color") ?? "#d4af37"),
+    footer: String(data.get("footer") ?? "Vireon Network"),
+    fieldsText: String(data.get("fieldsText") ?? ""),
+    linkButtonLabel: String(data.get("linkButtonLabel") ?? ""),
+    linkButtonUrl: String(data.get("linkButtonUrl") ?? ""),
+    customInteractionIds: String(data.get("customInteractionIds") ?? ""),
+    scheduleAt: String(data.get("scheduleAt") ?? ""),
+    sendNow: data.get("sendNow") === "on",
+    reason: String(data.get("reason") ?? "")
+  };
+}
+
+
+export function CustomControlsPanel({
+  custom,
+  canModerate,
+  canManage,
+  onRefresh,
+  onSaveCommand,
+  onDeleteCommand,
+  onSaveInteraction,
+  onDeleteInteraction
+}) {
+  const [lastResult, setLastResult] = useState(null);
+  const commands = custom?.commands ?? [];
+  const interactions = custom?.interactions ?? [];
+  const events = custom?.recentEvents ?? [];
+
+  async function handleCommandSubmit(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const result = await onSaveCommand({
+      name: String(form.get("name") ?? ""),
+      prefix: String(form.get("prefix") ?? "!"),
+      aliases: String(form.get("aliases") ?? ""),
+      mode: String(form.get("mode") ?? "plain"),
+      content: String(form.get("content") ?? ""),
+      title: String(form.get("title") ?? ""),
+      description: String(form.get("description") ?? ""),
+      color: String(form.get("color") ?? "#d4af37"),
+      footer: String(form.get("footer") ?? "VBOS"),
+      enabled: form.get("enabled") === "on",
+      ephemeral: form.get("ephemeral") === "on"
+    });
+    setLastResult(result);
+  }
+
+  async function handleInteractionSubmit(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const result = await onSaveInteraction({
+      label: String(form.get("label") ?? ""),
+      style: String(form.get("style") ?? "primary"),
+      mode: String(form.get("mode") ?? "plain"),
+      content: String(form.get("content") ?? ""),
+      title: String(form.get("title") ?? ""),
+      description: String(form.get("description") ?? ""),
+      color: String(form.get("color") ?? "#d4af37"),
+      footer: String(form.get("footer") ?? "VBOS"),
+      enabled: form.get("enabled") === "on",
+      ephemeral: form.get("ephemeral") === "on"
+    });
+    setLastResult(result);
+  }
+
+  async function removeCommand(commandId) {
+    const result = await onDeleteCommand(commandId);
+    setLastResult(result);
+  }
+
+  async function removeInteraction(interactionId) {
+    const result = await onDeleteInteraction(interactionId);
+    setLastResult(result);
+  }
+
+  return (
+    <Panel title="Custom Command & Interaction Lab">
+      {!canModerate && <PermissionNote minimumRole="MODERATOR" />}
+      <div className="control-hero ops-hero">
+        <div>
+          <span className="eyebrow">VBOS Control Plane</span>
+          <h3>Custom commands, buttons and staff-built interactions</h3>
+          <p>Adminii controleaza comenzile prefix, raspunsurile custom si butoanele interactive fara editare manuala in cod.</p>
+        </div>
+        <button type="button" onClick={onRefresh} disabled={!canModerate}>Refresh</button>
+      </div>
+
+      <div className="stats compact-stats">
+        <div className="stat"><strong>{commands.length}</strong><span>Custom Commands</span></div>
+        <div className="stat"><strong>{interactions.length}</strong><span>Custom Buttons</span></div>
+        <div className="stat"><strong>{events.length}</strong><span>Recent Events</span></div>
+        <div className="stat"><strong>{custom?.capabilities?.slashGateway ?? "/custom"}</strong><span>Slash Gateway</span></div>
+      </div>
+
+      <div className="control-grid admin-only-grid">
+        <form className="panel-mini form-grid" onSubmit={handleCommandSubmit}>
+          <h3>Create / update custom command</h3>
+          {!canManage && <PermissionNote minimumRole="ADMIN" />}
+          <label>Name</label>
+          <input name="name" placeholder="rules" disabled={!canManage} />
+          <label>Prefix</label>
+          <input name="prefix" defaultValue="!" disabled={!canManage} />
+          <label>Aliases</label>
+          <input name="aliases" placeholder="helpme, info" disabled={!canManage} />
+          <label>Mode</label>
+          <select name="mode" defaultValue="plain" disabled={!canManage}>
+            <option value="plain">Plain</option>
+            <option value="embed">Embed</option>
+          </select>
+          <label>Content</label>
+          <textarea name="content" rows="4" placeholder="Hello {user}. Input: {input}" disabled={!canManage} />
+          <label>Embed title</label>
+          <input name="title" placeholder="Command response" disabled={!canManage} />
+          <label>Embed description</label>
+          <textarea name="description" rows="4" placeholder="Embed body with {server}, {channel}, {input}" disabled={!canManage} />
+          <label>Color</label>
+          <input name="color" defaultValue="#d4af37" disabled={!canManage} />
+          <label>Footer</label>
+          <input name="footer" defaultValue="VBOS" disabled={!canManage} />
+          <label className="checkbox-row"><input type="checkbox" name="enabled" defaultChecked disabled={!canManage} /><span>Enabled</span></label>
+          <label className="checkbox-row"><input type="checkbox" name="ephemeral" disabled={!canManage} /><span>Ephemeral for /custom</span></label>
+          <button type="submit" disabled={!canManage}>Save Command</button>
+        </form>
+
+        <form className="panel-mini form-grid" onSubmit={handleInteractionSubmit}>
+          <h3>Create / update custom button</h3>
+          {!canManage && <PermissionNote minimumRole="ADMIN" />}
+          <label>Button label</label>
+          <input name="label" placeholder="Open Rules" disabled={!canManage} />
+          <label>Style</label>
+          <select name="style" defaultValue="primary" disabled={!canManage}>
+            <option value="primary">Primary</option>
+            <option value="secondary">Secondary</option>
+            <option value="success">Success</option>
+            <option value="danger">Danger</option>
+          </select>
+          <label>Response mode</label>
+          <select name="mode" defaultValue="plain" disabled={!canManage}>
+            <option value="plain">Plain</option>
+            <option value="embed">Embed</option>
+          </select>
+          <label>Content</label>
+          <textarea name="content" rows="4" placeholder="Thanks {user}, your click was received." disabled={!canManage} />
+          <label>Embed title</label>
+          <input name="title" placeholder="Button response" disabled={!canManage} />
+          <label>Embed description</label>
+          <textarea name="description" rows="4" placeholder="Embed body" disabled={!canManage} />
+          <label>Color</label>
+          <input name="color" defaultValue="#d4af37" disabled={!canManage} />
+          <label>Footer</label>
+          <input name="footer" defaultValue="VBOS" disabled={!canManage} />
+          <label className="checkbox-row"><input type="checkbox" name="enabled" defaultChecked disabled={!canManage} /><span>Enabled</span></label>
+          <label className="checkbox-row"><input type="checkbox" name="ephemeral" defaultChecked disabled={!canManage} /><span>Ephemeral response</span></label>
+          <button type="submit" disabled={!canManage}>Save Button</button>
+        </form>
+      </div>
+
+      <div className="control-lists">
+        <div className="panel-mini">
+          <h3>Custom commands</h3>
+          {commands.length === 0 ? <div className="item muted">No custom commands yet.</div> : commands.map((command) => (
+            <div className="item split-item" key={command.id}>
+              <div>
+                <strong>{command.prefix}{command.name}</strong>
+                <span>{command.enabled ? "enabled" : "disabled"} | {command.response?.mode ?? "plain"} | used {command.uses ?? 0}</span>
+                {command.aliases?.length ? <span>Aliases: {command.aliases.join(", ")}</span> : null}
+              </div>
+              <button type="button" disabled={!canManage} onClick={() => removeCommand(command.id)}>Delete</button>
+            </div>
+          ))}
+        </div>
+        <div className="panel-mini">
+          <h3>Custom interactions</h3>
+          {interactions.length === 0 ? <div className="item muted">No custom buttons yet.</div> : interactions.map((interaction) => (
+            <div className="item split-item" key={interaction.id}>
+              <div>
+                <strong>{interaction.label}</strong>
+                <span>{interaction.enabled ? "enabled" : "disabled"} | {interaction.style} | {interaction.ephemeral ? "ephemeral" : "public"}</span>
+                <span>{interaction.customId}</span>
+              </div>
+              <button type="button" disabled={!canManage} onClick={() => removeInteraction(interaction.id)}>Delete</button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="panel-mini">
+        <h3>Recent custom control events</h3>
+        <DataList items={events} format={(item) => `${item.type} | ${item.title} | ${item.actorTag ?? "system"}`} />
+      </div>
+
+      {lastResult && <div className="panel-mini message-preview"><h3>Last result</h3><pre>{JSON.stringify(lastResult, null, 2)}</pre></div>}
+    </Panel>
+  );
+}
+
+export function ControlCenterPanel({
+  control,
+  channels = [],
+  roles = [],
+  members = [],
+  tickets = [],
+  canModerate,
+  canManage,
+  onRefresh,
+  onMemberSearch,
+  onAction
+}) {
+  const allChannels = control?.channels ?? channels;
+  const textChannels = allChannels.filter((channel) => ["text", "announcement", "forum"].includes(channel.type));
+  const categories = allChannels.filter((channel) => channel.type === "category");
+  const editableRoles = (control?.roles ?? roles).filter((role) => !role.managed);
+  const guild = control?.guild ?? {};
+  const bot = control?.bot ?? {};
+  const modules = control?.modules ?? {};
+  const safetyWarnings = bot.safety?.warnings ?? [];
+  const openTickets = tickets.filter((ticket) => ticket.status === "open");
+
+  async function handleMemberSearch(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    await onMemberSearch(String(form.get("query") ?? ""));
+  }
+
+  async function handleModeration(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const userId = String(form.get("userId") ?? "").trim();
+    await onAction({
+      endpoint: `/api/control/members/${encodeURIComponent(userId)}/moderation`,
+      method: "POST",
+      successMessage: "Moderation action completed from Admin Web.",
+      payload: {
+        action: String(form.get("action") ?? "warn"),
+        durationMinutes: String(form.get("durationMinutes") ?? "10"),
+        deleteMessageDays: String(form.get("deleteMessageDays") ?? "0"),
+        reason: String(form.get("reason") ?? "")
+      }
+    });
+  }
+
+  async function handleMemberRole(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const userId = String(form.get("userId") ?? "").trim();
+    await onAction({
+      endpoint: `/api/control/members/${encodeURIComponent(userId)}/roles`,
+      method: "POST",
+      successMessage: "Member role updated from Admin Web.",
+      payload: {
+        action: String(form.get("action") ?? "add"),
+        roleId: String(form.get("roleId") ?? ""),
+        reason: String(form.get("reason") ?? "")
+      }
+    });
+  }
+
+  async function handleMemberRolesBulk(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const userId = String(form.get("userId") ?? "").trim();
+    await onAction({
+      endpoint: `/api/control/members/${encodeURIComponent(userId)}/roles/bulk`,
+      method: "POST",
+      successMessage: "Bulk member roles updated from Admin Web.",
+      payload: {
+        addRoleIds: String(form.get("addRoleIds") ?? ""),
+        removeRoleIds: String(form.get("removeRoleIds") ?? ""),
+        reason: String(form.get("reason") ?? "")
+      }
+    });
+  }
+
+  async function handlePurge(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const channelId = String(form.get("channelId") ?? "");
+    await onAction({
+      endpoint: `/api/control/channels/${encodeURIComponent(channelId)}/purge`,
+      method: "POST",
+      successMessage: "Channel purge completed from Admin Web.",
+      payload: {
+        amount: String(form.get("amount") ?? "10"),
+        reason: String(form.get("reason") ?? "")
+      }
+    });
+  }
+
+  async function handleTicketStatus(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const ticketId = String(form.get("ticketId") ?? "");
+    await onAction({
+      endpoint: `/api/control/tickets/${encodeURIComponent(ticketId)}/status`,
+      method: "POST",
+      successMessage: "Ticket status updated from Admin Web.",
+      payload: {
+        status: String(form.get("status") ?? "closed"),
+        note: String(form.get("note") ?? "")
+      }
+    });
+  }
+
+  async function handleCreateRole(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    await onAction({
+      endpoint: "/api/control/roles",
+      method: "POST",
+      successMessage: "Role created from Admin Web.",
+      payload: {
+        name: String(form.get("name") ?? ""),
+        color: String(form.get("color") ?? "#d4af37"),
+        hoist: form.get("hoist") === "on",
+        mentionable: form.get("mentionable") === "on",
+        permissions: String(form.get("permissions") ?? ""),
+        reason: String(form.get("reason") ?? "")
+      }
+    });
+    event.currentTarget.reset();
+  }
+
+  async function handleUpdateRole(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const roleId = String(form.get("roleId") ?? "");
+    await onAction({
+      endpoint: `/api/control/roles/${encodeURIComponent(roleId)}`,
+      method: "PATCH",
+      successMessage: "Role updated from Admin Web.",
+      payload: {
+        name: String(form.get("name") ?? ""),
+        color: String(form.get("color") ?? "#d4af37"),
+        hoist: form.get("hoist") === "on",
+        mentionable: form.get("mentionable") === "on",
+        permissions: String(form.get("permissions") ?? ""),
+        reason: String(form.get("reason") ?? "")
+      }
+    });
+  }
+
+  async function handleDeleteRole(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const roleId = String(form.get("roleId") ?? "");
+    await onAction({
+      endpoint: `/api/control/roles/${encodeURIComponent(roleId)}/delete`,
+      method: "POST",
+      successMessage: "Role deleted from Admin Web.",
+      payload: {
+        confirm: String(form.get("confirm") ?? ""),
+        reason: String(form.get("reason") ?? "")
+      }
+    });
+    event.currentTarget.reset();
+  }
+
+  async function handleCreateChannel(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    await onAction({
+      endpoint: "/api/control/channels",
+      method: "POST",
+      successMessage: "Channel created from Admin Web.",
+      payload: {
+        name: String(form.get("name") ?? ""),
+        type: String(form.get("type") ?? "text"),
+        parentId: String(form.get("parentId") ?? ""),
+        topic: String(form.get("topic") ?? ""),
+        nsfw: form.get("nsfw") === "on",
+        reason: String(form.get("reason") ?? "")
+      }
+    });
+    event.currentTarget.reset();
+  }
+
+  async function handleUpdateChannel(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const channelId = String(form.get("channelId") ?? "");
+    await onAction({
+      endpoint: `/api/control/channels/${encodeURIComponent(channelId)}`,
+      method: "PATCH",
+      successMessage: "Channel updated from Admin Web.",
+      payload: {
+        name: String(form.get("name") ?? ""),
+        parentId: String(form.get("parentId") ?? ""),
+        topic: String(form.get("topic") ?? ""),
+        nsfw: form.get("nsfw") === "on",
+        reason: String(form.get("reason") ?? "")
+      }
+    });
+  }
+
+  async function handleDeleteChannel(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const channelId = String(form.get("channelId") ?? "");
+    await onAction({
+      endpoint: `/api/control/channels/${encodeURIComponent(channelId)}/delete`,
+      method: "POST",
+      successMessage: "Channel deleted from Admin Web.",
+      payload: {
+        confirm: String(form.get("confirm") ?? ""),
+        reason: String(form.get("reason") ?? "")
+      }
+    });
+    event.currentTarget.reset();
+  }
+
+  async function handleChannelPermissions(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const channelId = String(form.get("channelId") ?? "");
+    await onAction({
+      endpoint: `/api/control/channels/${encodeURIComponent(channelId)}/permissions`,
+      method: "POST",
+      successMessage: "Channel permission overwrite updated from Admin Web.",
+      payload: {
+        targetId: String(form.get("targetId") ?? ""),
+        allow: String(form.get("allow") ?? ""),
+        deny: String(form.get("deny") ?? ""),
+        reason: String(form.get("reason") ?? "")
+      }
+    });
+  }
+
+  async function handleChannelPosition(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const channelId = String(form.get("channelId") ?? "");
+    await onAction({
+      endpoint: `/api/control/channels/${encodeURIComponent(channelId)}/position`,
+      method: "PATCH",
+      successMessage: "Channel position updated from Admin Web.",
+      payload: {
+        position: String(form.get("position") ?? "0"),
+        reason: String(form.get("reason") ?? "")
+      }
+    });
+  }
+
+  async function handleStructurePlan(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    await onAction({
+      endpoint: "/api/control/structure/plan",
+      method: "POST",
+      successMessage: form.get("dryRun") === "on" ? "Structure plan preview completed." : "Structure plan applied from Admin Web.",
+      payload: {
+        dryRun: form.get("dryRun") === "on",
+        roles: String(form.get("roles") ?? "[]"),
+        categories: String(form.get("categories") ?? "[]"),
+        channels: String(form.get("channels") ?? "[]")
+      }
+    });
+  }
+
+  async function handleGuildUpdate(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    await onAction({
+      endpoint: "/api/control/guild",
+      method: "PATCH",
+      successMessage: "Guild settings updated from Admin Web.",
+      payload: {
+        name: String(form.get("name") ?? ""),
+        description: String(form.get("description") ?? ""),
+        preferredLocale: String(form.get("preferredLocale") ?? ""),
+        systemChannelId: String(form.get("systemChannelId") ?? ""),
+        rulesChannelId: String(form.get("rulesChannelId") ?? ""),
+        publicUpdatesChannelId: String(form.get("publicUpdatesChannelId") ?? ""),
+        reason: String(form.get("reason") ?? "")
+      }
+    });
+  }
+
+  async function handleSendMessage(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    await onAction({
+      endpoint: "/api/control/messages/send",
+      method: "POST",
+      successMessage: "Message sent from Admin Web Control Center.",
+      payload: {
+        channelId: String(form.get("channelId") ?? ""),
+        mode: String(form.get("mode") ?? "message"),
+        content: String(form.get("content") ?? ""),
+        title: String(form.get("title") ?? ""),
+        description: String(form.get("description") ?? ""),
+        color: String(form.get("color") ?? "#d4af37")
+      }
+    });
+    event.currentTarget.reset();
+  }
+
+  return (
+    <Panel title="Bot Control Center">
+      {!control && <div className="item muted">Control data is not loaded yet. Refresh after login.</div>}
+      <div className="control-hero">
+        <div>
+          <span className="eyebrow">Discord Bot Command Center</span>
+          <h3>{guild.name ?? "Unknown guild"}</h3>
+          <p>Adminii pot controla structura serverului. Moderatorii pot controla moderation, tickets, purge si mesaje direct din web.</p>
+        </div>
+        <button type="button" onClick={onRefresh}>Refresh</button>
+      </div>
+
+      <div className="stats compact-stats">
+        <div className="stat"><strong>{guild.memberCount ?? 0}</strong><span>Members</span></div>
+        <div className="stat"><strong>{guild.channels ?? allChannels.length}</strong><span>Channels</span></div>
+        <div className="stat"><strong>{guild.roles ?? roles.length}</strong><span>Roles</span></div>
+        <div className="stat"><strong>{bot.ready ? "Ready" : "Offline"}</strong><span>Bot</span></div>
+      </div>
+
+      <div className="module-grid">
+        {Object.entries(modules).map(([key, enabled]) => (
+          <div className={enabled ? "module-card ok" : "module-card warn"} key={key}>
+            <strong>{key}</strong>
+            <span>{enabled ? "available" : "missing permission"}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className={bot.safety?.ok ? "notice success-note" : "notice danger-note"}>
+        <strong>{bot.safety?.ok ? "Control permissions look usable" : "Control permissions need attention"}</strong>
+        {(safetyWarnings.length ? safetyWarnings : ["No permission warnings reported."]).map((warning, index) => (
+          <span className="block-line" key={`${warning}-${index}`}>{warning}</span>
+        ))}
+      </div>
+
+      {!canModerate && <PermissionNote minimumRole="MODERATOR" />}
+
+      <div className="control-grid control-priority">
+        <form className="panel-mini form-grid" onSubmit={handleMemberSearch}>
+          <h3>Member search</h3>
+          <label>Search user</label>
+          <input name="query" placeholder="username, tag, display name or user ID" disabled={!canModerate} />
+          <button type="submit" disabled={!canModerate}>Search Members</button>
+          <p className="muted">Loads up to 50 users for moderation, role assignment and quick checks.</p>
+        </form>
+
+        <form className="panel-mini form-grid" onSubmit={handleModeration}>
+          <h3>Moderate member</h3>
+          <label>User ID</label>
+          <input name="userId" placeholder="Discord user ID" disabled={!canModerate} required />
+          <label>Action</label>
+          <select name="action" disabled={!canModerate}>
+            <option value="warn">Warn</option>
+            <option value="timeout">Timeout</option>
+            <option value="untimeout">Remove timeout</option>
+            <option value="kick">Kick</option>
+            <option value="ban">Ban</option>
+            <option value="unban">Unban</option>
+          </select>
+          <label>Timeout minutes</label>
+          <input name="durationMinutes" type="number" min="1" max="40320" defaultValue="10" disabled={!canModerate} />
+          <label>Delete message days for ban</label>
+          <input name="deleteMessageDays" type="number" min="0" max="7" defaultValue="0" disabled={!canModerate} />
+          <label>Reason</label>
+          <textarea name="reason" rows="3" placeholder="Reason visible in audit log" disabled={!canModerate} required />
+          <button type="submit" disabled={!canModerate}>Run Moderation Action</button>
+        </form>
+
+        <form className="panel-mini form-grid" onSubmit={handlePurge}>
+          <h3>Purge messages</h3>
+          <label>Channel</label>
+          <select name="channelId" disabled={!canModerate}>{textChannels.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>)}</select>
+          <label>Amount</label>
+          <input name="amount" type="number" min="1" max="100" defaultValue="10" disabled={!canModerate} />
+          <label>Reason</label>
+          <input name="reason" placeholder="Spam cleanup" disabled={!canModerate} />
+          <button type="submit" disabled={!canModerate}>Purge</button>
+        </form>
+
+        <form className="panel-mini form-grid" onSubmit={handleTicketStatus}>
+          <h3>Ticket control</h3>
+          <label>Ticket</label>
+          <select name="ticketId" disabled={!canModerate || tickets.length === 0}>{tickets.map((ticket) => <option key={ticket.id} value={ticket.id}>{ticket.status} | {ticket.userTag} | {ticket.topic}</option>)}</select>
+          <label>Status</label>
+          <select name="status" disabled={!canModerate || tickets.length === 0}>
+            <option value="closed">Close</option>
+            <option value="open">Reopen</option>
+            <option value="archived">Archive</option>
+          </select>
+          <label>Note</label>
+          <input name="note" placeholder="Resolution note" disabled={!canModerate || tickets.length === 0} />
+          <button type="submit" disabled={!canModerate || tickets.length === 0}>Update Ticket</button>
+          <p className="muted">Open tickets: {openTickets.length}</p>
+        </form>
+      </div>
+
+      <div className="control-grid">
+        <form className="panel-mini form-grid" onSubmit={handleSendMessage}>
+          <h3>Send message / embed</h3>
+          <label>Channel</label>
+          <select name="channelId" disabled={!canModerate}>{textChannels.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>)}</select>
+          <label>Mode</label>
+          <select name="mode" disabled={!canModerate}><option value="message">Message</option><option value="embed">Vireon Embed</option></select>
+          <label>Content</label>
+          <textarea name="content" rows="4" placeholder="Plain message or optional text above embed" disabled={!canModerate} />
+          <label>Embed title</label>
+          <input name="title" placeholder="Vireon Update" disabled={!canModerate} />
+          <label>Embed description</label>
+          <textarea name="description" rows="5" placeholder="Embed body" disabled={!canModerate} />
+          <label>Embed color</label>
+          <input name="color" defaultValue="#d4af37" disabled={!canModerate} />
+          <button type="submit" disabled={!canModerate}>Send</button>
+        </form>
+
+        <form className="panel-mini form-grid" onSubmit={handleMemberRole}>
+          <h3>Member roles</h3>
+          {!canManage && <PermissionNote minimumRole="ADMIN" />}
+          <label>User ID</label>
+          <input name="userId" placeholder="Discord user ID" disabled={!canManage} required />
+          <label>Action</label>
+          <select name="action" disabled={!canManage}><option value="add">Add role</option><option value="remove">Remove role</option></select>
+          <label>Role</label>
+          <select name="roleId" disabled={!canManage}>{editableRoles.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}</select>
+          <label>Reason</label>
+          <input name="reason" placeholder="Manual role control" disabled={!canManage} />
+          <button type="submit" disabled={!canManage}>Update Member Role</button>
+        </form>
+
+        <form className="panel-mini form-grid" onSubmit={handleMemberRolesBulk}>
+          <h3>Bulk member roles</h3>
+          {!canManage && <PermissionNote minimumRole="ADMIN" />}
+          <label>User ID</label>
+          <input name="userId" placeholder="Discord user ID" disabled={!canManage} required />
+          <label>Add role IDs</label>
+          <textarea name="addRoleIds" rows="3" placeholder="roleId1, roleId2" disabled={!canManage} />
+          <label>Remove role IDs</label>
+          <textarea name="removeRoleIds" rows="3" placeholder="roleId3, roleId4" disabled={!canManage} />
+          <label>Reason</label>
+          <input name="reason" placeholder="Bulk role sync from Admin Web" disabled={!canManage} />
+          <button type="submit" disabled={!canManage}>Apply Bulk Roles</button>
+        </form>
+      </div>
+
+      <div className="control-lists">
+        <div className="panel-mini">
+          <h3>Members loaded</h3>
+          {members.length === 0 ? <div className="item muted">Search members to load staff controls.</div> : (
+            <div className="list dense-list">
+              {members.map((member) => (
+                <div className="item" key={member.id}>
+                  <strong>{member.displayName ?? member.username ?? member.tag}</strong>
+                  <span>{member.id} | {member.bot ? "bot" : "human"} | {member.timeoutUntil ? `timeout until ${member.timeoutUntil}` : "active"}</span>
+                  <span>{(member.roles ?? []).slice(0, 5).map((role) => role.name).join(", ") || "No roles"}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="panel-mini">
+          <h3>Active quick actions</h3>
+          <DataList items={control?.quickActions ?? []} format={(item) => `${item.minimumRole} | ${item.destructive ? "destructive" : "safe"}`} />
+        </div>
+      </div>
+
+      {!canManage && <PermissionNote minimumRole="ADMIN" />}
+
+      <div className="control-grid admin-only-grid">
+        <form className="panel-mini form-grid" onSubmit={handleCreateRole}>
+          <h3>Create role</h3>
+          <label>Name</label>
+          <input name="name" placeholder="Vireon Elite" disabled={!canManage} />
+          <label>Color</label>
+          <input name="color" defaultValue="#d4af37" disabled={!canManage} />
+          <label>Permissions</label>
+          <textarea name="permissions" rows="3" placeholder="ManageMessages&#10;ModerateMembers" disabled={!canManage} />
+          <label className="checkbox-row"><input type="checkbox" name="hoist" disabled={!canManage} /><span>Hoist role</span></label>
+          <label className="checkbox-row"><input type="checkbox" name="mentionable" disabled={!canManage} /><span>Mentionable</span></label>
+          <label>Reason</label>
+          <input name="reason" placeholder="Admin web role setup" disabled={!canManage} />
+          <button type="submit" disabled={!canManage}>Create Role</button>
+        </form>
+
+        <form className="panel-mini form-grid" onSubmit={handleUpdateRole}>
+          <h3>Edit role</h3>
+          <label>Role</label>
+          <select name="roleId" disabled={!canManage}>{editableRoles.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}</select>
+          <label>New name</label>
+          <input name="name" placeholder="Updated role name" disabled={!canManage} />
+          <label>Color</label>
+          <input name="color" defaultValue="#d4af37" disabled={!canManage} />
+          <label>Permissions</label>
+          <textarea name="permissions" rows="3" placeholder="Leave blank to keep current permissions" disabled={!canManage} />
+          <label className="checkbox-row"><input type="checkbox" name="hoist" disabled={!canManage} /><span>Hoist role</span></label>
+          <label className="checkbox-row"><input type="checkbox" name="mentionable" disabled={!canManage} /><span>Mentionable</span></label>
+          <label>Reason</label>
+          <input name="reason" placeholder="Admin web role update" disabled={!canManage} />
+          <button type="submit" disabled={!canManage}>Update Role</button>
+        </form>
+
+        <form className="panel-mini form-grid" onSubmit={handleCreateChannel}>
+          <h3>Create channel</h3>
+          <label>Name</label>
+          <input name="name" placeholder="elite-chat" disabled={!canManage} />
+          <label>Type</label>
+          <select name="type" disabled={!canManage}>
+            <option value="text">Text</option>
+            <option value="voice">Voice</option>
+            <option value="category">Category</option>
+            <option value="forum">Forum</option>
+            <option value="announcement">Announcement</option>
+          </select>
+          <label>Category</label>
+          <select name="parentId" disabled={!canManage}><option value="">No category</option>{categories.map((channel) => <option key={channel.id} value={channel.id}>{channel.name}</option>)}</select>
+          <label>Topic</label>
+          <textarea name="topic" rows="3" placeholder="Channel purpose" disabled={!canManage} />
+          <label className="checkbox-row"><input type="checkbox" name="nsfw" disabled={!canManage} /><span>NSFW</span></label>
+          <label>Reason</label>
+          <input name="reason" placeholder="Admin web channel setup" disabled={!canManage} />
+          <button type="submit" disabled={!canManage}>Create Channel</button>
+        </form>
+
+        <form className="panel-mini form-grid" onSubmit={handleUpdateChannel}>
+          <h3>Edit channel</h3>
+          <label>Channel</label>
+          <select name="channelId" disabled={!canManage}>{allChannels.map((channel) => <option key={channel.id} value={channel.id}>{channel.type} | {channel.name}</option>)}</select>
+          <label>New name</label>
+          <input name="name" placeholder="updated-channel" disabled={!canManage} />
+          <label>Category</label>
+          <select name="parentId" disabled={!canManage}><option value="">No category / keep root</option>{categories.map((channel) => <option key={channel.id} value={channel.id}>{channel.name}</option>)}</select>
+          <label>Topic</label>
+          <textarea name="topic" rows="3" placeholder="Updated topic" disabled={!canManage} />
+          <label className="checkbox-row"><input type="checkbox" name="nsfw" disabled={!canManage} /><span>NSFW</span></label>
+          <label>Reason</label>
+          <input name="reason" placeholder="Admin web channel update" disabled={!canManage} />
+          <button type="submit" disabled={!canManage}>Update Channel</button>
+        </form>
+
+        <form className="panel-mini form-grid" onSubmit={handleChannelPermissions}>
+          <h3>Channel permissions</h3>
+          <label>Channel</label>
+          <select name="channelId" disabled={!canManage}>{allChannels.map((channel) => <option key={channel.id} value={channel.id}>{channel.type} | {channel.name}</option>)}</select>
+          <label>Role/User ID target</label>
+          <input name="targetId" placeholder="Role ID or User ID" disabled={!canManage} />
+          <label>Allow permissions</label>
+          <textarea name="allow" rows="3" placeholder="ViewChannel&#10;SendMessages" disabled={!canManage} />
+          <label>Deny permissions</label>
+          <textarea name="deny" rows="3" placeholder="SendMessages&#10;AddReactions" disabled={!canManage} />
+          <label>Reason</label>
+          <input name="reason" placeholder="Permission overwrite from Admin Web" disabled={!canManage} />
+          <button type="submit" disabled={!canManage}>Save Overwrite</button>
+        </form>
+
+        <form className="panel-mini form-grid" onSubmit={handleChannelPosition}>
+          <h3>Reorder channel</h3>
+          <label>Channel</label>
+          <select name="channelId" disabled={!canManage}>{allChannels.map((channel) => <option key={channel.id} value={channel.id}>{channel.type} | {channel.name}</option>)}</select>
+          <label>Position</label>
+          <input name="position" type="number" min="0" max="500" defaultValue="0" disabled={!canManage} />
+          <label>Reason</label>
+          <input name="reason" placeholder="Channel reorder from Admin Web" disabled={!canManage} />
+          <button type="submit" disabled={!canManage}>Move Channel</button>
+        </form>
+      </div>
+
+      <div className="control-grid">
+        <form className="panel-mini form-grid wide-form" onSubmit={handleStructurePlan}>
+          <h3>Bulk structure plan</h3>
+          {!canManage && <PermissionNote minimumRole="ADMIN" />}
+          <p className="muted">Creates/reuses roles, categories and channels from JSON. Keep dry-run checked until the preview looks clean.</p>
+          <label>Roles JSON</label>
+          <textarea name="roles" rows="5" defaultValue={'[{"name":"VBOS Staff","color":"#d4af37","permissions":"ManageMessages"}]'} disabled={!canManage} />
+          <label>Categories JSON</label>
+          <textarea name="categories" rows="4" defaultValue={'[{"name":"community"}]'} disabled={!canManage} />
+          <label>Channels JSON</label>
+          <textarea name="channels" rows="6" defaultValue={'[{"name":"announcements","type":"announcement","parentName":"community","topic":"Official updates"}]'} disabled={!canManage} />
+          <label className="checkbox-row"><input type="checkbox" name="dryRun" defaultChecked disabled={!canManage} /><span>Dry-run preview</span></label>
+          <button type="submit" disabled={!canManage}>Run Structure Plan</button>
+        </form>
+      </div>
+
+      <div className="control-grid">
+        <form className="panel-mini form-grid" onSubmit={handleGuildUpdate}>
+          <h3>Guild settings</h3>
+          <label>Server name</label>
+          <input name="name" defaultValue={guild.name ?? ""} disabled={!canManage} />
+          <label>Description</label>
+          <textarea name="description" rows="3" defaultValue={guild.description ?? ""} disabled={!canManage} />
+          <label>Locale</label>
+          <input name="preferredLocale" defaultValue={guild.preferredLocale ?? ""} placeholder="en-US" disabled={!canManage} />
+          <label>System channel</label>
+          <select name="systemChannelId" defaultValue={guild.systemChannelId ?? ""} disabled={!canManage}><option value="">None</option>{textChannels.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>)}</select>
+          <label>Rules channel</label>
+          <select name="rulesChannelId" defaultValue={guild.rulesChannelId ?? ""} disabled={!canManage}><option value="">None</option>{textChannels.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>)}</select>
+          <label>Updates channel</label>
+          <select name="publicUpdatesChannelId" defaultValue={guild.publicUpdatesChannelId ?? ""} disabled={!canManage}><option value="">None</option>{textChannels.map((channel) => <option key={channel.id} value={channel.id}>#{channel.name}</option>)}</select>
+          <label>Reason</label>
+          <input name="reason" placeholder="Admin web guild update" disabled={!canManage} />
+          <button type="submit" disabled={!canManage}>Save Guild Settings</button>
+        </form>
+
+        <form className="panel-mini form-grid danger-zone" onSubmit={handleDeleteRole}>
+          <h3>Delete role</h3>
+          <p>Type exactly <strong>DELETE role-name</strong>. Managed roles and roles above the bot cannot be deleted.</p>
+          <label>Role</label>
+          <select name="roleId" disabled={!canManage}>{editableRoles.map((role) => <option key={role.id} value={role.id}>{role.name}</option>)}</select>
+          <label>Confirmation</label>
+          <input name="confirm" placeholder="DELETE Role Name" disabled={!canManage} />
+          <label>Reason</label>
+          <input name="reason" placeholder="Admin web role cleanup" disabled={!canManage} />
+          <button type="submit" disabled={!canManage}>Delete Role</button>
+        </form>
+
+        <form className="panel-mini form-grid danger-zone" onSubmit={handleDeleteChannel}>
+          <h3>Delete channel</h3>
+          <p>Type exactly <strong>DELETE channel-name</strong>. This is intentionally not one-click.</p>
+          <label>Channel</label>
+          <select name="channelId" disabled={!canManage}>{allChannels.map((channel) => <option key={channel.id} value={channel.id}>{channel.type} | {channel.name}</option>)}</select>
+          <label>Confirmation</label>
+          <input name="confirm" placeholder="DELETE channel-name" disabled={!canManage} />
+          <label>Reason</label>
+          <input name="reason" placeholder="Admin web channel cleanup" disabled={!canManage} />
+          <button type="submit" disabled={!canManage}>Delete Channel</button>
+        </form>
+      </div>
+
+      <div className="control-lists">
+        <div className="panel-mini">
+          <h3>Top roles</h3>
+          <DataList items={editableRoles.slice(0, 20)} format={(role) => `${role.position ?? 0} | ${role.color ?? "#000000"} | ${role.managed ? "managed" : "editable"}`} />
+        </div>
+        <div className="panel-mini">
+          <h3>Channels</h3>
+          <DataList items={allChannels.slice(0, 30)} format={(channel) => `${channel.type ?? "text"} | ${channel.parentId ? `parent ${channel.parentId}` : "root"}`} />
+        </div>
+      </div>
+    </Panel>
+  );
+}
+
 export function EmbedPanel({ channels, canSend, onSend }) {
   async function handleSubmit(event) {
     event.preventDefault();
@@ -49,7 +1135,7 @@ export function EmbedPanel({ channels, canSend, onSend }) {
           ))}
         </select>
         <label htmlFor="embed-title">Title</label>
-        <input id="embed-title" name="title" placeholder="Veiron Update" disabled={!canSend} />
+        <input id="embed-title" name="title" placeholder="Vireon Update" disabled={!canSend} />
         <label htmlFor="embed-description">Description</label>
         <textarea id="embed-description" name="description" rows="8" placeholder="Draft update text..." disabled={!canSend} />
         <label htmlFor="embed-color">Color</label>
@@ -669,11 +1755,11 @@ export function PermissionControllerPanel({ policies = {}, roles = [], canManage
           </div>
           <label className="checkbox-row">
             <input type="checkbox" name="allowAdministrator" defaultChecked={normalized.allowAdministrator} disabled={!canManage} />
-            <span>Discord Administrator can manage the community bot</span>
+            <span>Discord Administrator can manage VBOS</span>
           </label>
           <label className="checkbox-row">
             <input type="checkbox" name="allowManageGuild" defaultChecked={normalized.allowManageGuild} disabled={!canManage} />
-            <span>Discord Manage Server permission can manage the community bot</span>
+            <span>Discord Manage Server permission can manage VBOS</span>
           </label>
           <label htmlFor="setup-user-ids">Setup allowed user IDs</label>
           <textarea
@@ -695,7 +1781,7 @@ export function PermissionControllerPanel({ policies = {}, roles = [], canManage
           />
           <div className="form-section">
             <h3>Discord role access</h3>
-            <span className="muted">Selected roles can manage protected community bot features even if their names change later.</span>
+            <span className="muted">Selected roles can manage protected VBOS features even if their names change later.</span>
           </div>
           <div className="role-picker">
             {roles.length === 0 ? (
@@ -766,6 +1852,46 @@ export function RoadmapPanel({ title, phase, status, description, items }) {
   );
 }
 
+export function WalletPanel({ wallets = [] }) {
+  const custodialCount = wallets.filter((wallet) => wallet.custodyMode === "custodial").length;
+  const externalCount = wallets.filter((wallet) => wallet.custodyMode === "external").length;
+
+  return (
+    <Panel title="Wallet / Payments">
+      <div className="stats">
+        <div className="stat">
+          <strong>{wallets.length}</strong>
+          <span>Total Wallets</span>
+        </div>
+        <div className="stat">
+          <strong>{custodialCount}</strong>
+          <span>Custodial</span>
+        </div>
+        <div className="stat">
+          <strong>{externalCount}</strong>
+          <span>External Links</span>
+        </div>
+      </div>
+      <div className="item muted">
+        <strong>Registration flow</strong>
+        <span>Users can run /register custodial, /register external, /register verify or /register status. Private key material is not stored or exposed here.</span>
+      </div>
+      <div className="list wallet-list">
+        {wallets.length === 0 ? (
+          <div className="item">No registered wallets yet.</div>
+        ) : wallets.map((wallet) => (
+          <div className="item wallet-row" key={wallet.id}>
+            <strong>{wallet.custodyMode} | {wallet.discordUserId}</strong>
+            <span>{formatWalletAddress(wallet.address)}</span>
+            <span>Daily limit: {wallet.dailyLimit ?? "0"} | Balance limit: {wallet.balanceLimit ?? "0"}</span>
+            <a href={wallet.paymentLink} target="_blank" rel="noreferrer">Open payment link</a>
+          </div>
+        ))}
+      </div>
+    </Panel>
+  );
+}
+
 export function BlockchainPanel({ status, onRefresh }) {
   if (!status) {
     return (
@@ -782,6 +1908,7 @@ export function BlockchainPanel({ status, onRefresh }) {
   const statItems = [
     ["RPC Status", status.status ?? "unknown"],
     ["Mode", status.mode ?? "unknown"],
+    ["RPC Cache", formatRpcCache(network)],
     ["Uptime", formatPercent(metrics.uptimePercent)],
     ["Latency", formatMs(metrics.latestLatencyMs)],
     ["Block Height", formatNumber(metrics.latestBlockHeight)],
@@ -837,6 +1964,209 @@ export function BlockchainPanel({ status, onRefresh }) {
       </div>
     </Panel>
   );
+}
+
+function formatWalletAddress(address) {
+  const value = String(address ?? "");
+  if (value.length <= 48) return value || "Unavailable";
+  return `${value.slice(0, 20)}...${value.slice(-16)}`;
+}
+
+function formatRpcCache(network = {}) {
+  if (!network.cached) return "Fresh";
+  const parts = [network.stale ? "Stale" : "Cached"];
+  if (typeof network.cacheAgeMs === "number" && Number.isFinite(network.cacheAgeMs)) {
+    parts.push(`${Math.round(network.cacheAgeMs / 1000)}s old`);
+  }
+  if (network.rateLimited) parts.push("rate-limited");
+  if (network.fallbackStatus) parts.push(`fallback: ${network.fallbackStatus}`);
+  return parts.join(" | ");
+}
+
+
+export function AutomationStudioPanel({ automations, canModerate, canManage, onRefresh, onPreview, onTest, onSave, onDelete }) {
+  const [selectedFlowId, setSelectedFlowId] = useState("");
+  const [result, setResult] = useState(null);
+  const flows = automations?.flows ?? [];
+  const events = automations?.recentEvents ?? [];
+  const selectedFlow = flows.find((flow) => flow.id === selectedFlowId) ?? null;
+  const channels = automations?.discord?.channels ?? [];
+  const roles = automations?.discord?.roles ?? [];
+
+  function loadFlow(event) {
+    event.preventDefault();
+    if (!selectedFlow) return;
+    const form = document.getElementById("automation-flow-form");
+    if (!form) return;
+    form.id.value = selectedFlow.id ?? "";
+    form.name.value = selectedFlow.name ?? "";
+    form.description.value = selectedFlow.description ?? "";
+    form.enabled.checked = selectedFlow.enabled !== false;
+    form.triggerType.value = selectedFlow.trigger?.type ?? "message_contains";
+    form.triggerValue.value = selectedFlow.trigger?.value ?? "";
+    form.caseSensitive.checked = Boolean(selectedFlow.trigger?.caseSensitive);
+    form.cooldownSeconds.value = selectedFlow.cooldownSeconds ?? 30;
+    form.actionsJson.value = JSON.stringify(selectedFlow.actions ?? [], null, 2);
+    setResult({ loaded: selectedFlow.name, flow: selectedFlow });
+  }
+
+  async function submitAutomation(event) {
+    event.preventDefault();
+    const submitter = event.nativeEvent?.submitter;
+    const intent = submitter?.value ?? "preview";
+    const payload = readAutomationFlowPayload(event.currentTarget);
+
+    if (intent === "preview") {
+      setResult(await onPreview(payload));
+      return;
+    }
+
+    if (intent === "test") {
+      setResult(await onTest({ ...payload, dryRun: true, sampleText: payload.trigger?.value || "manual automation test" }));
+      return;
+    }
+
+    if (!canManage) {
+      setResult({ ok: false, error: "Saving flows requires ADMIN." });
+      return;
+    }
+
+    setResult(await onSave(payload));
+  }
+
+  const defaultActions = [
+    {
+      type: "send_channel_message",
+      config: {
+        channelId: channels[0]?.id ?? "",
+        message: {
+          mode: "embed",
+          title: "VBOS Automation",
+          description: "Triggered by {username} in {server}.",
+          color: "#d4af37",
+          footer: "VBOS"
+        }
+      }
+    },
+    { type: "log_event", config: { note: "Automation triggered by {username}" } }
+  ];
+
+  return (
+    <Panel title="Automation Studio">
+      {!canModerate && <PermissionNote minimumRole="MODERATOR" />}
+      <div className="control-hero automation-hero">
+        <div>
+          <span className="eyebrow">No-code runtime flows</span>
+          <h3>Triggere Discord + actiuni sigure, direct din web</h3>
+          <p>Construiesti flow-uri fara shell si fara JavaScript eval. Flow-urile ruleaza pe mesaje, join/leave si test manual, cu cooldown, audit si istoric.</p>
+        </div>
+        <button type="button" onClick={onRefresh} disabled={!canModerate}>Refresh</button>
+      </div>
+
+      <div className="stats compact-stats">
+        <div className="stat"><strong>{automations?.stats?.totalFlows ?? 0}</strong><span>Total flows</span></div>
+        <div className="stat"><strong>{automations?.stats?.activeFlows ?? 0}</strong><span>Active flows</span></div>
+        <div className="stat"><strong>{events.length}</strong><span>Recent events</span></div>
+        <div className="stat"><strong>{automations?.stats?.maxActionsPerFlow ?? 10}</strong><span>Actions / flow</span></div>
+      </div>
+
+      <div className="automation-grid">
+        <section className="panel-mini form-grid">
+          <h3>Flow editor</h3>
+          <form id="automation-flow-form" className="form-grid compact-form" onSubmit={submitAutomation}>
+            <input name="id" type="hidden" />
+            <label>Name</label>
+            <input name="name" placeholder="GPU keyword helper" disabled={!canModerate} required />
+            <label>Description</label>
+            <input name="description" placeholder="What this automation does" disabled={!canModerate} />
+            <label className="checkbox-row"><input name="enabled" type="checkbox" defaultChecked disabled={!canModerate} /><span>Enabled</span></label>
+            <label>Trigger type</label>
+            <select name="triggerType" defaultValue="message_contains" disabled={!canModerate}>
+              {(automations?.capabilities?.triggers ?? ["message_contains", "member_join"]).map((type) => <option key={type} value={type}>{type}</option>)}
+            </select>
+            <label>Trigger value / regex</label>
+            <input name="triggerValue" placeholder="gpu mining" disabled={!canModerate} />
+            <label className="checkbox-row"><input name="caseSensitive" type="checkbox" disabled={!canModerate} /><span>Case sensitive regex/search</span></label>
+            <label>Cooldown seconds</label>
+            <input name="cooldownSeconds" defaultValue="30" inputMode="numeric" disabled={!canModerate} />
+            <label>Actions JSON</label>
+            <textarea name="actionsJson" rows="12" defaultValue={JSON.stringify(defaultActions, null, 2)} disabled={!canModerate} />
+            <div className="button-row">
+              <button type="submit" name="intent" value="preview" disabled={!canModerate}>Dry-run Preview</button>
+              <button type="submit" name="intent" value="test" disabled={!canManage}>Admin Test</button>
+              <button type="submit" name="intent" value="save" disabled={!canManage}>Save Flow</button>
+            </div>
+          </form>
+        </section>
+
+        <section className="panel-mini form-grid">
+          <h3>Existing flows</h3>
+          <form className="form-grid compact-form" onSubmit={loadFlow}>
+            <select value={selectedFlowId} onChange={(event) => setSelectedFlowId(event.target.value)} disabled={!canModerate || flows.length === 0}>
+              <option value="">Choose flow</option>
+              {flows.map((flow) => <option key={flow.id} value={flow.id}>{flow.enabled ? "ON" : "OFF"} | {flow.name}</option>)}
+            </select>
+            <div className="button-row">
+              <button type="submit" disabled={!selectedFlowId}>Load</button>
+              <button type="button" disabled={!canManage || !selectedFlowId} onClick={() => onDelete(selectedFlowId)}>Delete</button>
+            </div>
+          </form>
+          <div className="custom-list automation-list">
+            {flows.length === 0 ? <div className="item muted">No automation flows yet.</div> : flows.slice(0, 12).map((flow) => (
+              <div className="item" key={flow.id}>
+                <strong>{flow.name}</strong>
+                <span>{flow.enabled ? "enabled" : "disabled"} | {flow.trigger?.type} | runs: {flow.runCount ?? 0}</span>
+                <small>{flow.description || flow.id}</small>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <section className="panel-mini automation-context">
+        <h3>Discord context</h3>
+        <div className="stats compact-stats">
+          <div className="stat"><strong>{channels.length}</strong><span>Text channels</span></div>
+          <div className="stat"><strong>{roles.length}</strong><span>Roles</span></div>
+          <div className="stat"><strong>{automations?.discord?.ok ? "Ready" : "Limited"}</strong><span>Runtime</span></div>
+        </div>
+      </section>
+
+      <section className="panel-mini automation-events">
+        <h3>Recent automation events</h3>
+        <DataList items={events} format={(item) => `${item.type} | ${item.status} | ${item.title}`} />
+      </section>
+
+      {result && (
+        <section className="panel-mini message-preview">
+          <h3>Preview / Last result</h3>
+          <pre>{JSON.stringify(result, null, 2)}</pre>
+        </section>
+      )}
+    </Panel>
+  );
+}
+
+function readAutomationFlowPayload(form) {
+  let actions = [];
+  try {
+    actions = JSON.parse(form.actionsJson.value || "[]");
+  } catch (error) {
+    throw new Error(`Invalid actions JSON: ${error.message}`);
+  }
+  return {
+    id: form.id.value || undefined,
+    name: form.name.value,
+    description: form.description.value,
+    enabled: form.enabled.checked,
+    trigger: {
+      type: form.triggerType.value,
+      value: form.triggerValue.value,
+      caseSensitive: form.caseSensitive.checked
+    },
+    cooldownSeconds: form.cooldownSeconds.value,
+    actions
+  };
 }
 
 export function SettingsPanel({ settings, onTotpSetup, onTotpConfirm, onTotpDisable, pwa }) {
@@ -933,6 +2263,217 @@ function DataList({ items = [], format }) {
     </div>
   );
 }
+
+
+
+export function CommandCenterPanel({ commandCenter, canModerate, onRefresh }) {
+  const [category, setCategory] = useState("all");
+  const categories = commandCenter?.categories ?? [];
+  const selectedCategories = category === "all" ? categories : categories.filter((item) => item.id === category);
+
+  return (
+    <section className="view active command-center-view">
+      <div className="control-hero module-hero">
+        <div>
+          <span className="eyebrow">Command Center</span>
+          <h2>VBOS Command Surface</h2>
+          <p>Catalog complet pentru comenzile Discord, modulele active, automatizari, custom commands si scurtaturi operationale. Controlul greu ramane in Admin Web, comenzile Discord sunt gateway rapid pentru staff.</p>
+        </div>
+        <button type="button" onClick={onRefresh} disabled={!canModerate}>Refresh</button>
+      </div>
+      {!canModerate && <PermissionNote minimumRole="MODERATOR" />}
+      {canModerate && (
+        <>
+          <div className="stats">
+            <div className="stat"><strong>{commandCenter?.stats?.slashCommands ?? 0}</strong><span>Slash commands</span></div>
+            <div className="stat"><strong>{commandCenter?.stats?.customCommands ?? 0}</strong><span>Custom commands</span></div>
+            <div className="stat"><strong>{commandCenter?.stats?.customInteractions ?? 0}</strong><span>Custom interactions</span></div>
+            <div className="stat"><strong>{commandCenter?.stats?.automationFlows ?? 0}</strong><span>Automation flows</span></div>
+            <div className="stat"><strong>{commandCenter?.stats?.enabledModules ?? 0}/{commandCenter?.stats?.totalModules ?? 0}</strong><span>Modules</span></div>
+            <div className="stat"><strong>{commandCenter?.stats?.pendingApprovals ?? 0}</strong><span>Pending approvals</span></div>
+          </div>
+          <div className="module-toolbar">
+            <label htmlFor="command-category">Category</label>
+            <select id="command-category" value={category} onChange={(event) => setCategory(event.target.value)}>
+              <option value="all">All categories</option>
+              {categories.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}
+            </select>
+            <code>{commandCenter?.brand?.adminWeb ?? "/admin/"}</code>
+          </div>
+          <div className="module-grid">
+            {selectedCategories.map((item) => (
+              <article className="module-card status-ready" key={item.id}>
+                <div className="module-card-head">
+                  <div>
+                    <strong>{item.name}</strong>
+                    <span>{item.id}</span>
+                  </div>
+                  <span className="pill success">{item.commands.length} commands</span>
+                </div>
+                <p>{item.description}</p>
+                <div className="command-chip-list">
+                  {item.commands.map((command) => <code key={command}>{command}</code>)}
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="module-bundle-grid">
+            <div className="card module-bundle-output">
+              <h3>Runtime snapshot</h3>
+              <DataList items={[
+                `Bot: ${commandCenter?.bot?.tag ?? "unknown"} / ${commandCenter?.bot?.ready ? "ready" : "not ready"}`,
+                `Guild: ${commandCenter?.guild?.name ?? "unavailable"}`,
+                `Ping: ${commandCenter?.bot?.pingMs ?? "n/a"} ms`,
+                `Capabilities: shell=${String(commandCenter?.capabilities?.shellExecution)}, eval=${String(commandCenter?.capabilities?.javascriptEval)}`
+              ]} format={(item) => item} />
+            </div>
+            <div className="card module-bundle-output">
+              <h3>Recent audit tail</h3>
+              <DataList items={commandCenter?.auditTail ?? []} format={(item) => `${item.type ?? "audit"} | ${item.title ?? "Event"} | ${formatDateTime(item.createdAt)}`} />
+            </div>
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
+export function ModuleCenterPanel({ modules, canModerate, canManage, onRefresh, onToggle, onExport, onImport }) {
+  const [bundleText, setBundleText] = useState("");
+  const [importResult, setImportResult] = useState(null);
+  const [category, setCategory] = useState("all");
+  const items = modules?.modules ?? [];
+  const categories = ["all", ...new Set(items.map((item) => item.category).filter(Boolean))];
+  const visibleItems = category === "all" ? items : items.filter((item) => item.category === category);
+
+  async function handleToggle(module, enabled) {
+    const reason = window.prompt(`Reason for ${enabled ? "enabling" : "disabling"} ${module.name}?`, enabled ? "Enable from Module Center" : "Disable from Module Center");
+    if (reason === null) return;
+    await onToggle(module.id, { enabled, reason });
+  }
+
+  async function handleExport(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const moduleIds = parseTextareaList(form.get("moduleIds"));
+    const bundle = await onExport({ moduleIds, includeAll: moduleIds.length === 0 });
+    setBundleText(JSON.stringify(bundle, null, 2));
+    setImportResult(null);
+  }
+
+  async function handleImport(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const dryRun = form.get("dryRun") !== "off";
+    const result = await onImport({ bundle: form.get("bundle"), dryRun });
+    setImportResult(result);
+  }
+
+  return (
+    <section className="view active">
+      <div className="control-hero module-hero">
+        <div>
+          <span className="eyebrow">VBOS Module Center</span>
+          <h2>Feature Marketplace / Module Control</h2>
+          <p>Controleaza modulele VBOS din web: status, risc, dependinte, export/import bundle si toggle auditat. Fara shell, fara eval, fara cod arbitrar.</p>
+        </div>
+        <button type="button" onClick={onRefresh} disabled={!canModerate}>Refresh</button>
+      </div>
+
+      <div className="stats compact-stats">
+        <div className="stat"><strong>{modules?.stats?.total ?? 0}</strong><span>Total modules</span></div>
+        <div className="stat"><strong>{modules?.stats?.enabled ?? 0}</strong><span>Enabled</span></div>
+        <div className="stat"><strong>{modules?.stats?.disabled ?? 0}</strong><span>Disabled</span></div>
+        <div className="stat"><strong>{modules?.stats?.dependencyWarnings ?? 0}</strong><span>Warnings</span></div>
+      </div>
+
+      {!canModerate && <PermissionNote minimumRole="MODERATOR" />}
+
+      <div className="module-toolbar">
+        <label>Category</label>
+        <select value={category} onChange={(event) => setCategory(event.target.value)}>
+          {categories.map((item) => <option key={item} value={item}>{item}</option>)}
+        </select>
+      </div>
+
+      <div className="module-grid">
+        {visibleItems.map((module) => (
+          <article className={`module-card status-${module.status} risk-${module.risk}`} key={module.id}>
+            <div className="module-card-head">
+              <div>
+                <strong>{module.name}</strong>
+                <span>{module.category} | {module.risk} risk | {module.minimumRole}+</span>
+              </div>
+              <span className={`pill ${module.enabled ? "success" : "muted"}`}>{module.enabled ? "Enabled" : "Disabled"}</span>
+            </div>
+            <p>{module.description}</p>
+            <div className="module-meta">
+              <small>Routes: {(module.routes ?? []).join(", ") || "none"}</small>
+              <small>Endpoints: {(module.endpoints ?? []).join(", ") || "none"}</small>
+              <small>Dependencies: {(module.dependencies ?? []).join(", ") || "none"}</small>
+            </div>
+            {(module.warnings ?? []).length > 0 && (
+              <div className="module-warnings">
+                {module.warnings.map((warning, index) => <span key={`${module.id}-warning-${index}`}>{warning.message}</span>)}
+              </div>
+            )}
+            <div className="button-row">
+              <button type="button" disabled={!canManage || module.enabled || module.locked} onClick={() => handleToggle(module, true)}>Enable</button>
+              <button type="button" disabled={!canManage || !module.enabled || module.locked} onClick={() => handleToggle(module, false)}>Disable</button>
+            </div>
+            {module.locked && <small className="muted">Locked core module. It cannot be disabled from web.</small>}
+            {module.updatedAt && <small className="muted">Updated by {module.updatedByTag ?? "unknown"} at {formatDateTime(module.updatedAt)}</small>}
+          </article>
+        ))}
+      </div>
+
+      <div className="module-bundle-grid">
+        <form className="card" onSubmit={handleExport}>
+          <h3>Export module bundle</h3>
+          <p className="muted">Lasa gol pentru export complet. Sau pune IDs: custom, automations, operations, economy.</p>
+          <textarea name="moduleIds" rows="5" placeholder="custom\nautomations\noperations" disabled={!canManage} />
+          <button type="submit" disabled={!canManage}>Export Bundle</button>
+        </form>
+
+        <form className="card" onSubmit={handleImport}>
+          <h3>Import module bundle</h3>
+          <textarea name="bundle" rows="8" placeholder="Paste VBOS module bundle JSON" value={bundleText} onChange={(event) => setBundleText(event.target.value)} disabled={!canManage} />
+          <label className="checkbox-row"><input type="checkbox" name="dryRun" defaultChecked disabled={!canManage} /><span>Dry-run first</span></label>
+          <button type="submit" disabled={!canManage || !bundleText.trim()}>Import / Preview</button>
+        </form>
+      </div>
+
+      {bundleText && (
+        <div className="card module-bundle-output">
+          <h3>Bundle JSON</h3>
+          <pre>{bundleText}</pre>
+        </div>
+      )}
+
+      {importResult && (
+        <div className="card module-bundle-output">
+          <h3>Import result</h3>
+          <pre>{JSON.stringify(importResult, null, 2)}</pre>
+        </div>
+      )}
+
+      <div className="control-lists module-events">
+        <h3>Recent module events</h3>
+        {(modules?.recentEvents ?? []).length === 0 ? <div className="item muted">No module events yet.</div> : (modules?.recentEvents ?? []).map((event) => (
+          <div className="item split-item" key={event.id ?? `${event.type}-${event.createdAt}`}>
+            <div>
+              <strong>{event.title ?? event.type}</strong>
+              <span>{event.description}</span>
+              <small>{event.actorTag ?? "system"} | {formatDateTime(event.createdAt)}</small>
+            </div>
+            <code>{event.moduleId}</code>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 
 function PermissionNote({ minimumRole }) {
   return <div className="item muted">Requires minimum role: {minimumRole}.</div>;

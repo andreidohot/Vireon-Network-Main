@@ -11,7 +11,7 @@ export async function applyXpRoleRewards({
   member,
   profile,
   previousLevel = 0,
-  reason = "Veiron XP level reward."
+  reason = "Vireon XP level reward."
 }) {
   if (!store || !member || !profile) {
     return { applied: [], skipped: [] };

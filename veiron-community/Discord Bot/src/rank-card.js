@@ -103,7 +103,7 @@ function drawIdentity(ctx, user, rank) {
   ctx.font = "700 34px Georgia, serif";
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
-  ctx.fillText("Veiron Rank Card", 310, 88);
+  ctx.fillText("Vireon Rank Card", 310, 88);
 
   ctx.fillStyle = COLORS.text;
   ctx.font = "700 42px Georgia, serif";
@@ -171,7 +171,7 @@ function drawFooter(ctx) {
   ctx.fillStyle = COLORS.gold;
   ctx.font = "700 18px Georgia, serif";
   ctx.textAlign = "left";
-  ctx.fillText("VEIRON NETWORK", 72, 274);
+  ctx.fillText("VIREON NETWORK", 72, 274);
   ctx.fillStyle = COLORS.muted;
   ctx.font = "500 13px Arial, sans-serif";
   ctx.fillText("Blood Red / Charcoal / Mineral Gold", 72, 296);
@@ -187,7 +187,7 @@ function getInitials(value = "V") {
 }
 
 function truncateText(ctx, value, maxWidth) {
-  const text = String(value ?? "Veiron Member");
+  const text = String(value ?? "Vireon Member");
   if (ctx.measureText(text).width <= maxWidth) return text;
 
   let next = text;

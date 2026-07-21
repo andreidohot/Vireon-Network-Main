@@ -9,7 +9,7 @@ export function getPushConfig() {
   const publicKey = process.env.WEB_PUSH_VAPID_PUBLIC_KEY ?? "";
   const privateKey = process.env.WEB_PUSH_VAPID_PRIVATE_KEY ?? "";
   const subject = process.env.WEB_PUSH_SUBJECT
-    ?? (process.env.ADMIN_DEFAULT_EMAIL ? `mailto:${process.env.ADMIN_DEFAULT_EMAIL}` : "mailto:admin@veiron.local");
+    ?? (process.env.ADMIN_DEFAULT_EMAIL ? `mailto:${process.env.ADMIN_DEFAULT_EMAIL}` : "mailto:admin@vireon.local");
 
   return {
     enabled: Boolean(publicKey && privateKey),

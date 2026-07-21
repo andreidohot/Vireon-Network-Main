@@ -1,4 +1,4 @@
-# Veiron Community Bot Deployment
+# VBOS Deployment
 
 ## Local Run
 
@@ -53,7 +53,7 @@ Optional web push settings:
 npm run push:vapid
 WEB_PUSH_VAPID_PUBLIC_KEY=generated_public_key
 WEB_PUSH_VAPID_PRIVATE_KEY=generated_private_key
-WEB_PUSH_SUBJECT=mailto:admin@veiron.local
+WEB_PUSH_SUBJECT=mailto:admin@vireon.local
 ```
 
 Without VAPID keys, the PWA still installs and works offline, but push subscriptions stay disabled.

@@ -1,4 +1,4 @@
-import { createVeironEmbed } from "./embed-factory.js";
+import { createVireonEmbed } from "./embed-factory.js";
 
 export const CUSTOM_TAGS_COLLECTION = "custom-tags";
 
@@ -20,7 +20,7 @@ export async function handleTagCreate(interaction, store, permissions) {
   if (!permissions.canManageCommunityBot(interaction)) {
     await interaction.reply({
       ephemeral: true,
-      content: "You need community bot management permission to create tags."
+      content: "You need VBOS management permission to create tags."
     });
     return;
   }
@@ -55,8 +55,8 @@ export async function handleTagList(interaction, store) {
 
   await interaction.reply({
     embeds: [
-      createVeironEmbed({
-        title: "Veiron Custom Tags",
+      createVireonEmbed({
+        title: "Vireon Custom Tags",
         description: tags.map((tag) => `\`${tag.name}\` - used ${tag.uses} time${tag.uses === 1 ? "" : "s"}`).join("\n"),
         footer: "Use /tag use name:<tag>"
       })
@@ -90,7 +90,7 @@ export async function handleTagDelete(interaction, store, permissions) {
   if (!permissions.canManageCommunityBot(interaction)) {
     await interaction.reply({
       ephemeral: true,
-      content: "You need community bot management permission to delete tags."
+      content: "You need VBOS management permission to delete tags."
     });
     return;
   }

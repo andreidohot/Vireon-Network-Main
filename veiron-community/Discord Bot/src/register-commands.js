@@ -14,8 +14,8 @@ if (!token || !clientId || !guildId) {
 
 const commands = [
   new SlashCommandBuilder()
-    .setName("setup-veiron")
-    .setDescription("Create or update the Veiron Discord server structure.")
+    .setName("setup-vireon")
+    .setDescription("Create or update the Vireon Discord server structure.")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addBooleanOption((option) =>
       option
@@ -24,11 +24,58 @@ const commands = [
         .setRequired(true)
     ),
   new SlashCommandBuilder()
-    .setName("veiron-status")
-    .setDescription("Show live Veiron Network status from the configured chain adapter."),
+    .setName("vireon-status")
+    .setDescription("Show live Vireon Network status from the configured chain adapter."),
+  new SlashCommandBuilder()
+    .setName("register")
+    .setDescription("Create or link a Vireon wallet for rewards and payments.")
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("custodial")
+        .setDescription("Create a custodial Vireon wallet with an encrypted server-side seed.")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("external")
+        .setDescription("Start challenge-response linking for an external Vireon wallet.")
+        .addStringOption((option) =>
+          option
+            .setName("address")
+            .setDescription("External Vireon wallet address to link.")
+            .setMinLength(8)
+            .setMaxLength(160)
+            .setRequired(true)
+        )
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("verify")
+        .setDescription("Verify an external wallet challenge signature.")
+        .addStringOption((option) =>
+          option
+            .setName("address")
+            .setDescription("External Vireon wallet address from /register external.")
+            .setMinLength(8)
+            .setMaxLength(160)
+            .setRequired(true)
+        )
+        .addStringOption((option) =>
+          option
+            .setName("signature")
+            .setDescription("Signature for the challenge message.")
+            .setMinLength(8)
+            .setMaxLength(512)
+            .setRequired(true)
+        )
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("status")
+        .setDescription("Show your linked Vireon wallet and payment link.")
+    ),
   new SlashCommandBuilder()
     .setName("rewards")
-    .setDescription("Show mining, staking and node rewards for a linked Veiron wallet.")
+    .setDescription("Show mining, staking and node rewards for a linked Vireon wallet.")
     .addUserOption((option) =>
       option
         .setName("user")
@@ -36,8 +83,32 @@ const commands = [
         .setRequired(false)
     ),
   new SlashCommandBuilder()
+    .setName("payment")
+    .setDescription("Send VIRE to another registered Vireon wallet with confirmation.")
+    .addUserOption((option) =>
+      option
+        .setName("user")
+        .setDescription("Registered recipient.")
+        .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName("amount")
+        .setDescription("Amount to send, up to 8 decimals.")
+        .setMinLength(1)
+        .setMaxLength(40)
+        .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName("asset")
+        .setDescription("Asset symbol. Defaults to VIRE.")
+        .setMaxLength(16)
+        .setRequired(false)
+    ),
+  new SlashCommandBuilder()
     .setName("rank")
-    .setDescription("Show your Veiron XP rank card.")
+    .setDescription("Show your Vireon XP rank card.")
     .addUserOption((option) =>
       option
         .setName("user")
@@ -46,7 +117,7 @@ const commands = [
     ),
   new SlashCommandBuilder()
     .setName("leaderboard")
-    .setDescription("Show the Veiron XP leaderboard.")
+    .setDescription("Show the Vireon XP leaderboard.")
     .addIntegerOption((option) =>
       option
         .setName("limit")
@@ -161,6 +232,25 @@ const commands = [
             .setMaxLength(40)
             .setRequired(true)
         )
+    ),
+
+  new SlashCommandBuilder()
+    .setName("custom")
+    .setDescription("Run a custom command managed from VBOS Admin Web.")
+    .addStringOption((option) =>
+      option
+        .setName("name")
+        .setDescription("Custom command name or alias.")
+        .setMinLength(2)
+        .setMaxLength(32)
+        .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName("input")
+        .setDescription("Optional input passed to {input}.")
+        .setMaxLength(300)
+        .setRequired(false)
     ),
   new SlashCommandBuilder()
     .setName("trigger")
@@ -290,7 +380,7 @@ const commands = [
     ),
   new SlashCommandBuilder()
     .setName("send-embed")
-    .setDescription("Send a Veiron-styled embed to a channel.")
+    .setDescription("Send a VBOS-styled embed to a channel.")
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .addChannelOption((option) =>
       option
@@ -459,7 +549,7 @@ const commands = [
     ),
   new SlashCommandBuilder()
     .setName("announce")
-    .setDescription("Create or publish Veiron announcements.")
+    .setDescription("Create or publish Vireon announcements.")
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
     .addSubcommand((subcommand) =>
       subcommand
@@ -655,7 +745,7 @@ const commands = [
     ),
   new SlashCommandBuilder()
     .setName("music")
-    .setDescription("Control the Veiron community music player.")
+    .setDescription("Control the Vireon community music player.")
     .addSubcommand((subcommand) =>
       subcommand
         .setName("play")
@@ -716,6 +806,213 @@ const commands = [
         .setName("filter")
         .setDescription("Apply an audio filter preset.")
         .addStringOption((option) => addAudioFilterPresetChoices(option, true))
+    ),
+  new SlashCommandBuilder()
+    .setName("vbos")
+    .setDescription("VBOS command center: help, dashboard, invite, status and command catalog.")
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("help")
+        .setDescription("Show the VBOS command map.")
+        .addStringOption((option) => addVbosCategoryChoices(option, false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand.setName("dashboard").setDescription("Show the Admin Web dashboard URL.")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand.setName("invite").setDescription("Show the bot invite link.")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand.setName("status").setDescription("Show VBOS runtime, modules and command stats.")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("commands")
+        .setDescription("List available commands by category.")
+        .addStringOption((option) => addVbosCategoryChoices(option, false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand.setName("quickstart").setDescription("Show a fast operator quickstart.")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("audit")
+        .setDescription("Show recent audited actions. Staff only.")
+        .addIntegerOption((option) =>
+          option.setName("limit").setDescription("Number of events, max 10.").setMinValue(1).setMaxValue(10).setRequired(false)
+        )
+    ),
+  new SlashCommandBuilder()
+    .setName("modules")
+    .setDescription("Control VBOS modules from Discord.")
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
+    .addSubcommand((subcommand) =>
+      subcommand.setName("list").setDescription("List modules and their state.")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("status")
+        .setDescription("Show one module status.")
+        .addStringOption((option) => option.setName("module_id").setDescription("Module ID, for example automations.").setMaxLength(80).setRequired(true))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("enable")
+        .setDescription("Enable an optional module. Admin/staff only.")
+        .addStringOption((option) => option.setName("module_id").setDescription("Module ID.").setMaxLength(80).setRequired(true))
+        .addStringOption((option) => option.setName("reason").setDescription("Audit reason.").setMaxLength(200).setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("disable")
+        .setDescription("Disable an optional module. Admin/staff only.")
+        .addStringOption((option) => option.setName("module_id").setDescription("Module ID.").setMaxLength(80).setRequired(true))
+        .addStringOption((option) => option.setName("reason").setDescription("Audit reason.").setMaxLength(200).setRequired(false))
+    ),
+  new SlashCommandBuilder()
+    .setName("automations")
+    .setDescription("Inspect and test VBOS automation flows from Discord.")
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
+    .addSubcommand((subcommand) => subcommand.setName("list").setDescription("List automation flows."))
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("info")
+        .setDescription("Show one automation flow.")
+        .addStringOption((option) => option.setName("flow_id").setDescription("Flow ID or exact name.").setMaxLength(120).setRequired(true))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("events")
+        .setDescription("Show recent automation events.")
+        .addIntegerOption((option) => option.setName("limit").setDescription("Number of events, max 10.").setMinValue(1).setMaxValue(10).setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("test")
+        .setDescription("Run a safe manual test for one flow.")
+        .addStringOption((option) => option.setName("flow_id").setDescription("Flow ID or exact name.").setMaxLength(120).setRequired(true))
+        .addBooleanOption((option) => option.setName("dry_run").setDescription("Keep true to avoid posting or mutating roles.").setRequired(false))
+    ),
+  new SlashCommandBuilder()
+    .setName("operations")
+    .setDescription("Operate Bot Studio from Discord.")
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
+    .addSubcommand((subcommand) => subcommand.setName("templates").setDescription("List saved message templates."))
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("approvals")
+        .setDescription("List message approval queue.")
+        .addIntegerOption((option) => option.setName("limit").setDescription("Number of items, max 10.").setMinValue(1).setMaxValue(10).setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("pushes")
+        .setDescription("List message push history.")
+        .addIntegerOption((option) => option.setName("limit").setDescription("Number of items, max 10.").setMinValue(1).setMaxValue(10).setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("console")
+        .setDescription("Run an allowlisted Bot Studio console command.")
+        .addStringOption((option) => option.setName("command").setDescription("Example: status, channels, roles, audit-tail 5.").setMaxLength(500).setRequired(true))
+    ),
+  new SlashCommandBuilder()
+    .setName("server")
+    .setDescription("Inspect the Discord server from VBOS.")
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
+    .addSubcommand((subcommand) => subcommand.setName("info").setDescription("Show server info."))
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("channels")
+        .setDescription("List channels.")
+        .addStringOption((option) => option.setName("query").setDescription("Optional filter.").setMaxLength(100).setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("roles")
+        .setDescription("List roles.")
+        .addStringOption((option) => option.setName("query").setDescription("Optional filter.").setMaxLength(100).setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("members")
+        .setDescription("Search members.")
+        .addStringOption((option) => option.setName("query").setDescription("Username, display name or user ID.").setMaxLength(100).setRequired(true))
+    ),
+  new SlashCommandBuilder()
+    .setName("member-role")
+    .setDescription("Add, remove or inspect member roles through VBOS.")
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles)
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("add")
+        .setDescription("Add a role to a member.")
+        .addUserOption((option) => option.setName("user").setDescription("Target member.").setRequired(true))
+        .addRoleOption((option) => option.setName("role").setDescription("Role to add.").setRequired(true))
+        .addStringOption((option) => option.setName("reason").setDescription("Audit reason.").setMaxLength(200).setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("remove")
+        .setDescription("Remove a role from a member.")
+        .addUserOption((option) => option.setName("user").setDescription("Target member.").setRequired(true))
+        .addRoleOption((option) => option.setName("role").setDescription("Role to remove.").setRequired(true))
+        .addStringOption((option) => option.setName("reason").setDescription("Audit reason.").setMaxLength(200).setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("list")
+        .setDescription("List member roles.")
+        .addUserOption((option) => option.setName("user").setDescription("Target member.").setRequired(true))
+    ),
+  new SlashCommandBuilder()
+    .setName("channel-control")
+    .setDescription("Create, delete, lock, unlock and edit channels from VBOS.")
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("create")
+        .setDescription("Create a text, voice or category channel.")
+        .addStringOption((option) =>
+          option
+            .setName("type")
+            .setDescription("Channel type.")
+            .addChoices({ name: "Text", value: "text" }, { name: "Voice", value: "voice" }, { name: "Category", value: "category" })
+            .setRequired(true)
+        )
+        .addStringOption((option) => option.setName("name").setDescription("Channel/category name.").setMinLength(2).setMaxLength(100).setRequired(true))
+        .addChannelOption((option) => option.setName("category").setDescription("Optional parent category.").addChannelTypes(ChannelType.GuildCategory).setRequired(false))
+        .addStringOption((option) => option.setName("reason").setDescription("Audit reason.").setMaxLength(200).setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("delete")
+        .setDescription("Delete a channel or category. Requires confirm:true.")
+        .addChannelOption((option) => option.setName("channel").setDescription("Channel/category to delete.").setRequired(true))
+        .addBooleanOption((option) => option.setName("confirm").setDescription("Must be true.").setRequired(true))
+        .addStringOption((option) => option.setName("reason").setDescription("Audit reason.").setMaxLength(200).setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("topic")
+        .setDescription("Update a text channel topic.")
+        .addChannelOption((option) => option.setName("channel").setDescription("Text channel.").addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement).setRequired(true))
+        .addStringOption((option) => option.setName("topic").setDescription("New topic.").setMaxLength(1024).setRequired(true))
+        .addStringOption((option) => option.setName("reason").setDescription("Audit reason.").setMaxLength(200).setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("lock")
+        .setDescription("Deny @everyone Send Messages in a channel.")
+        .addChannelOption((option) => option.setName("channel").setDescription("Channel to lock.").setRequired(true))
+        .addStringOption((option) => option.setName("reason").setDescription("Audit reason.").setMaxLength(200).setRequired(false))
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("unlock")
+        .setDescription("Allow @everyone Send Messages in a channel.")
+        .addChannelOption((option) => option.setName("channel").setDescription("Channel to unlock.").setRequired(true))
+        .addStringOption((option) => option.setName("reason").setDescription("Audit reason.").setMaxLength(200).setRequired(false))
     )
 ].map((command) => command.toJSON());
 
@@ -783,6 +1080,25 @@ function buildStandaloneMusicCommands() {
         subcommand.setName("status").setDescription("Show the active audio filter.")
       )
   ];
+}
+
+
+function addVbosCategoryChoices(option, required) {
+  return option
+    .setName("category")
+    .setDescription("Optional command category.")
+    .addChoices(
+      { name: "Core / Control", value: "core" },
+      { name: "Operations", value: "ops" },
+      { name: "Custom Builder", value: "custom" },
+      { name: "Automation", value: "automation" },
+      { name: "Modules", value: "modules" },
+      { name: "Moderation", value: "moderation" },
+      { name: "Community", value: "community" },
+      { name: "Music", value: "music" },
+      { name: "Vireon Optional", value: "vireon" }
+    )
+    .setRequired(required);
 }
 
 function addLoopModeChoices(option, required) {

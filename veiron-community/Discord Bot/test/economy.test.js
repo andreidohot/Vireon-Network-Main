@@ -213,7 +213,7 @@ describe("server social economy", () => {
 });
 
 async function createEconomyStore(economy = {}) {
-  const store = new JsonStore({ dataDir: await mkdtemp(path.join(os.tmpdir(), "veiron-economy-test-")) });
+  const store = new JsonStore({ dataDir: await mkdtemp(path.join(os.tmpdir(), "vireon-economy-test-")) });
   await store.setSingleton("settings", {
     economy: {
       enabled: true,

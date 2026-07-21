@@ -45,7 +45,7 @@ describe("blockchain dashboard monitor", () => {
       samples: [sample]
     })).toMatchObject({
       severity: "critical",
-      title: "Veiron node/RPC is down",
+      title: "Vireon node/RPC is down",
       downSince: "2026-01-01T00:00:00.000Z"
     });
   });
@@ -65,6 +65,37 @@ describe("blockchain dashboard monitor", () => {
     })).toMatchObject({
       severity: "warning",
       title: "Chain adapter disabled"
+    });
+  });
+
+  it("creates a warning alert when stale RPC cache is served", () => {
+    const sample = createBlockchainSample({
+      health: { ok: true, status: "ready" },
+      network: {
+        ok: true,
+        status: "ready",
+        blockHeight: 10,
+        stale: true,
+        rateLimited: true,
+        cacheAgeMs: 20000
+      },
+      now: new Date("2026-01-01T00:00:00.000Z")
+    });
+
+    expect(buildBlockchainAlert({
+      sample,
+      health: { ok: true, status: "ready" },
+      network: { ok: true, status: "ready", stale: true, rateLimited: true },
+      samples: [sample]
+    })).toMatchObject({
+      severity: "warning",
+      title: "RPC data served from cache"
+    });
+    expect(sample).toMatchObject({
+      cached: false,
+      stale: true,
+      rateLimited: true,
+      cacheAgeMs: 20000
     });
   });
 

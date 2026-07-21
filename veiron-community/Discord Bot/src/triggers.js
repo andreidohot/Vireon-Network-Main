@@ -1,4 +1,4 @@
-import { createVeironEmbed } from "./embed-factory.js";
+import { createVireonEmbed } from "./embed-factory.js";
 import { getCustomTag, incrementTagUse, normalizeTagName, renderTagContent } from "./tags.js";
 
 export const CUSTOM_TRIGGERS_COLLECTION = "custom-triggers";
@@ -26,7 +26,7 @@ export async function handleTriggerCreate(interaction, store, permissions) {
   if (!permissions.canManageCommunityBot(interaction)) {
     await interaction.reply({
       ephemeral: true,
-      content: "You need community bot management permission to create triggers."
+      content: "You need VBOS management permission to create triggers."
     });
     return;
   }
@@ -68,8 +68,8 @@ export async function handleTriggerList(interaction, store) {
 
   await interaction.reply({
     embeds: [
-      createVeironEmbed({
-        title: "Veiron Auto-Responders",
+      createVireonEmbed({
+        title: "Vireon Auto-Responders",
         description: triggers.map((trigger) => [
           `\`${trigger.name}\` -> tag \`${trigger.tagName}\``,
           `regex: \`${trigger.pattern}\``,
@@ -85,7 +85,7 @@ export async function handleTriggerDelete(interaction, store, permissions) {
   if (!permissions.canManageCommunityBot(interaction)) {
     await interaction.reply({
       ephemeral: true,
-      content: "You need community bot management permission to delete triggers."
+      content: "You need VBOS management permission to delete triggers."
     });
     return;
   }

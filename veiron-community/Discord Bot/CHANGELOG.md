@@ -1,5 +1,138 @@
 # Changelog
 
+## 7.35.0
+
+- Added Command Center at `/admin/#commands` with a full catalog of VBOS slash commands, command categories, runtime stats, module counts, custom command counts, automation flow counts and audit tail.
+- Added `/api/commands/overview` with MODERATOR+ RBAC for Admin Web command visibility.
+- Added new Discord slash command groups: `/vbos`, `/modules`, `/automations`, `/operations`, `/server`, `/member-role` and `/channel-control`.
+- Added `/vbos help`, `/vbos commands`, `/vbos dashboard`, `/vbos invite`, `/vbos status`, `/vbos quickstart` and `/vbos audit`.
+- Added Discord-side module inspection and enable/disable through `/modules` with staff permission checks and audit trail.
+- Added Discord-side automation list/info/events/test commands for existing Automation Studio flows.
+- Added Discord-side Bot Operations shortcuts for templates, approvals, push history and safe console commands.
+- Added Discord-side server inspection, member role controls and guarded channel create/delete/topic/lock/unlock commands.
+- Added Command Center tests and registered all new commands in the guild command deployment flow.
+
+## 7.34.0
+
+- Added Module Center at `/admin/#modules` as a web Feature Marketplace / module control plane for VBOS.
+- Added `/api/modules/overview`, `/events`, `/export`, `/import` and per-module state endpoints with explicit RBAC.
+- Added a module registry with categories, risk levels, required roles, routes, endpoints, Discord permissions, env checks and dependency metadata.
+- Added audited enable/disable controls with locked protection for core modules such as Control Center and Permission Controller.
+- Added module bundle export for custom commands, custom interactions, automations, message templates, operations data and other module-owned collections.
+- Added module bundle import with dry-run-first validation, per-collection item limits and guild-safe imported records.
+- Added Admin Web UI for filtering modules, reading warnings, toggling optional modules, exporting bundles, importing bundles and reviewing module events.
+- Added tests for overview generation, locked-module protection, state changes, bundle export and dry-run/apply import.
+
+## 7.32.0
+
+- Added VBOS Control Plane upgrades for Admin Web, focused on controlling the Discord bot/server from the browser.
+- Added Custom Lab at `/admin/#custom` for DB-backed custom prefix commands, `/custom` slash gateway responses and custom Discord button interactions.
+- Added `/api/custom/*` endpoints with MODERATOR read access and ADMIN mutation access.
+- Added custom-command runtime for prefix messages and `/custom name:<command>` execution.
+- Added custom button runtime with `vbos:custom:*` Discord component IDs and safe variable rendering.
+- Added custom interaction buttons to Message Creator and Approval Queue channel pushes.
+- Added Admin Web bulk member role updates, channel permission overwrites, channel reorder and structure-plan dry-run/apply actions.
+- Added web UI controls for bulk roles, permission overwrites, channel reorder, structure plans and custom command/interaction management.
+- Added audit/custom event persistence for every custom-control mutation and runtime use.
+- Added tests for custom commands, custom interactions, runtime execution and custom buttons attached to message pushes.
+
+## 7.31.0
+
+- Rebranded the bot to **VBOS (Vireon Bot Operations Studio)** across package metadata, dashboard titles, Docker service names, logs and documentation.
+- Renamed the old project spelling to **Vireon** and moved chain/wallet environment variables to `VIREON_*`.
+- Renamed visible Discord setup and status commands to `/setup-vireon` and `/vireon-status`.
+- Renamed the production app service/container to `vbos` and default SQLite fallback to `data/vbos.db`.
+- Added Approval Queue for VBOS: MODERATOR+ users can request message approval, while ADMIN+ users approve or reject from the web panel.
+- Changed direct channel push to ADMIN+ only, so moderators prepare and submit messages safely instead of posting directly.
+- Added approval audit trail, approval storage, approval review endpoints and status tracking: pending, rejected, approved_sent, approved_scheduled and approved_failed.
+- Added VBOS at `/admin/#operations` for moderator/admin bot control from the web panel.
+- Added safe interactive bot console with allowlisted commands: help, ping, status, guild, channels, roles, members, templates, push-history, audit-tail and audited `say`.
+- Added Message Creator with plain/embed modes, embed fields, footer, link buttons, preview, template save and multi-channel push.
+- Added scheduled channel message pushes with a background worker and persisted push history.
+- Added message template storage with MODERATOR create/list and ADMIN delete.
+- Added `/api/operations/*` endpoints with explicit RBAC and audit logging for console, approval queue and channel push actions.
+- Added tests for message preview, template soft-delete, scheduled pushes, approval request/review and blocked console commands.
+
+## 7.28.0
+
+- Added first-run Admin Web Setup Wizard for Discord + Admin Web bootstrap without editing `.env` manually.
+- Added bootstrap runtime mode: when Discord token/client/guild config is missing, the process starts Admin Web only and exposes the setup wizard instead of crashing.
+- Added `data/runtime-config.json` runtime configuration, loaded on startup before Discord client initialization.
+- Added local one-time setup token stored at `data/setup-token.txt`; it is removed after setup finalize.
+- Added setup finalize flow that stores Discord config, Admin Web config, PostgreSQL/Prisma database config and generated strong secrets.
+- Added automatic wizard lock/removal after finalize, with optional process restart for Docker/systemd normal runtime.
+- Switched Docker Compose to a serious PostgreSQL-first profile for bot data using Prisma.
+- Added separate PostgreSQL service for the ledger database, keeping wallet/transaction data isolated.
+- Kept blockchain disabled by default in the Discord/Admin profile: `VIREON_CHAIN_MODE=disabled` and `ONCHAIN_SYNC_ENABLED=false`.
+- Added runtime-config tests for token creation, finalize, config loading and setup-token cleanup.
+
+## 7.26.0
+
+- Added Admin Web Control Center at `/admin/#control` for Discord guild operations.
+- Added `/api/control/overview` with guild, bot permission, role and channel summaries.
+- Added admin API actions for creating/updating/deleting roles and channels with RBAC and safety confirmations.
+- Added admin API action for sending plain messages or Vireon embeds from the web panel.
+- Added guild settings update flow for server name, description, locale and key public channels.
+- Added audit-log persistence for every Admin Web control mutation.
+- Added safety checks for managed roles, bot role hierarchy, destructive confirmation text and Discord permission warnings.
+- Added tests for Admin Control payload normalization and validation.
+
+## 7.25.0
+
+- Added optional on-chain sync worker controlled by `ONCHAIN_SYNC_ENABLED`.
+- Added `getTransactionStatus(txHash)` to the Vireon chain client with RPC/mock/disabled modes.
+- Added transaction status polling for broadcasted/confirming ledger rows.
+- Added on-chain ledger states: `onchain_confirming`, `onchain_confirmed`, `onchain_finalized`, `onchain_reorged` and `double_spend`.
+- Added reorg/conflict compensation that reverses local payment balance effects only once.
+- Added metadata tracking for block height, block hash, confirmations, canonical status and sync source.
+- Added tests for transaction status normalization, confirmation sync, reorg reversal and duplicate payment-id conflict detection.
+
+## 7.24.0
+
+- Added `/payment user:<member> amount:<amount>` with registered-wallet and balance checks.
+- Added Discord Confirm/Cancel buttons with estimated network fee before spending funds.
+- Extended the Vireon chain client with `estimatePaymentFee` and `broadcastPayment` adapters for mock/rpc modes.
+- Added local ledger synchronization after successful broadcast: sender debit, recipient credit and fee transaction records.
+- Added broadcast failure handling that keeps balances unchanged and records the failed local transaction.
+- Added DM notification attempts for both payment sender and recipient.
+- Added tests for chain payment fee/broadcast and payment service balance synchronization.
+
+## 7.23.0
+
+- Rebuilt payment links as public PWA routes under `/admin/pay/:token`.
+- Kept legacy `/pay/:token` as a redirect to the PWA payment page.
+- Added public tokenized withdrawal requests at `POST /payment-links/:token/withdrawals`.
+- Added ledger balance locking for withdrawal requests: available decreases, locked increases and a `pending_review` transaction is recorded.
+- Added payment-link UI for address, balance, transaction history and withdrawal requests.
+- Added tests for withdrawal request creation and balance locking.
+
+## 7.22.0
+
+- Changed custodial wallet generation to derive addresses from an HD master seed loaded from env/vault.
+- Stopped storing per-wallet seed ciphertext in the ledger database.
+- Added derivation metadata envelopes that record path/address/public hash and explicitly mark seed/private-key storage as disabled.
+- Added support for `WALLET_HD_MASTER_SEED_FILE`, `WALLET_HD_MASTER_SEED_BASE64`, `WALLET_HD_MASTER_SEED_HEX` and `WALLET_HD_MASTER_SEED`.
+- Updated wallet tests to assert that master seed/private key material is not persisted or rendered.
+
+## 7.21.0
+
+- Added `/register` with `custodial`, `external`, `verify` and `status` subcommands.
+- Added custodial wallet generation with encrypted AES-256-GCM seed envelopes stored in the isolated ledger store.
+- Added external wallet challenge-response flow with remote verifier support and dev-only mock signatures.
+- Added tokenized payment links at `/pay/:token` showing address, balance and transaction history without exposing secrets.
+- Added `/api/wallets` and an active Wallet/Payments dashboard panel.
+- Synced registered wallets into the shared `wallet-links` collection so `/rewards` can use them.
+- Added tests for custodial registration, external verification and payment link rendering.
+
+## 7.20.0
+
+- Added shared RPC cache and rate-limit protection inside the Vireon chain client.
+- Added per-endpoint cache TTLs for health, network status and rewards RPC calls.
+- Added stale-cache fallback when the RPC limit is reached or a temporary RPC error happens.
+- Added visible RPC cache state to `/vireon-status`, `/rewards` and the Blockchain Status dashboard.
+- Added dashboard warning state when stale cached RPC data is being served.
+- Added tests for cache hits, in-flight request dedupe, stale rate-limit fallback and per-wallet rewards cache isolation.
+
 ## 7.19.0
 
 - Added the active Blockchain Status panel in the React admin dashboard.
@@ -10,18 +143,18 @@
 
 ## 7.18.0
 
-- Added `/rewards` for mining, staking and node rewards tied to a linked Veiron wallet.
+- Added `/rewards` for mining, staking and node rewards tied to a linked Vireon wallet.
 - Added a wallet-link lookup contract using the shared DAL `wallet-links` collection for future Phase 6 integration.
-- Extended the Veiron chain client with `getRewardsForAddress(address)`.
-- Added configurable `VEIRON_CHAIN_REWARDS_URL` / `VEIRON_CHAIN_REWARDS_PATH` for rewards endpoints.
+- Extended the Vireon chain client with `getRewardsForAddress(address)`.
+- Added configurable `VIREON_CHAIN_REWARDS_URL` / `VIREON_CHAIN_REWARDS_PATH` for rewards endpoints.
 - Kept wallet-link-required, disabled and mock states explicit so rewards are not presented as live until the adapter and wallet link exist.
 - Added tests for rewards endpoint normalization, explicit rewards URLs, missing wallet addresses and wallet-link helper behavior.
 
 ## 7.17.0
 
-- Added live `/veiron-status` output backed by the Veiron chain client.
+- Added live `/vireon-status` output backed by the Vireon chain client.
 - Added chain status normalization for block height, latest block hash, hash rate, active nodes and circulating supply.
-- Added configurable `VEIRON_CHAIN_STATUS_URL` / `VEIRON_CHAIN_STATUS_PATH` for RPC/API status endpoints.
+- Added configurable `VIREON_CHAIN_STATUS_URL` / `VIREON_CHAIN_STATUS_PATH` for RPC/API status endpoints.
 - Kept disabled and mock adapter states explicit so simulated data is never presented as live network data.
 - Added tests for disabled, mock, RPC normalization, explicit status URL routing and invalid RPC responses.
 
@@ -67,7 +200,7 @@
 
 - Added an interactive Now Playing Discord button panel.
 - Attached Pause/Resume, Skip and Queue buttons to `/nowplaying` responses.
-- Added button interaction routing through `veiron_music:*` custom IDs.
+- Added button interaction routing through `vireon_music:*` custom IDs.
 - Reused the existing music manager for button controls instead of creating separate control paths.
 - Added tests for now-playing button action routing and component generation.
 
@@ -86,7 +219,7 @@
 - Added DAL-backed saved music playlists in the `music-playlists` collection.
 - Added `/playlist create`, `list`, `show`, `add`, `remove`, `play` and `delete`.
 - Added user playlists per guild and shared server playlists per guild.
-- Restricted server playlist edits to community bot managers.
+- Restricted server playlist edits to VBOS managers.
 - Added saved playlist playback through the existing Lavalink music manager.
 - Added tests for playlist normalization, ownership, server scope, track add/remove and soft delete.
 
@@ -152,7 +285,7 @@
 ## 7.2.0
 
 - Added `/rank` slash command with optional user lookup.
-- Added Veiron-styled PNG rank cards generated with `@napi-rs/canvas`.
+- Added VBOS-styled PNG rank cards generated with `@napi-rs/canvas`.
 - Added `/leaderboard` slash command with configurable result limit.
 - Added rank/leaderboard sorting helpers and tests.
 - Added PNG render smoke test for the visual rank card.

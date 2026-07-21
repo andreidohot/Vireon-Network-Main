@@ -1,4 +1,4 @@
-import { createVeironEmbed } from "./embed-factory.js";
+import { createVireonEmbed } from "./embed-factory.js";
 
 export const MUSIC_PLAYLISTS_COLLECTION = "music-playlists";
 
@@ -26,7 +26,7 @@ export async function handlePlaylistCreate(interaction, store, permissions) {
   if (scope === "server" && !permissions.canManageCommunityBot(interaction)) {
     await interaction.reply({
       ephemeral: true,
-      content: "You need community bot management permission to create server playlists."
+      content: "You need VBOS management permission to create server playlists."
     });
     return;
   }
@@ -63,7 +63,7 @@ export async function handlePlaylistList(interaction, store) {
   }
 
   await interaction.reply({
-    embeds: [createVeironEmbed({
+    embeds: [createVireonEmbed({
       title: scope === "server" ? "Server Music Playlists" : "Your Music Playlists",
       description: playlists
         .map((playlist) => `\`${playlist.name}\` - ${playlist.tracks.length} track${playlist.tracks.length === 1 ? "" : "s"}`)
@@ -84,7 +84,7 @@ export async function handlePlaylistShow(interaction, store) {
     .map((track, index) => `${index + 1}. ${formatPlaylistTrack(track)}`);
 
   await interaction.reply({
-    embeds: [createVeironEmbed({
+    embeds: [createVireonEmbed({
       title: `Playlist: ${result.playlist.name}`,
       description: lines.length > 0 ? lines.join("\n") : "This playlist is empty.",
       footer: `${result.playlist.scope} playlist - ${result.playlist.tracks.length} saved track${result.playlist.tracks.length === 1 ? "" : "s"}`

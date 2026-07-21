@@ -1,19 +1,25 @@
-# Veiron Community Bot
+# VBOS
 
-All-in-one Discord community bot for Veiron Network.
+VBOS (Vireon Bot Operations Studio) is the all-in-one Discord operations bot and admin web panel for Vireon Network.
 
-Current version: **7.19.0**.
+Current version: **7.35.0**.
 
-The goal is one strong bot, not many disconnected bots. This release includes server setup, onboarding roles, permission control with visual admin UI, Veiron-styled embeds, moderation, tickets, live-config automod, anti-raid alerts, anti-spam, persistent audit logging, automated database backups, announcements, scheduled announcements, proposals/voting, welcome/goodbye events, XP/level tracking, server-only Shards social currency, custom tags, custom triggers, Lavalink music commands, saved playlists, audio filters, interactive now-playing controls, live Veiron chain status and reward queries via the configured adapter, Docker deployment and an installable React SPA admin dashboard.
+The goal is one strong operations system, not many disconnected bots. This release includes server setup, onboarding roles, permission control with visual admin UI, VBOS-styled embeds, moderation, tickets, live-config automod, anti-raid alerts, anti-spam, persistent audit logging, automated database backups, announcements, scheduled announcements, proposals/voting, welcome/goodbye events, XP/level tracking, server-only Shards social currency, custom tags, custom triggers, Lavalink music commands, saved playlists, audio filters, interactive now-playing controls, live Vireon chain status and reward queries via the configured adapter, Docker deployment and an installable React SPA admin dashboard.
 
 ## Current Modules
 
 - Server setup: roles, categories, channels, permissions and starter messages.
-- Role onboarding: buttons in `#roles` for `Veiron Member`, `Developer`, `Miner`, `Node Operator`, `Builder` and `Early Supporter`.
+- Role onboarding: buttons in `#roles` for `Vireon Member`, `Developer`, `Miner`, `Node Operator`, `Builder` and `Early Supporter`.
 - Permission controller: one place for setup/admin/embed permissions, configurable from the admin dashboard with role and user rules.
-- Embed factory: one Veiron-styled embed system used by commands and API.
-- Admin dashboard: installable React + Vite PWA at `/admin/` with routed panels for overview, embeds, tickets, moderation, proposals, automod, anti-spam, audit log search, economy/leveling, permissions, music, wallet/payments, live blockchain status and settings.
+- Embed factory: one VBOS-styled embed system used by commands and API.
+- Admin dashboard: installable React + Vite PWA at `/admin/` with first-run Setup Wizard and routed panels for overview, Command Center, full Discord control, Custom Lab, Automation Studio, Module Center, VBOS Operations, embeds, tickets, moderation, proposals, automod, anti-spam, audit log search, economy/leveling, permissions, music, wallet/payments, live blockchain status and settings.
 - Admin panel API: protected HTTP API with JWT login, refresh tokens, per-route RBAC, TOTP 2FA and account lockout.
+- Bot Control Center: admin/moderator web console for member lookup, warn/timeout/kick/ban/unban, purge, ticket close/reopen/archive, member role assignment, bulk role changes, channel permission overwrites, channel reorder, role/channel/category/guild control, structure-plan apply/dry-run, message/embed sending, bot permission health and audited mutations.
+- VBOS Operations: safe interactive console, Message Creator, embed preview, saved message templates, approval queue, admin-only direct push, multi-channel push, scheduled posts, custom button attachments and push history from `/admin/#operations`.
+- Custom Lab: `/admin/#custom` lets ADMIN+ users create, update and delete DB-backed prefix commands, `/custom` gateway responses and custom Discord button interactions without editing code. MODERATOR+ users can inspect commands, buttons and recent custom events.
+- Automation Studio: `/admin/#automations` lets staff build no-code Discord flows with safe triggers/actions, dry-run preview, admin testing, cooldowns, audit log and runtime execution on messages and member join/leave.
+- Command Center: `/admin/#commands` shows the full VBOS command surface, categories, runtime stats, modules, custom commands, automations and audit tail for staff.
+- Module Center: `/admin/#modules` acts as a Feature Marketplace for VBOS modules, with categories, risk levels, dependency warnings, audited enable/disable controls, JSON bundle export/import and dry-run validation.
 - PWA support: Android-installable manifest, iconset, Workbox service worker and cached read-only dashboard fallback.
 - Web push foundation: VAPID-based subscription endpoints, test alerts, new-ticket alerts and critical automod alerts for subscribed admins.
 - Moderation: warn, mute, unmute, purge and case history.
@@ -22,7 +28,7 @@ The goal is one strong bot, not many disconnected bots. This release includes se
 - Automod: live-editable anti-scam keywords, custom regex rules, Discord invite blocking, mass-mention blocking and event logs.
 - Anti-raid: configurable join-rate detection with persisted automod events, audit log entries and critical staff push alerts.
 - Anti-spam: message-rate tracking with automatic timeout and audit log.
-- Announcements: draft/list/publish/schedule flow with Veiron public status labels.
+- Announcements: draft/list/publish/schedule flow with Vireon public status labels.
 - Proposals: create/list/close proposals with Yes/No voting buttons.
 - Community events: welcome/goodbye messages and optional auto role assignment.
 - XP/Leveling: per-guild user XP profiles, message XP with cooldown anti-abuse, voice-time XP tracking, configurable level curves, automatic role rewards, `/rank` cards and `/leaderboard`.
@@ -33,26 +39,32 @@ The goal is one strong bot, not many disconnected bots. This release includes se
 - Audit logging: moderation, ticket, automod, anti-spam, announcement and proposal events are persisted through the shared DAL and can also be posted to `#mod-log`.
 - Audit dashboard: MODERATOR+ users can search/filter persisted audit events by text, type, source, user IDs, channel and date range.
 - Data access layer: selectable JSON or Prisma-backed store with the same module-facing interface.
-- Local JSON storage: settings, cases, tickets, proposals, votes, announcements and automod events can be saved in `data/`.
+- Setup Wizard: first-run browser setup stores runtime configuration in `data/runtime-config.json`, removes the local setup token and hides the wizard after finalize.
+- Serious database profile: Docker Compose defaults to PostgreSQL + Prisma for bot data instead of JSON.
+- Local JSON storage: retained for dev/fallback storage only.
 - Prisma storage: database-backed generic collections for production migration.
 - Ledger database isolation: separate Prisma schema and `DATABASE_URL_LEDGER` for wallet, balance and VIRE transaction data.
 - Automated backups: cron-like scheduler plus manual `npm run backup`, covering main DB, ledger DB and optional JSON data, with S3-compatible upload support.
 - Structured logging: Pino logger for runtime/admin/music events.
 - Extended health check: `/health` reports bot, DB, Lavalink and chain-client status.
-- Veiron chain status: `/veiron-status` reads block height, latest block hash, hash rate, active nodes and circulating supply from the configured chain adapter, with explicit mock/disabled fallback states.
-- Veiron rewards: `/rewards` reads mining, staking and node rewards for the user's linked wallet address. It requires the future Phase 6 Discord <-> wallet link record before querying the chain adapter.
-- Blockchain dashboard: `/admin/#blockchain` shows RPC status, uptime, latency, network metrics, block-height/latency charts and a visible alert when the configured node/RPC is down.
+- Vireon chain status: `/vireon-status` reads block height, latest block hash, hash rate, active nodes and circulating supply from the configured chain adapter, with explicit mock/disabled fallback states and RPC cache/rate-limit protection.
+- Vireon wallet registration: `/register` creates custodial encrypted wallets or links external wallets through challenge-response, then returns a tokenized payment link.
+- Vireon rewards: `/rewards` reads mining, staking and node rewards for the user's linked wallet address. It uses the Phase 6 Discord <-> wallet link record created by `/register`.
+- Vireon payments: `/payment user:<member> amount:<amount>` validates registered wallets and available custodial balance, estimates fee, asks for Confirm/Cancel, broadcasts through the configured chain adapter, syncs the local ledger and notifies both users.
+- On-chain sync: optional worker polls transaction status, confirms local ledger rows, detects reorg/conflicts and reverses local payment effects once when a transaction is reorged or double-spent.
+- Wallet dashboard: `/admin/#wallet` shows registered custodial/external wallets and their payment links without exposing master seed or derived private-key material.
+- Blockchain dashboard: `/admin/#blockchain` shows RPC status, uptime, latency, network metrics, RPC cache state, block-height/latency charts and a visible alert when the configured node/RPC is down or stale cached data is being served.
 - Unit tests: Vitest coverage for config, storage/DAL and permission controller basics.
 - Docker deployment: Dockerfile, Compose file and deployment notes.
 - Status language guard: quick reminder for public wording that avoids false launch/investment claims.
 
 ## Planned Modules
 
-- Embed builder with templates, preview and scheduled posts.
+- Admin Web: rollback snapshots, template diff/apply controls and richer analytics for control actions.
 - Changelog publishing.
 - Community analytics.
 - Website/admin integration.
-- Veiron testnet integrations when real APIs exist.
+- Vireon testnet integrations when real APIs exist.
 
 Dashboard shell placeholders are already present for future backend modules:
 
@@ -60,6 +72,61 @@ Dashboard shell placeholders are already present for future backend modules:
 - Wallet/Payments: wallet linking, payment limits and VIRE transaction review.
 
 The Blockchain Status panel is active and backed by `/api/blockchain/status`.
+
+
+## VBOS Web Control Plane
+
+The Admin Web panel is now the main control surface for staff. `MODERATOR+` users can operate moderation, tickets, command visibility, message previews, approval requests, push history, custom-control visibility and safe console commands. `ADMIN+` users can mutate the Discord server structure and bot behavior.
+
+Main control areas:
+
+- `/admin/#control` manages members, moderation actions, role assignment, bulk roles, channels, categories, permission overwrites, channel order, guild settings and bulk structure plans. Destructive actions keep explicit confirmations and Discord hierarchy checks.
+- `/admin/#operations` manages Message Creator, embed preview, saved templates, approval queue, scheduled posts, direct admin push, channel push history and custom interaction buttons attached to messages.
+- `/admin/#custom` manages DB-backed custom prefix commands, the `/custom` slash gateway and custom Discord button responses. These are audited and do not execute shell or arbitrary JavaScript.
+- `/admin/#automations` manages no-code automation flows: message triggers, regex triggers, member join/leave triggers, channel messages, DMs, role changes, reactions and log events. Flow execution is allowlisted, cooldown-protected and audited.
+- `/admin/#modules` manages the VBOS module registry: module status, risk, dependencies, optional feature toggles and import/export bundles for custom configurations.
+
+All web mutations pass through RBAC and audit logging. The panel intentionally uses allowlisted actions instead of arbitrary remote code execution.
+
+## First-Run Setup Wizard
+
+The bot can now boot without Discord secrets. On first start, if `DISCORD_TOKEN`, `DISCORD_CLIENT_ID` or `DISCORD_GUILD_ID` are missing, it starts only the Admin Web setup mode. Open:
+
+```bash
+http://127.0.0.1:8787/admin/
+```
+
+The wizard asks for the local setup token. The token is generated on the server at:
+
+```bash
+data/setup-token.txt
+```
+
+After finalize, the wizard writes:
+
+```bash
+data/runtime-config.json
+```
+
+That file contains the runtime configuration for Discord, Admin Web, PostgreSQL/Prisma and generated secrets. The setup token is removed and the wizard is no longer shown. In Docker, the process exits after finalize so the container restarts and loads the normal Discord bot runtime.
+
+Do not commit `data/runtime-config.json`; it contains secrets. Keep `data/` mounted as a private persistent volume.
+
+## Serious Bot Database
+
+The normal deploy profile now uses PostgreSQL with Prisma:
+
+```bash
+docker compose up -d --build
+```
+
+Compose starts:
+
+- `postgres` for admin auth, settings, audit log, XP, economy, tickets, moderation cases and bot module data.
+- `postgres-ledger` for wallet, balance and transaction records.
+- `vbos` with Admin Web setup enabled on first boot.
+
+JSON storage is still available for local experiments, but it is no longer the recommended deploy mode for a serious Discord/Admin Web bot.
 
 ## What Setup Creates
 
@@ -76,7 +143,7 @@ Roles:
 - Builder
 - Partner
 - Early Supporter
-- Veiron Member
+- Vireon Member
 - Muted
 - Bot
 
@@ -84,7 +151,7 @@ Categories and channels:
 
 - START HERE: welcome, rules, announcements, roadmap, faq, roles
 - COMMUNITY: general, romana, english, ideas, showcase, off-topic
-- VEIRON DEVELOPMENT: dev-chat, protocol-design, rust-core, smart-contracts, wallet-explorer, docs-research, bugs
+- VIREON DEVELOPMENT: dev-chat, protocol-design, rust-core, smart-contracts, wallet-explorer, docs-research, bugs
 - MINING AND NODES: mining, node-operators, testnet-faucet, mining-pools
 - ECOSYSTEM: dapps-games, nfts-assets, passport-identity, marketplace, encrypted-communication
 - GOVERNANCE: proposals, governance-discussion, decision-log
@@ -92,7 +159,7 @@ Categories and channels:
 - ADMIN: admin-hq, mod-log, staff-tasks, security-room, incident-room
 - VOICE: Community Lounge, Dev Room, Mining Room, Staff Voice
 
-The setup is idempotent. Running `/setup-veiron confirm:true` again reuses existing roles and channels where possible instead of duplicating the server.
+The setup is idempotent. Running `/setup-vireon confirm:true` again reuses existing roles and channels where possible instead of duplicating the server.
 
 ## Required Bot Permissions
 
@@ -119,7 +186,7 @@ Place the bot role above the roles it needs to create, edit or assign as XP leve
 ## Setup
 
 ```bash
-cd veiron-community/veiron-community-bot
+cd vbos
 cp .env.example .env
 npm install
 npm run dashboard:build
@@ -143,7 +210,7 @@ Optional setup lock:
 SETUP_ALLOWED_USER_IDS=123456789012345678,987654321098765432
 ```
 
-If `SETUP_ALLOWED_USER_IDS` is empty, any server Administrator can run `/setup-veiron`.
+If `SETUP_ALLOWED_USER_IDS` is empty, any server Administrator can run `/setup-vireon`.
 
 ## Admin Panel API
 
@@ -159,11 +226,11 @@ ADMIN_REFRESH_TOKEN_DAYS=14
 ADMIN_TOTP_ENCRYPTION_KEY=replace_with_at_least_32_random_characters
 ADMIN_LOCKOUT_MAX_ATTEMPTS=5
 ADMIN_LOCKOUT_MINUTES=15
-ADMIN_DEFAULT_EMAIL=admin@veiron.local
+ADMIN_DEFAULT_EMAIL=admin@vireon.local
 ADMIN_DEFAULT_PASSWORD=replace_with_long_initial_password
 WEB_PUSH_VAPID_PUBLIC_KEY=
 WEB_PUSH_VAPID_PRIVATE_KEY=
-WEB_PUSH_SUBJECT=mailto:admin@veiron.local
+WEB_PUSH_SUBJECT=mailto:admin@vireon.local
 BOT_DATA_DIR=./data
 ```
 
@@ -191,8 +258,8 @@ Prisma mode:
 ```bash
 STORAGE_DRIVER=prisma
 DATABASE_PROVIDER=sqlite
-DATABASE_URL=file:./data/veiron-community.db
-DATABASE_URL_LEDGER=file:./data/veiron-ledger.db
+DATABASE_URL=file:./data/vbos.db
+DATABASE_URL_LEDGER=file:./data/vireon-ledger.db
 npm run prisma:generate
 npm run prisma:generate:ledger
 npm run prisma:push
@@ -202,6 +269,8 @@ npm run prisma:push:ledger
 The Prisma adapter stores most module data in generic collection tables, so existing modules can move from JSON to Prisma without internal rewrites. XP profiles use a dedicated `XpProfile` table when `STORAGE_DRIVER=prisma`, while JSON mode stores them in the `xp-profiles` collection.
 
 `DATABASE_PROVIDER` supports `sqlite`, `postgresql` and `mysql`. Prisma requires literal providers in schema files, so `npm run prisma:select` materializes the active main and ledger schemas before generation or push.
+
+Wallet registration can use the ledger Prisma client when `STORAGE_DRIVER=prisma` and `npm run prisma:generate:ledger` has been run. In local/dev mode, set `LEDGER_STORAGE_DRIVER=json` to store ledger data separately under `LEDGER_DATA_DIR`.
 
 ## Database Backups
 
@@ -230,8 +299,8 @@ S3-compatible upload:
 BACKUP_S3_ENABLED=true
 BACKUP_S3_ENDPOINT=https://s3.amazonaws.com
 BACKUP_S3_REGION=auto
-BACKUP_S3_BUCKET=veiron-backups
-BACKUP_S3_PREFIX=veiron-community-bot
+BACKUP_S3_BUCKET=vireon-backups
+BACKUP_S3_PREFIX=vbos
 BACKUP_S3_ACCESS_KEY_ID=replace_me
 BACKUP_S3_SECRET_ACCESS_KEY=replace_me
 BACKUP_S3_FORCE_PATH_STYLE=true
@@ -253,7 +322,7 @@ The XP engine awards XP from messages and voice activity:
 User-facing XP commands:
 
 ```text
-/rank [user]        Generates a Veiron-styled PNG rank card.
+/rank [user]        Generates a VBOS-styled PNG rank card.
 /leaderboard [limit] Shows the top XP profiles for the current guild.
 ```
 
@@ -369,7 +438,7 @@ Optional web push notifications require VAPID keys:
 npm run push:vapid
 WEB_PUSH_VAPID_PUBLIC_KEY=generated_public_key
 WEB_PUSH_VAPID_PRIVATE_KEY=generated_private_key
-WEB_PUSH_SUBJECT=mailto:admin@veiron.local
+WEB_PUSH_SUBJECT=mailto:admin@vireon.local
 ```
 
 Current automatic push alerts:
@@ -421,6 +490,11 @@ GET   /api/automod/events       MODERATOR
 GET   /api/anti-spam/events     MODERATOR
 GET   /api/proposals            VIEWER
 GET   /api/announcements        VIEWER
+GET   /api/modules/overview      MODERATOR
+GET   /api/modules/events        MODERATOR
+POST  /api/modules/:id/state     ADMIN
+POST  /api/modules/export        ADMIN
+POST  /api/modules/import        ADMIN
 GET   /api/blockchain/status    VIEWER
 GET   /api/push/public-key      VIEWER
 POST  /api/push/subscriptions   VIEWER
@@ -444,22 +518,75 @@ bot, database, lavalink, chain
 Chain client health modes:
 
 ```bash
-VEIRON_CHAIN_MODE=disabled
-VEIRON_CHAIN_MODE=mock
-VEIRON_CHAIN_MODE=rpc
-VEIRON_CHAIN_HEALTH_URL=https://rpc.example/health
-VEIRON_CHAIN_RPC_URL=https://rpc.example
-VEIRON_CHAIN_STATUS_PATH=/status
+VIREON_CHAIN_MODE=disabled
+VIREON_CHAIN_MODE=mock
+VIREON_CHAIN_MODE=rpc
+VIREON_CHAIN_HEALTH_URL=https://rpc.example/health
+VIREON_CHAIN_RPC_URL=https://rpc.example
+VIREON_CHAIN_STATUS_PATH=/status
 # or override the exact status endpoint:
-VEIRON_CHAIN_STATUS_URL=https://rpc.example/status
-VEIRON_CHAIN_REWARDS_PATH=/rewards/{address}
+VIREON_CHAIN_STATUS_URL=https://rpc.example/status
+VIREON_CHAIN_REWARDS_PATH=/rewards/{address}
 # or override the exact rewards endpoint:
-VEIRON_CHAIN_REWARDS_URL=https://rpc.example/rewards/{address}
+VIREON_CHAIN_REWARDS_URL=https://rpc.example/rewards/{address}
+VIREON_CHAIN_PAYMENT_FEE_PATH=/payments/estimate-fee
+VIREON_CHAIN_PAYMENT_BROADCAST_PATH=/payments/broadcast
+# or override exact payment endpoints:
+VIREON_CHAIN_PAYMENT_FEE_URL=https://rpc.example/payments/estimate-fee
+VIREON_CHAIN_PAYMENT_BROADCAST_URL=https://rpc.example/payments/broadcast
+VIREON_CHAIN_PAYMENT_TIMEOUT_MS=3000
+VIREON_CHAIN_MOCK_PAYMENT_FEE=0.001
+VIREON_CHAIN_TX_STATUS_PATH=/transactions/{txHash}
+# or override the exact tx status endpoint:
+VIREON_CHAIN_TX_STATUS_URL=https://rpc.example/transactions/{txHash}
+VIREON_CHAIN_TX_STATUS_TIMEOUT_MS=3000
+VIREON_CHAIN_CACHE_ENABLED=true
+VIREON_CHAIN_HEALTH_CACHE_TTL_MS=10000
+VIREON_CHAIN_STATUS_CACHE_TTL_MS=15000
+VIREON_CHAIN_REWARDS_CACHE_TTL_MS=30000
+VIREON_CHAIN_TX_STATUS_CACHE_TTL_MS=5000
+VIREON_CHAIN_STALE_CACHE_TTL_MS=120000
+VIREON_CHAIN_RPC_RATE_LIMIT_PER_MINUTE=60
+VIREON_CHAIN_RPC_RATE_LIMIT_WINDOW_MS=60000
+ONCHAIN_SYNC_ENABLED=false
+ONCHAIN_SYNC_INTERVAL_MS=30000
+ONCHAIN_SYNC_BATCH_SIZE=100
+ONCHAIN_SYNC_MIN_CONFIRMATIONS=6
+ONCHAIN_SYNC_FINALITY_CONFIRMATIONS=24
+ONCHAIN_SYNC_TRACK_STATUSES=broadcasted,broadcast_mock,onchain_seen,onchain_confirming,onchain_confirmed
 ```
 
-`/veiron-status` uses the same chain adapter. In `rpc` mode it expects a JSON response containing known network metrics such as `height`/`blockHeight`, `latestBlock.hash`, `hashRate`, `activeNodes`/`peerCount` and `circulatingSupply`/`supply.circulating`. Until a real Veiron RPC/testnet endpoint exists, use `VEIRON_CHAIN_MODE=mock` only for clearly marked simulated values.
+`/vireon-status` uses the same chain adapter. In `rpc` mode it expects a JSON response containing known network metrics such as `height`/`blockHeight`, `latestBlock.hash`, `hashRate`, `activeNodes`/`peerCount` and `circulatingSupply`/`supply.circulating`. Until a real Vireon RPC/testnet endpoint exists, use `VIREON_CHAIN_MODE=mock` only for clearly marked simulated values.
 
 `/rewards` uses a verified record from the shared DAL collection `wallet-links`, expected to be created by the future Phase 6 wallet-link flow. In `rpc` mode it expects reward metrics such as `mining`, `staking`, `node`, `claimable`, `pending`, `paid` or `totalRewards`. In `mock` mode the command marks the values as simulated.
+
+RPC calls are protected by a shared in-memory cache and rate limiter inside the chain client. Health, status and rewards endpoints each have their own TTL. If the rate limit is reached or a temporary RPC error happens while a stale value is still available, commands and the dashboard return that stale cached value with `cached`/`stale` metadata instead of hammering the node.
+
+Wallet registration:
+
+```bash
+PUBLIC_BASE_URL=https://bot.example.com
+PAYMENT_LINK_SECRET=replace_with_at_least_32_random_characters
+WALLET_HD_MASTER_SEED_FILE=/run/secrets/vireon_wallet_master_seed
+# or one of:
+WALLET_HD_MASTER_SEED_BASE64=
+WALLET_HD_MASTER_SEED_HEX=
+WALLET_HD_MASTER_SEED=
+LEDGER_STORAGE_DRIVER=json
+LEDGER_DATA_DIR=./data/ledger
+VIREON_WALLET_SIGNATURE_VERIFY_URL=https://rpc.example/wallet/verify-signature
+WALLET_ALLOW_MOCK_SIGNATURES=false
+```
+
+`/register custodial` creates a custodial wallet record in the isolated ledger store and derives the Vireon-style address from a master seed loaded from env/vault. The database stores only derivation metadata: wallet id, address, path and public hash. The master seed and derived private keys are never stored in cleartext or encrypted form in the DB, and are never returned through Discord, `/api/wallets` or payment links.
+
+`/register external address:<wallet>` creates a challenge message. `/register verify address:<wallet> signature:<signature>` verifies the response through `VIREON_WALLET_SIGNATURE_VERIFY_URL`. For local development only, `WALLET_ALLOW_MOCK_SIGNATURES=true` enables deterministic mock signatures shown in the ephemeral challenge response.
+
+Payment links are tokenized PWA URLs such as `/admin/pay/<token>`; legacy `/pay/<token>` redirects there. They show public receive data only: address, balances and transaction history. They do not expose custody envelopes or secrets. Withdrawal requests can be submitted from the page and are recorded as `pending_review` ledger transactions that move funds from `available` to `locked`; they do not broadcast on-chain automatically.
+
+`/payment user:<member> amount:<amount>` sends VIRE from the caller's custodial wallet to another registered wallet. The command checks both registrations, rejects external sender wallets because the bot cannot sign their keys, estimates the network fee through `estimatePaymentFee`, then shows Confirm/Cancel buttons. Confirming calls `broadcastPayment`; only a successful broadcast updates local ledger balances and records `payment_sent`, `payment_received` and `payment_fee` transactions. In `mock` mode, the result is explicitly marked as simulated.
+
+When `ONCHAIN_SYNC_ENABLED=true`, the on-chain sync worker polls transactions with broadcast/confirming statuses through `getTransactionStatus(txHash)`. It promotes rows to `onchain_confirming`, `onchain_confirmed` or `onchain_finalized`, stores block height/hash/confirmations in transaction metadata, updates the payment record, and marks conflicts as `double_spend` or `onchain_reorged`. If a transaction that already affected local balances is reorged out or conflicted, the worker reverses the local sender/recipient/fee balance effect once and records `balanceReversed` in metadata.
 
 Send an embed:
 
@@ -467,14 +594,35 @@ Send an embed:
 curl -X POST http://127.0.0.1:8787/api/embeds/send \
   -H "Authorization: Bearer $ADMIN_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"channelId":"123","title":"Veiron Update","description":"Draft update text.","color":"#d4af37"}'
+  -d '{"channelId":"123","title":"Vireon Update","description":"Draft update text.","color":"#d4af37"}'
 ```
 
 ## Commands
 
+Command Center / staff operations added in `7.35.0`:
+
 ```text
-/setup-veiron confirm:true
-/send-embed channel:#announcements title:"Veiron Update" description:"Draft update text."
+/vbos help [category]
+/vbos dashboard
+/vbos invite
+/vbos status
+/vbos commands [category]
+/vbos quickstart
+/vbos audit [limit]
+/modules list | status | enable | disable
+/automations list | info | events | test
+/operations templates | approvals | pushes | console
+/server info | channels | roles | members
+/member-role add | remove | list
+/channel-control create | delete | topic | lock | unlock
+```
+
+These are allowlisted bot/server controls with Discord permission checks and audit logs; there is no shell execution or JavaScript eval.
+
+
+```text
+/setup-vireon confirm:true
+/send-embed channel:#announcements title:"Vireon Update" description:"Draft update text."
 /warn user:@member reason:"Reason"
 /mute user:@member minutes:30 reason:"Reason"
 /unmute user:@member reason:"Reason"
@@ -509,8 +657,13 @@ curl -X POST http://127.0.0.1:8787/api/embeds/send \
 /playlist add name:"focus" query:"song name or URL"
 /playlist play name:"focus"
 /music play query:"song name or URL"   # legacy grouped form still supported
-/veiron-status                         # live chain adapter status: height, hash rate, nodes, supply
+/vireon-status                         # live chain adapter status: height, hash rate, nodes, supply
+/register custodial                    # create or show your custodial Vireon wallet
+/register external address:<wallet>    # start external wallet challenge-response linking
+/register verify address:<wallet> signature:<sig>
+/register status                       # show linked wallet and payment link
 /rewards                               # mining/staking/node rewards for a linked wallet
+/payment user:@member amount:1.5       # confirm, broadcast and sync a VIRE payment
 ```
 
 ## Music / Lavalink
@@ -533,7 +686,7 @@ The older grouped `/music ...` commands remain available for compatibility.
 
 Audio filters use native Lavalink filters through Shoukaku. Supported presets are `bassboost`, `nightcore`, `vaporwave`, `karaoke`, `eightd`, `lowpass` and `off`.
 
-Saved playlists are stored through the shared DAL, so they work with both JSON storage and Prisma-backed production storage. User playlists belong to the creator; server playlists are shared per guild and require community bot management permission to create, edit or delete.
+Saved playlists are stored through the shared DAL, so they work with both JSON storage and Prisma-backed production storage. User playlists belong to the creator; server playlists are shared per guild and require VBOS management permission to create, edit or delete.
 
 ```bash
 MUSIC_ENABLED=true

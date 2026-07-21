@@ -78,7 +78,7 @@ export const DEFAULT_SETTINGS = {
   community: {
     welcomeChannelName: "welcome",
     goodbyeChannelName: "general",
-    memberRoleName: "Veiron Member",
+    memberRoleName: "Vireon Member",
     welcomeEnabled: true,
     goodbyeEnabled: true,
     autoAssignMemberRole: false

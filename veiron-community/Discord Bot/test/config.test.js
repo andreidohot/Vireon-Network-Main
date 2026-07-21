@@ -28,7 +28,7 @@ describe("config", () => {
       alertCooldownMinutes: 5
     });
     expect(settings.antiSpam.maxMessages).toBe(DEFAULT_SETTINGS.antiSpam.maxMessages);
-    expect(settings.community.memberRoleName).toBe("Veiron Member");
+    expect(settings.community.memberRoleName).toBe("Vireon Member");
     expect(settings.permissions.allowAdministrator).toBe(true);
   });
 

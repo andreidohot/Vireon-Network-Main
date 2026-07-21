@@ -19,7 +19,7 @@ describe("database backup config", () => {
       BACKUP_RETENTION_DAYS: "30",
       BACKUP_S3_ENABLED: "true",
       BACKUP_S3_ENDPOINT: "https://r2.example.com",
-      BACKUP_S3_BUCKET: "veiron-backups",
+      BACKUP_S3_BUCKET: "vireon-backups",
       BACKUP_S3_ACCESS_KEY_ID: "key",
       BACKUP_S3_SECRET_ACCESS_KEY: "secret",
       BACKUP_S3_FORCE_PATH_STYLE: "false"
@@ -32,7 +32,7 @@ describe("database backup config", () => {
     expect(config.s3).toMatchObject({
       enabled: true,
       endpoint: "https://r2.example.com",
-      bucket: "veiron-backups",
+      bucket: "vireon-backups",
       forcePathStyle: false
     });
   });
@@ -46,7 +46,7 @@ describe("database backup config", () => {
 
 describe("database backup runner", () => {
   it("creates a tar.gz backup archive for sqlite and JSON data", async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), "veiron-backup-test-"));
+    const root = await mkdtemp(path.join(os.tmpdir(), "vireon-backup-test-"));
     const dataDir = path.join(root, "data");
     const backupDir = path.join(root, "backups");
     const mainDb = path.join(dataDir, "main.db");
@@ -69,7 +69,7 @@ describe("database backup runner", () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(result.archiveName).toBe("veiron-db-backup-2026-01-01T03-00-00Z.tar.gz");
+    expect(result.archiveName).toBe("vireon-db-backup-2026-01-01T03-00-00Z.tar.gz");
     expect(result.sources.some((source) => source.label === "main" && source.type === "sqlite")).toBe(true);
     expect(result.sources.some((source) => source.label === "ledger" && source.type === "sqlite")).toBe(true);
     expect(result.sources.some((source) => source.type === "json")).toBe(true);
@@ -77,7 +77,7 @@ describe("database backup runner", () => {
   });
 
   it("supports dry-run without writing the archive", async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), "veiron-backup-dry-"));
+    const root = await mkdtemp(path.join(os.tmpdir(), "vireon-backup-dry-"));
     const dbPath = path.join(root, "main.db");
     await writeFile(dbPath, "main-db", "utf8");
 
@@ -106,7 +106,7 @@ describe("S3-compatible backup uploads", () => {
         s3: {
           endpoint: "https://s3.example.com",
           region: "auto",
-          bucket: "veiron",
+          bucket: "vireon",
           prefix: "prod/bot",
           accessKeyId: "access",
           secretAccessKey: "secret",
@@ -118,7 +118,7 @@ describe("S3-compatible backup uploads", () => {
       now: new Date("2026-01-01T00:00:00.000Z")
     });
 
-    expect(request.url).toBe("https://s3.example.com/veiron/prod/bot/backup.tar.gz");
+    expect(request.url).toBe("https://s3.example.com/vireon/prod/bot/backup.tar.gz");
     expect(request.key).toBe("prod/bot/backup.tar.gz");
     expect(request.headers.authorization).toContain("AWS4-HMAC-SHA256 Credential=access/20260101/auto/s3/aws4_request");
     expect(request.headers["x-amz-content-sha256"]).toHaveLength(64);

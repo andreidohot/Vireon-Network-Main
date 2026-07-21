@@ -26,7 +26,7 @@ export function registerAntiSpam({ store, permissions }) {
     const timeoutMinutes = Math.max(1, settings.antiSpam.timeoutMinutes ?? 10);
 
     if (message.member?.moderatable) {
-      await message.member.timeout(timeoutMinutes * 60 * 1000, "Veiron anti-spam rate limit").catch(() => null);
+      await message.member.timeout(timeoutMinutes * 60 * 1000, "Vireon anti-spam rate limit").catch(() => null);
     }
 
     const event = await store.add(SPAM_EVENTS_COLLECTION, {

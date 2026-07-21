@@ -5,7 +5,7 @@ import {
   ChannelType
 } from "discord.js";
 import { writeAuditLog } from "./audit-log.js";
-import { createVeironEmbed } from "./embed-factory.js";
+import { createVireonEmbed } from "./embed-factory.js";
 import { getSettings } from "./config.js";
 
 const PROPOSALS_COLLECTION = "proposals";
@@ -13,7 +13,7 @@ const VOTES_COLLECTION = "proposal-votes";
 
 export function registerProposalHandlers({ store, permissions }) {
   return async function handleProposalInteraction(interaction) {
-    if (interaction.isButton() && interaction.customId.startsWith("veiron_proposal_vote:")) {
+    if (interaction.isButton() && interaction.customId.startsWith("vireon_proposal_vote:")) {
       await handleProposalVote(interaction, store);
       return true;
     }
@@ -139,7 +139,7 @@ async function listProposals(interaction, store) {
   await interaction.reply({
     ephemeral: true,
     embeds: [
-      createVeironEmbed({
+      createVireonEmbed({
         title: "Recent Proposals",
         description: items.length
           ? items.map((item) => `**${item.id}** | ${item.status} | ${item.yes}/${item.no} | ${item.title}`).join("\n")
@@ -177,7 +177,7 @@ async function closeProposal(interaction, store, permissions) {
 }
 
 function proposalEmbed(proposal) {
-  return createVeironEmbed({
+  return createVireonEmbed({
     title: `Proposal: ${proposal.title}`,
     description: [
       `Type: **${proposal.type}**`,
@@ -195,11 +195,11 @@ function proposalEmbed(proposal) {
 function proposalVoteButtons(proposalId) {
   return new ActionRowBuilder().addComponents(
     new ButtonBuilder()
-      .setCustomId(`veiron_proposal_vote:${proposalId}:yes`)
+      .setCustomId(`vireon_proposal_vote:${proposalId}:yes`)
       .setLabel("Vote Yes")
       .setStyle(ButtonStyle.Success),
     new ButtonBuilder()
-      .setCustomId(`veiron_proposal_vote:${proposalId}:no`)
+      .setCustomId(`vireon_proposal_vote:${proposalId}:no`)
       .setLabel("Vote No")
       .setStyle(ButtonStyle.Danger)
   );

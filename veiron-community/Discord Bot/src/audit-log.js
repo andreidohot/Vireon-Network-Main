@@ -1,5 +1,5 @@
 import { ChannelType } from "discord.js";
-import { createVeironEmbed } from "./embed-factory.js";
+import { createVireonEmbed } from "./embed-factory.js";
 import { childLogger, serializeError } from "./logger.js";
 
 export const AUDIT_EVENTS_COLLECTION = "audit-events";
@@ -47,12 +47,12 @@ export async function writeAuditLog(guild, {
 
   const message = await channel.send({
     embeds: [
-      createVeironEmbed({
+      createVireonEmbed({
         title,
         description,
         fields,
         color,
-        footer: "Veiron Community Bot"
+        footer: "VBOS"
       })
     ]
   });

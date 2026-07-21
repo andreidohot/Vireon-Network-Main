@@ -172,7 +172,7 @@ async function createXpStore(xpSettings) {
 }
 
 async function tempDataDir() {
-  return mkdtemp(path.join(os.tmpdir(), "veiron-xp-test-"));
+  return mkdtemp(path.join(os.tmpdir(), "vireon-xp-test-"));
 }
 
 function createMessage({ guildId, userId }) {

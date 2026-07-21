@@ -2,11 +2,11 @@ import { EmbedBuilder } from "discord.js";
 
 const DEFAULT_COLOR = 0xd4af37;
 
-export function createVeironEmbed({
+export function createVireonEmbed({
   title,
   description,
   color = DEFAULT_COLOR,
-  footer = "Veiron Network",
+  footer = "Vireon Network",
   fields = []
 }) {
   const embed = new EmbedBuilder()

@@ -33,7 +33,7 @@ describe("admin auth", () => {
     const user = await prisma.user.create({
       data: {
         id: "user-1",
-        email: "admin@veiron.local",
+        email: "admin@vireon.local",
         displayName: "Admin",
         passwordHash: await hashPassword("strong-password"),
         role: "SUPER_ADMIN"
@@ -42,7 +42,7 @@ describe("admin auth", () => {
     const service = new AdminAuthService({ prisma });
 
     const firstPair = await service.login({
-      email: "ADMIN@VEIRON.LOCAL",
+      email: "ADMIN@VIREON.LOCAL",
       password: "strong-password"
     });
     const secondPair = await service.refresh(firstPair.refreshToken);
@@ -54,7 +54,7 @@ describe("admin auth", () => {
   });
 
   it("seeds first SUPER_ADMIN from environment", async () => {
-    process.env.ADMIN_DEFAULT_EMAIL = "root@veiron.local";
+    process.env.ADMIN_DEFAULT_EMAIL = "root@vireon.local";
     process.env.ADMIN_DEFAULT_PASSWORD = "very-strong-password";
     const prisma = createAuthPrismaMock();
     const service = new AdminAuthService({ prisma });
@@ -62,7 +62,7 @@ describe("admin auth", () => {
     const user = await service.ensureDefaultSuperAdmin();
 
     expect(user).toMatchObject({
-      email: "root@veiron.local",
+      email: "root@vireon.local",
       role: "SUPER_ADMIN"
     });
     expect(await prisma.user.count()).toBe(1);
@@ -74,7 +74,7 @@ describe("admin auth", () => {
     await prisma.user.create({
       data: {
         id: "user-2",
-        email: "secure@veiron.local",
+        email: "secure@vireon.local",
         displayName: "Secure Admin",
         passwordHash: await hashPassword("strong-password"),
         role: "ADMIN",
@@ -85,24 +85,24 @@ describe("admin auth", () => {
     const service = new AdminAuthService({ prisma });
 
     await expect(service.login({
-      email: "secure@veiron.local",
+      email: "secure@vireon.local",
       password: "strong-password"
     })).rejects.toMatchObject({ code: "totp_required" });
 
     await expect(service.login({
-      email: "secure@veiron.local",
+      email: "secure@vireon.local",
       password: "strong-password",
       totpCode: "000000"
     })).rejects.toThrow("Invalid TOTP code.");
 
     const pair = await service.login({
-      email: "secure@veiron.local",
+      email: "secure@vireon.local",
       password: "strong-password",
       totpCode: generateSync({ secret })
     });
 
     expect(pair.user).toMatchObject({
-      email: "secure@veiron.local",
+      email: "secure@vireon.local",
       totpEnabled: true,
       lockedUntil: null
     });
@@ -113,7 +113,7 @@ describe("admin auth", () => {
     await prisma.user.create({
       data: {
         id: "user-3",
-        email: "locked@veiron.local",
+        email: "locked@vireon.local",
         displayName: "Locked Admin",
         passwordHash: await hashPassword("strong-password"),
         role: "ADMIN"
@@ -122,19 +122,19 @@ describe("admin auth", () => {
     const service = new AdminAuthService({ prisma });
 
     await expect(service.login({
-      email: "locked@veiron.local",
+      email: "locked@vireon.local",
       password: "bad-password"
     })).rejects.toThrow("Invalid email or password.");
     await expect(service.login({
-      email: "locked@veiron.local",
+      email: "locked@vireon.local",
       password: "bad-password"
     })).rejects.toThrow("Invalid email or password.");
 
-    const lockedUser = await prisma.user.findUnique({ where: { email: "locked@veiron.local" } });
+    const lockedUser = await prisma.user.findUnique({ where: { email: "locked@vireon.local" } });
     expect(lockedUser.failedLoginAttempts).toBe(2);
     expect(lockedUser.lockedUntil).toBeInstanceOf(Date);
     await expect(service.login({
-      email: "locked@veiron.local",
+      email: "locked@vireon.local",
       password: "strong-password"
     })).rejects.toThrow("Account is temporarily locked.");
   });

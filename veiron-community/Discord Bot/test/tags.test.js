@@ -18,9 +18,9 @@ describe("custom tags", () => {
     expect(normalizeTagName("  Welcome Tag!! ")).toBe("welcome-tag");
     expect(renderTagContent("Hi {user}, welcome to {server}. {mentions}", {
       user: { id: "user-1" },
-      guild: { name: "Veiron" },
+      guild: { name: "Vireon" },
       mentions: "<@user-2>"
-    })).toBe("Hi <@user-1>, welcome to Veiron. <@user-2>");
+    })).toBe("Hi <@user-1>, welcome to Vireon. <@user-2>");
   });
 
   it("creates, lists and reads tags per guild", async () => {
@@ -128,5 +128,5 @@ describe("custom tags", () => {
 });
 
 async function createStore() {
-  return new JsonStore({ dataDir: await mkdtemp(path.join(os.tmpdir(), "veiron-tags-test-")) });
+  return new JsonStore({ dataDir: await mkdtemp(path.join(os.tmpdir(), "vireon-tags-test-")) });
 }

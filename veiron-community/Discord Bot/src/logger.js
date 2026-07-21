@@ -1,10 +1,10 @@
 import pino from "pino";
 
 export const logger = pino({
-  name: "veiron-community-bot",
+  name: "vbos",
   level: process.env.LOG_LEVEL ?? "info",
   base: {
-    service: "veiron-community-bot",
+    service: "vbos",
     version: process.env.npm_package_version
   },
   redact: {

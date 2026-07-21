@@ -13,9 +13,9 @@ export default defineConfig({
       filename: "sw.js",
       registerType: "autoUpdate",
       manifest: {
-        name: "Veiron Community Bot Admin",
-        short_name: "Veiron Bot",
-        description: "Installable admin dashboard for Veiron Community Bot.",
+        name: "VBOS Admin",
+        short_name: "VBOS",
+        description: "Installable admin dashboard for VBOS.",
         start_url: "/admin/",
         scope: "/admin/",
         display: "standalone",
@@ -56,7 +56,8 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": "http://127.0.0.1:8787",
-      "/auth": "http://127.0.0.1:8787"
+      "/auth": "http://127.0.0.1:8787",
+      "/payment-links": "http://127.0.0.1:8787"
     }
   }
 });

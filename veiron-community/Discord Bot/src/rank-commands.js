@@ -1,5 +1,5 @@
 import { AttachmentBuilder } from "discord.js";
-import { createVeironEmbed } from "./embed-factory.js";
+import { createVireonEmbed } from "./embed-factory.js";
 import { getLevelProgress, getOrCreateXpProfile, normalizeXpSettings, XP_COLLECTION } from "./xp-leveling.js";
 import { getSettings } from "./config.js";
 import { renderRankCard } from "./rank-card.js";
@@ -50,10 +50,10 @@ export async function handleRank(interaction, store) {
     rank,
     progress
   });
-  const attachment = new AttachmentBuilder(card, { name: "veiron-rank-card.png" });
+  const attachment = new AttachmentBuilder(card, { name: "vireon-rank-card.png" });
 
   await interaction.editReply({
-    content: `${target.id === interaction.user.id ? "Your" : `${target.username}'s`} Veiron rank card.`,
+    content: `${target.id === interaction.user.id ? "Your" : `${target.username}'s`} Vireon rank card.`,
     files: [attachment]
   });
 }
@@ -75,10 +75,10 @@ export async function handleLeaderboard(interaction, store) {
   const lines = formatLeaderboardLines(profiles, xpSettings);
   await interaction.reply({
     embeds: [
-      createVeironEmbed({
-        title: "Veiron Leaderboard",
+      createVireonEmbed({
+        title: "Vireon Leaderboard",
         description: lines.join("\n"),
-        footer: "Veiron XP Engine"
+        footer: "Vireon XP Engine"
       })
     ]
   });

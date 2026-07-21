@@ -1,5 +1,5 @@
 import { ChannelType, PermissionFlagsBits } from "discord.js";
-import { createVeironEmbed } from "./embed-factory.js";
+import { createVireonEmbed } from "./embed-factory.js";
 import { writeAuditLog } from "./audit-log.js";
 
 const CASES_COLLECTION = "moderation-cases";
@@ -316,7 +316,7 @@ async function handleCases(interaction, store) {
   await interaction.reply({
     ephemeral: true,
     embeds: [
-      createVeironEmbed({
+      createVireonEmbed({
         title: `Moderation Cases: ${user.tag}`,
         description: cases
           .map((item) => `**${item.id}** | ${item.type} | ${item.reason}`)

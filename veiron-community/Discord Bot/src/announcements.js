@@ -1,6 +1,6 @@
 import { ChannelType } from "discord.js";
 import { writeAuditLog } from "./audit-log.js";
-import { createVeironEmbed } from "./embed-factory.js";
+import { createVireonEmbed } from "./embed-factory.js";
 import { getSettings } from "./config.js";
 import { childLogger, serializeError } from "./logger.js";
 
@@ -77,7 +77,7 @@ async function publishAnnouncement(interaction, store) {
 
   const message = await channel.send({
     embeds: [
-      createVeironEmbed({
+      createVireonEmbed({
         title,
         description: [`Status: **${status}**`, "", body].join("\n"),
         color: 0xd4af37
@@ -168,7 +168,7 @@ async function listAnnouncements(interaction, store) {
   await interaction.reply({
     ephemeral: true,
     embeds: [
-      createVeironEmbed({
+      createVireonEmbed({
         title: "Recent Announcements",
         description: items.length
           ? items.map((item) => `**${item.id}** | ${item.published ? "Published" : "Draft"} | ${item.status} | ${item.title}`).join("\n")
@@ -207,7 +207,7 @@ async function publishDueAnnouncements({ client, guildId, store }) {
 
     const message = await channel.send({
       embeds: [
-        createVeironEmbed({
+        createVireonEmbed({
           title: announcement.title,
           description: [`Status: **${announcement.status}**`, "", announcement.body].join("\n"),
           color: 0xd4af37

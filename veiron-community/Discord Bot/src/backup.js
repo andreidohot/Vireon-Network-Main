@@ -24,15 +24,15 @@ export function createBackupConfig(env = process.env) {
     includeJsonData: env.BACKUP_INCLUDE_JSON_DATA !== "false",
     storageDriver: env.STORAGE_DRIVER || "json",
     databaseProvider: env.DATABASE_PROVIDER || "sqlite",
-    databaseUrl: env.DATABASE_URL || "file:./data/veiron-community.db",
-    ledgerDatabaseUrl: env.DATABASE_URL_LEDGER || "file:./data/veiron-ledger.db",
+    databaseUrl: env.DATABASE_URL || "file:./data/vbos.db",
+    ledgerDatabaseUrl: env.DATABASE_URL_LEDGER || "file:./data/vireon-ledger.db",
     botDataDir: env.BOT_DATA_DIR || "./data",
     s3: {
       enabled: env.BACKUP_S3_ENABLED === "true",
       endpoint: env.BACKUP_S3_ENDPOINT || "",
       region: env.BACKUP_S3_REGION || "auto",
       bucket: env.BACKUP_S3_BUCKET || "",
-      prefix: trimSlashes(env.BACKUP_S3_PREFIX || "veiron-community-bot"),
+      prefix: trimSlashes(env.BACKUP_S3_PREFIX || "vbos"),
       accessKeyId: env.BACKUP_S3_ACCESS_KEY_ID || "",
       secretAccessKey: env.BACKUP_S3_SECRET_ACCESS_KEY || "",
       forcePathStyle: env.BACKUP_S3_FORCE_PATH_STYLE !== "false"
@@ -45,7 +45,7 @@ export async function runDatabaseBackup({ env = process.env, now = new Date(), d
   const timestamp = formatBackupTimestamp(now);
   const backupDir = path.resolve(config.backupDir);
   const workDir = path.join(backupDir, `.work-${timestamp}`);
-  const archiveName = `veiron-db-backup-${timestamp}.tar.gz`;
+  const archiveName = `vireon-db-backup-${timestamp}.tar.gz`;
   const archivePath = path.join(backupDir, archiveName);
 
   await mkdir(workDir, { recursive: true });
@@ -408,7 +408,7 @@ async function pruneOldBackups(backupDir, retentionDays, now) {
   const cutoff = now.getTime() - retentionDays * 24 * 60 * 60 * 1000;
 
   await Promise.all(entries
-    .filter((entry) => entry.isFile() && /^veiron-db-backup-.*\.tar\.gz$/.test(entry.name))
+    .filter((entry) => entry.isFile() && /^vireon-db-backup-.*\.tar\.gz$/.test(entry.name))
     .map(async (entry) => {
       const filePath = path.join(backupDir, entry.name);
       const fileStat = await stat(filePath);
@@ -422,7 +422,7 @@ function buildBackupManifest({ config, timestamp, sources }) {
   return {
     version: 1,
     createdAt: timestamp,
-    app: "veiron-community-bot",
+    app: "vbos",
     storageDriver: config.storageDriver,
     databaseProvider: config.databaseProvider,
     includesLedger: Boolean(config.ledgerDatabaseUrl),

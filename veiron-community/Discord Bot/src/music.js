@@ -1,9 +1,9 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import { Connectors, LoadType, Shoukaku } from "shoukaku";
-import { createVeironEmbed } from "./embed-factory.js";
+import { createVireonEmbed } from "./embed-factory.js";
 import { childLogger, serializeError } from "./logger.js";
 
-const MUSIC_BUTTON_PREFIX = "veiron_music:";
+const MUSIC_BUTTON_PREFIX = "vireon_music:";
 const PLAYABLE_END_REASONS = new Set(["finished", "loadFailed"]);
 const STANDALONE_MUSIC_COMMANDS = new Set([
   "play",
@@ -279,8 +279,8 @@ export function createMusicManager({ client }) {
       : `Queued ${tracks.length} tracks. First: ${formatTrack(firstTrack)}`;
 
     await respond(interaction, {
-      embeds: [createVeironEmbed({
-        title: "Veiron Music",
+      embeds: [createVireonEmbed({
+        title: "Vireon Music",
         description: title
       })]
     });
@@ -331,7 +331,7 @@ export function createMusicManager({ client }) {
     }
 
     await respond(interaction, {
-      embeds: [createVeironEmbed({
+      embeds: [createVireonEmbed({
         title: "Saved Playlist Queued",
         description: `Queued **${tracks.length}** track${tracks.length === 1 ? "" : "s"} from \`${playlist.name}\`.`
       })]
@@ -356,7 +356,7 @@ export function createMusicManager({ client }) {
 
     await respond(interaction, {
       ephemeral,
-      embeds: [createVeironEmbed({
+      embeds: [createVireonEmbed({
         title: "Music Queue",
         description: [
           `Now: ${formatTrack(state.current)}`,
@@ -539,7 +539,7 @@ export function createMusicManager({ client }) {
 
     const preset = buildAudioFilterPreset(state.audioFilter ?? "off");
     await respond(interaction, {
-      embeds: [createVeironEmbed({
+      embeds: [createVireonEmbed({
         title: "Audio Filter",
         description: [
           `Active: **${preset.label}**`,
@@ -768,7 +768,7 @@ export function buildLavalinkNodes(env = process.env) {
   const protocol = secure ? "https" : "http";
 
   return [{
-    name: "veiron-main",
+    name: "vireon-main",
     url: `${protocol}://${host}:${port}`,
     auth,
     secure
@@ -782,7 +782,7 @@ function normalizeLavalinkNode(node, index) {
   if (!auth) throw new Error(`Lavalink node ${index + 1} is missing auth.`);
 
   return {
-    name: node.name ?? `veiron-${index + 1}`,
+    name: node.name ?? `vireon-${index + 1}`,
     url,
     auth,
     secure: Boolean(node.secure),
@@ -861,7 +861,7 @@ function formatTrack(track) {
   const title = track.info?.title ?? "Unknown title";
   const author = track.info?.author ? ` by ${track.info.author}` : "";
   const duration = track.info?.isStream ? "live" : formatDuration(track.info?.length ?? 0);
-  return `[${title}](${track.info?.uri ?? "https://veiron.network"})${author} (${duration})`;
+  return `[${title}](${track.info?.uri ?? "https://vireon.network"})${author} (${duration})`;
 }
 
 function buildNowPlayingPanelPayload(state) {
@@ -874,7 +874,7 @@ function buildNowPlayingPanelPayload(state) {
   }
 
   return {
-    embeds: [createVeironEmbed({
+    embeds: [createVireonEmbed({
       title: "Now Playing",
       description: [
         formatTrack(state.current),

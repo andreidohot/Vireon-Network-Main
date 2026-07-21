@@ -49,7 +49,7 @@ describe("XP role rewards", () => {
 });
 
 async function createStoreWithRewards(roleRewards) {
-  const store = new JsonStore({ dataDir: await mkdtemp(path.join(os.tmpdir(), "veiron-role-rewards-test-")) });
+  const store = new JsonStore({ dataDir: await mkdtemp(path.join(os.tmpdir(), "vireon-role-rewards-test-")) });
   await store.setSingleton("settings", {
     xp: {
       enabled: true,

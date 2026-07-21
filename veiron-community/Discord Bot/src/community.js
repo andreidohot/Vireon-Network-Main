@@ -1,7 +1,7 @@
 import { ChannelType } from "discord.js";
 import { writeAuditLog } from "./audit-log.js";
 import { normalizeAutomodSettings } from "./automod.js";
-import { createVeironEmbed } from "./embed-factory.js";
+import { createVireonEmbed } from "./embed-factory.js";
 import { getSettings } from "./config.js";
 import { sendPushNotification } from "./push-notifications.js";
 
@@ -19,7 +19,7 @@ export function registerCommunityEvents({ store }) {
 
       if (settings.community.autoAssignMemberRole) {
         const role = member.guild.roles.cache.find((item) => item.name === settings.community.memberRoleName);
-        if (role) await member.roles.add(role, "Veiron auto member role").catch(() => null);
+        if (role) await member.roles.add(role, "Vireon auto member role").catch(() => null);
       }
 
       const channel = findTextChannel(member.guild, settings.community.welcomeChannelName);
@@ -28,12 +28,12 @@ export function registerCommunityEvents({ store }) {
       await channel.send({
         content: `<@${member.id}>`,
         embeds: [
-          createVeironEmbed({
-            title: "Welcome to Veiron Network",
+          createVireonEmbed({
+            title: "Welcome to Vireon Network",
             description: [
-              "Welcome to the Veiron community.",
+              "Welcome to the Vireon community.",
               "",
-              "Start with #rules, #faq and #roles. Veiron is currently in draft/prototype development, so avoid treating planned features as live."
+              "Start with #rules, #faq and #roles. Vireon is currently in draft/prototype development, so avoid treating planned features as live."
             ].join("\n"),
             color: 0xd4af37
           })
@@ -50,7 +50,7 @@ export function registerCommunityEvents({ store }) {
 
       await channel.send({
         embeds: [
-          createVeironEmbed({
+          createVireonEmbed({
             title: "Member Left",
             description: `${member.user?.tag ?? "A member"} left the server.`,
             color: 0x828282

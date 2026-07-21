@@ -12,24 +12,31 @@ import { registerAnnouncementHandlers, startAnnouncementScheduler } from "./anno
 import { startAdminPanel } from "./admin-panel.js";
 import { registerAntiSpam } from "./anti-spam.js";
 import { registerAutomod } from "./automod.js";
+import { registerAutomationRuntime } from "./automations-studio.js";
 import { startBackupScheduler } from "./backup.js";
 import { createChainClient } from "./chain-client.js";
+import { registerCommandCenterHandlers } from "./command-center.js";
 import { registerCommunityEvents } from "./community.js";
 import { getSettings } from "./config.js";
-import { createVeironEmbed } from "./embed-factory.js";
+import { registerCustomCommandRuntime, registerCustomInteractionRuntime } from "./custom-controls.js";
+import { createVireonEmbed } from "./embed-factory.js";
 import { registerEconomyHandlers } from "./economy.js";
 import { childLogger, logger, serializeError } from "./logger.js";
 import { createMusicManager, registerMusicHandlers } from "./music.js";
 import { registerMusicPlaylistHandlers } from "./music-playlists.js";
+import { startOnChainSyncWorker } from "./onchain-sync.js";
 import { registerModerationHandlers } from "./moderation.js";
 import { PermissionController } from "./permission-controller.js";
+import { registerPaymentHandlers } from "./payments.js";
 import { registerProposalHandlers } from "./proposals.js";
 import { registerRankHandlers } from "./rank-commands.js";
 import { registerRewardsHandlers } from "./rewards.js";
 import { createStore } from "./store-factory.js";
+import { getSetupWizardStatus, hasDiscordRuntimeConfig, loadRuntimeConfigIntoEnv } from "./runtime-config.js";
 import { registerTagHandlers } from "./tags.js";
 import { registerTicketHandlers } from "./tickets.js";
 import { registerTriggerHandlers, registerTriggerResponder } from "./triggers.js";
+import { createWalletRegistrationService, registerWalletRegistrationHandlers } from "./wallet-registration.js";
 import { registerXpLeveling } from "./xp-leveling.js";
 import { applyXpRoleRewards } from "./xp-role-rewards.js";
 import {
@@ -40,6 +47,9 @@ import {
   SEED_MESSAGES,
   permissionBits
 } from "./template.js";
+
+await loadRuntimeConfigIntoEnv();
+const setupWizardStatus = await getSetupWizardStatus();
 
 const token = process.env.DISCORD_TOKEN;
 const guildId = process.env.DISCORD_GUILD_ID;
@@ -53,29 +63,61 @@ const permissions = new PermissionController({
   setupAllowedUserIds: [...allowedUserIds]
 });
 const runtimeLogger = childLogger({ module: "runtime" });
+process.on("unhandledRejection", (error) => {
+  logger.error({ error: serializeError(error) }, "Unhandled promise rejection.");
+});
+
+process.on("uncaughtException", (error) => {
+  logger.fatal({ error: serializeError(error) }, "Uncaught exception.");
+  process.exitCode = 1;
+});
+
+let client = null;
+
+if (!hasDiscordRuntimeConfig()) {
+  const bootstrapChainClient = createChainClient();
+  const bootstrapMusicManager = { async healthCheck() { return { ok: true, status: "disabled", component: "lavalink" }; } };
+  await startAdminPanel({
+    client: null,
+    guildId: null,
+    store: null,
+    permissions,
+    musicManager: bootstrapMusicManager,
+    chainClient: bootstrapChainClient,
+    walletRegistration: null,
+    setupWizardStatus
+  }).catch((error) => {
+    runtimeLogger.error({ error: serializeError(error) }, "Setup wizard admin panel failed to start.");
+    process.exitCode = 1;
+  });
+  runtimeLogger.warn({ missing: setupWizardStatus.missing }, "Discord runtime config is missing. Started Admin Web in setup wizard mode only.");
+} else {
 const store = await createStore();
 permissions.configure((await getSettings(store)).permissions);
 const chainClient = createChainClient();
+const walletRegistration = await createWalletRegistrationService({ store });
 const handleModerationCommand = registerModerationHandlers({ store, permissions });
 const handleTicketCommand = registerTicketHandlers({ store, permissions });
 const handleAnnouncementCommand = registerAnnouncementHandlers({ store, permissions });
 const handleProposalInteraction = registerProposalHandlers({ store, permissions });
 const handleRankCommand = registerRankHandlers({ store });
 const handleRewardsCommand = registerRewardsHandlers({ store, chainClient });
+const handleRegisterCommand = registerWalletRegistrationHandlers({ walletRegistration });
+const handlePaymentInteraction = registerPaymentHandlers({ store, walletRegistration, chainClient });
 const handleEconomyCommand = registerEconomyHandlers({ store, permissions });
 const handleTagCommand = registerTagHandlers({ store, permissions });
 const handleTriggerCommand = registerTriggerHandlers({ store, permissions });
 const handleTriggerMessage = registerTriggerResponder({ store });
+const handleCustomCommandRuntime = registerCustomCommandRuntime({ store });
+const handleCustomInteractionRuntime = registerCustomInteractionRuntime({ store });
+const handleCommandCenter = registerCommandCenterHandlers({ client, guildId, store, permissions });
+const automationRuntime = registerAutomationRuntime({ store });
 const handleAutomodMessage = registerAutomod({ store, permissions });
 const handleAntiSpamMessage = registerAntiSpam({ store, permissions });
 const communityEvents = registerCommunityEvents({ store });
 const xpLeveling = registerXpLeveling({ store });
 
-if (!token || !guildId) {
-  throw new Error("Missing DISCORD_TOKEN or DISCORD_GUILD_ID.");
-}
-
-const client = new Client({
+client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMembers,
@@ -90,29 +132,28 @@ const musicManager = createMusicManager({ client });
 const handleMusicCommand = registerMusicHandlers({ client, manager: musicManager });
 const handlePlaylistCommand = registerMusicPlaylistHandlers({ store, permissions, musicManager });
 
-process.on("unhandledRejection", (error) => {
-  logger.error({ error: serializeError(error) }, "Unhandled promise rejection.");
-});
-
-process.on("uncaughtException", (error) => {
-  logger.fatal({ error: serializeError(error) }, "Uncaught exception.");
-  process.exitCode = 1;
-});
-
 client.once("ready", async () => {
-  runtimeLogger.info({ bot: client.user.tag }, "Veiron Community Bot is online.");
-  await startAdminPanel({ client, guildId, store, permissions, musicManager, chainClient }).catch((error) => {
+  runtimeLogger.info({ bot: client.user.tag }, "VBOS is online.");
+  await startAdminPanel({ client, guildId, store, permissions, musicManager, chainClient, walletRegistration }).catch((error) => {
     runtimeLogger.error({ error: serializeError(error) }, "Admin panel failed to start.");
   });
   startAnnouncementScheduler({ client, guildId, store });
   startBackupScheduler({ env: process.env });
+  startOnChainSyncWorker({
+    store,
+    ledgerStore: walletRegistration.ledgerStore,
+    chainClient,
+    env: process.env
+  });
 });
 
 client.on("interactionCreate", async (interaction) => {
+  if (await handlePaymentInteraction(interaction)) return;
   if (await handleProposalInteraction(interaction)) return;
   if (await handleTicketCommand(interaction)) return;
+  if (await handleCustomInteractionRuntime(interaction)) return;
 
-  if (interaction.isButton() && interaction.customId.startsWith("veiron_role:")) {
+  if (interaction.isButton() && interaction.customId.startsWith("vireon_role:")) {
     await handleRoleButton(interaction);
     return;
   }
@@ -125,13 +166,16 @@ client.on("interactionCreate", async (interaction) => {
   if (await handleAnnouncementCommand(interaction)) return;
   if (await handlePlaylistCommand(interaction)) return;
   if (await handleRankCommand(interaction)) return;
+  if (await handleRegisterCommand(interaction)) return;
   if (await handleRewardsCommand(interaction)) return;
   if (await handleEconomyCommand(interaction)) return;
   if (await handleTagCommand(interaction)) return;
   if (await handleTriggerCommand(interaction)) return;
+  if (await handleCustomCommandRuntime(interaction)) return;
+  if (await handleCommandCenter(interaction)) return;
 
-  if (interaction.commandName === "veiron-status") {
-    await handleVeironStatusCommand(interaction);
+  if (interaction.commandName === "vireon-status") {
+    await handleVireonStatusCommand(interaction);
     return;
   }
 
@@ -140,13 +184,13 @@ client.on("interactionCreate", async (interaction) => {
     return;
   }
 
-  if (interaction.commandName !== "setup-veiron") return;
+  if (interaction.commandName !== "setup-vireon") return;
 
   const confirmed = interaction.options.getBoolean("confirm", true);
   if (!confirmed) {
     await interaction.reply({
       ephemeral: true,
-      content: "Setup was not applied. Run `/setup-veiron confirm:true` when ready."
+      content: "Setup was not applied. Run `/setup-vireon confirm:true` when ready."
     });
     return;
   }
@@ -171,7 +215,7 @@ client.on("interactionCreate", async (interaction) => {
     const messageStats = await seedMessages(guild);
 
     await interaction.editReply([
-      "Veiron Discord setup complete.",
+      "Vireon Discord setup complete.",
       `Roles created: ${context.createdRoles}. Roles reused: ${context.reusedRoles}.`,
       `Categories created: ${channelStats.createdCategories}. Channels created: ${channelStats.createdChannels}.`,
       `Categories reused: ${channelStats.reusedCategories}. Channels reused: ${channelStats.reusedChannels}.`,
@@ -183,14 +227,14 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
-async function handleVeironStatusCommand(interaction) {
+async function handleVireonStatusCommand(interaction) {
   await interaction.deferReply({ ephemeral: true });
   const status = await chainClient.getNetworkStatus();
   const isLive = status.ok && !status.mock && status.mode === "rpc";
 
-  const embed = createVeironEmbed({
-    title: isLive ? "Veiron Network Status" : "Veiron Chain Adapter Status",
-    description: buildVeironStatusDescription(status),
+  const embed = createVireonEmbed({
+    title: isLive ? "Vireon Network Status" : "Vireon Chain Adapter Status",
+    description: buildVireonStatusDescription(status),
     color: status.ok ? 0xd4af37 : 0x8b1e24,
     fields: [
       { name: "Network", value: formatStatusValue(status.network), inline: true },
@@ -202,6 +246,7 @@ async function handleVeironStatusCommand(interaction) {
       { name: "Circulating Supply", value: formatSupply(status.circulatingSupply), inline: true },
       { name: "Latest Block Hash", value: formatHash(status.latestBlockHash), inline: false },
       { name: "Updated", value: formatStatusValue(status.updatedAt), inline: true },
+      { name: "RPC Cache", value: formatCacheStatus(status), inline: true },
       { name: "Source", value: formatStatusValue(status.source), inline: true }
     ]
   });
@@ -209,24 +254,41 @@ async function handleVeironStatusCommand(interaction) {
   await interaction.editReply({ embeds: [embed] });
 }
 
-function buildVeironStatusDescription(status) {
+function buildVireonStatusDescription(status) {
   if (status.ok && status.mock) {
-    return "Mock adapter active. Values are simulated until a real Veiron RPC/testnet endpoint is configured.";
+    return "Mock adapter active. Values are simulated until a real Vireon RPC/testnet endpoint is configured.";
   }
 
   if (status.ok) {
-    return "Live data from the configured Veiron chain adapter.";
+    if (status.stale) {
+      return "Live RPC is unavailable or rate-limited. Showing the latest cached Vireon chain data.";
+    }
+    if (status.cached) {
+      return "Cached live data from the configured Vireon chain adapter.";
+    }
+    return "Live data from the configured Vireon chain adapter.";
   }
 
   return [
-    "Live Veiron network data is unavailable right now.",
-    status.message ?? status.error ?? "Check VEIRON_CHAIN_MODE, VEIRON_CHAIN_RPC_URL and VEIRON_CHAIN_STATUS_URL."
+    "Live Vireon network data is unavailable right now.",
+    status.message ?? status.error ?? "Check VIREON_CHAIN_MODE, VIREON_CHAIN_RPC_URL and VIREON_CHAIN_STATUS_URL."
   ].join("\n");
 }
 
 function formatStatusValue(value) {
   if (value == null || value === "") return "Unavailable";
   return String(value).slice(0, 1024);
+}
+
+function formatCacheStatus(status) {
+  if (!status.cached) return "Fresh";
+  const parts = [status.stale ? "Stale" : "Cached"];
+  if (typeof status.cacheAgeMs === "number" && Number.isFinite(status.cacheAgeMs)) {
+    parts.push(`${Math.round(status.cacheAgeMs / 1000)}s old`);
+  }
+  if (status.rateLimited) parts.push("rate-limited");
+  if (status.fallbackStatus) parts.push(`fallback: ${status.fallbackStatus}`);
+  return parts.join(" | ");
 }
 
 function formatInteger(value) {
@@ -265,8 +327,17 @@ client.on("messageCreate", async (message) => {
   await handleAntiSpamMessage(message).catch((error) => {
     runtimeLogger.error({ error: serializeError(error), messageId: message.id }, "Anti-spam failed.");
   });
-  await handleTriggerMessage(message).catch((error) => {
-    runtimeLogger.error({ error: serializeError(error), messageId: message.id }, "Trigger responder failed.");
+  const customHandled = await handleCustomCommandRuntime(message).catch((error) => {
+    runtimeLogger.error({ error: serializeError(error), messageId: message.id }, "Custom command responder failed.");
+    return false;
+  });
+  if (!customHandled) {
+    await handleTriggerMessage(message).catch((error) => {
+      runtimeLogger.error({ error: serializeError(error), messageId: message.id }, "Trigger responder failed.");
+    });
+  }
+  await automationRuntime.handleMessage(message).catch((error) => {
+    runtimeLogger.error({ error: serializeError(error), messageId: message.id }, "Automation Studio message flow failed.");
   });
   const xpResult = await xpLeveling.handleMessage(message).catch((error) => {
     runtimeLogger.error({ error: serializeError(error), messageId: message.id }, "XP message tracking failed.");
@@ -278,7 +349,7 @@ client.on("messageCreate", async (message) => {
       member: message.member,
       profile: xpResult.profile,
       previousLevel: xpResult.previousLevel,
-      reason: "Veiron XP message level reward."
+      reason: "Vireon XP message level reward."
     }).catch((error) => {
       runtimeLogger.error({ error: serializeError(error), userId: message.author?.id }, "XP role reward failed.");
     });
@@ -297,7 +368,7 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
       member,
       profile: xpResult.profile,
       previousLevel: xpResult.previousLevel,
-      reason: "Veiron XP voice level reward."
+      reason: "Vireon XP voice level reward."
     }).catch((error) => {
       runtimeLogger.error({ error: serializeError(error), userId: member.id }, "XP role reward failed.");
     });
@@ -308,11 +379,17 @@ client.on("guildMemberAdd", async (member) => {
   await communityEvents.handleMemberJoin(member).catch((error) => {
     runtimeLogger.error({ error: serializeError(error), memberId: member.id }, "Welcome event failed.");
   });
+  await automationRuntime.handleMemberJoin(member).catch((error) => {
+    runtimeLogger.error({ error: serializeError(error), memberId: member.id }, "Automation Studio member join flow failed.");
+  });
 });
 
 client.on("guildMemberRemove", async (member) => {
   await communityEvents.handleMemberLeave(member).catch((error) => {
     runtimeLogger.error({ error: serializeError(error), memberId: member.id }, "Goodbye event failed.");
+  });
+  await automationRuntime.handleMemberLeave(member).catch((error) => {
+    runtimeLogger.error({ error: serializeError(error), memberId: member.id }, "Automation Studio member leave flow failed.");
   });
 });
 
@@ -320,7 +397,7 @@ async function handleSendEmbedCommand(interaction) {
   if (!permissions.canManageCommunityBot(interaction)) {
     await interaction.reply({
       ephemeral: true,
-      content: "You do not have permission to use Veiron embed tools."
+      content: "You do not have permission to use Vireon embed tools."
     });
     return;
   }
@@ -336,7 +413,7 @@ async function handleSendEmbedCommand(interaction) {
   }
 
   const message = await channel.send({
-    embeds: [createVeironEmbed({ title, description, color })]
+    embeds: [createVireonEmbed({ title, description, color })]
   });
 
   await interaction.reply({
@@ -361,17 +438,17 @@ async function handleRoleButton(interaction) {
   const memberRole = guild.roles.cache.find((role) => role.name === ROLE_NAMES.member);
 
   if (!targetRole) {
-    await interaction.reply({ ephemeral: true, content: "Role does not exist yet. Ask an admin to run `/setup-veiron confirm:true`." });
+    await interaction.reply({ ephemeral: true, content: "Role does not exist yet. Ask an admin to run `/setup-vireon confirm:true`." });
     return;
   }
 
   if (button.roleKey !== "member" && memberRole && !interaction.member.roles.cache.has(memberRole.id)) {
-    await interaction.member.roles.add(memberRole, "Veiron onboarding button.");
+    await interaction.member.roles.add(memberRole, "Vireon onboarding button.");
   }
 
   if (button.required) {
     if (!interaction.member.roles.cache.has(targetRole.id)) {
-      await interaction.member.roles.add(targetRole, "Veiron onboarding button.");
+      await interaction.member.roles.add(targetRole, "Vireon onboarding button.");
     }
 
     await interaction.reply({ ephemeral: true, content: `You now have the ${targetRole.name} role.` });
@@ -379,12 +456,12 @@ async function handleRoleButton(interaction) {
   }
 
   if (interaction.member.roles.cache.has(targetRole.id)) {
-    await interaction.member.roles.remove(targetRole, "Veiron role toggle button.");
+    await interaction.member.roles.remove(targetRole, "Vireon role toggle button.");
     await interaction.reply({ ephemeral: true, content: `Removed the ${targetRole.name} role.` });
     return;
   }
 
-  await interaction.member.roles.add(targetRole, "Veiron role toggle button.");
+  await interaction.member.roles.add(targetRole, "Vireon role toggle button.");
   await interaction.reply({ ephemeral: true, content: `Added the ${targetRole.name} role.` });
 }
 
@@ -629,7 +706,7 @@ async function seedMessages(guild) {
 
       await channel.send({
         embeds: [
-          createVeironEmbed({
+          createVireonEmbed({
             title: message.title,
             description: message.body
           })
@@ -665,3 +742,4 @@ function roleButtonComponents() {
 }
 
 await client.login(token);
+}

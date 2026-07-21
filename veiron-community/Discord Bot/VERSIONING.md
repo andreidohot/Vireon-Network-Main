@@ -1,4 +1,4 @@
-# Veiron Community Bot Versioning
+# VBOS Versioning
 
 The bot uses a three-part version format:
 
@@ -9,7 +9,7 @@ MAJOR.MEDIUM.MINOR
 Current version:
 
 ```text
-7.19.0
+7.35.0
 ```
 
 ## Version Meaning
@@ -23,7 +23,7 @@ Current version:
 ## Rules
 
 - Do not use old incremental archive labels.
-- Use release filenames like `veiron-community-bot-7.19.0.zip`.
+- Use release filenames like `vbos-7.35.0.zip`.
 - If `MAJOR` increases, reset `MEDIUM` and `MINOR` to `0`.
 - If `MEDIUM` increases, reset `MINOR` to `0`.
 - If only fixes or small refinements are made, increase only `MINOR`.

@@ -133,7 +133,7 @@ function createStoreMock() {
 function createGuildMock({ channels = [] } = {}) {
   return {
     id: "guild-1",
-    name: "Veiron",
+    name: "Vireon",
     channels: {
       cache: {
         find(predicate) {

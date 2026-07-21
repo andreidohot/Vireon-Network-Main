@@ -1,4 +1,4 @@
-import { createVeironEmbed } from "./embed-factory.js";
+import { createVireonEmbed } from "./embed-factory.js";
 
 export const WALLET_LINKS_COLLECTION = "wallet-links";
 
@@ -25,18 +25,18 @@ export async function handleRewards(interaction, { store, chainClient }) {
   if (!walletLink) {
     await interaction.editReply({
       embeds: [
-        createVeironEmbed({
-          title: "Veiron Rewards",
+        createVireonEmbed({
+          title: "Vireon Rewards",
           description: [
             target.id === interaction.user.id
               ? "No verified wallet is linked to your Discord account yet."
               : `No verified wallet is linked for **${target.username}** yet.`,
             "",
-            "Rewards require the Phase 6 Discord ↔ wallet link flow before mining, staking or node rewards can be queried.",
-            "Once `/register` / wallet linking is available, this command will read the linked address automatically."
+            "Rewards require a Discord <-> wallet link before mining, staking or node rewards can be queried.",
+            "Run `/register custodial` or `/register external address:<wallet>` first."
           ].join("\n"),
           color: 0x8b1e24,
-          footer: "Veiron Rewards | Wallet link required"
+          footer: "Vireon Rewards | Wallet link required"
         })
       ]
     });
@@ -47,8 +47,8 @@ export async function handleRewards(interaction, { store, chainClient }) {
 
   await interaction.editReply({
     embeds: [
-      createVeironEmbed({
-        title: "Veiron Rewards",
+      createVireonEmbed({
+        title: "Vireon Rewards",
         description: buildRewardsDescription({ rewards, walletLink, target }),
         color: rewards.ok ? 0xd4af37 : 0x8b1e24,
         fields: [
@@ -61,9 +61,10 @@ export async function handleRewards(interaction, { store, chainClient }) {
           { name: "Paid", value: formatRewardAmount(rewards.paidRewards, rewards.currency), inline: true },
           { name: "Total", value: formatRewardAmount(rewards.totalRewards, rewards.currency), inline: true },
           { name: "Status", value: formatStatusValue(rewards.rawStatus ?? rewards.status), inline: true },
+          { name: "RPC Cache", value: formatCacheStatus(rewards), inline: true },
           { name: "Source", value: formatStatusValue(rewards.source), inline: true }
         ],
-        footer: rewards.mock ? "Veiron Rewards | Mock adapter" : "Veiron Rewards"
+        footer: rewards.mock ? "Vireon Rewards | Mock adapter" : "Vireon Rewards"
       })
     ]
   });
@@ -102,17 +103,23 @@ export function buildRewardsDescription({ rewards, walletLink, target }) {
   if (rewards.ok && rewards.mock) {
     return [
       `Rewards for ${owner}.`,
-      "Mock adapter active. These mining/staking/node reward values are simulated until a real Veiron RPC endpoint exists."
+      "Mock adapter active. These mining/staking/node reward values are simulated until a real Vireon RPC endpoint exists."
     ].join("\n");
   }
 
   if (rewards.ok) {
-    return `Rewards for ${owner}, read from the configured Veiron chain adapter.`;
+    if (rewards.stale) {
+      return [
+        `Rewards for ${owner}.`,
+        "Live RPC is unavailable or rate-limited, so the latest cached reward values are being shown."
+      ].join("\n");
+    }
+    return `Rewards for ${owner}, read from the configured Vireon chain adapter.`;
   }
 
   return [
     `Rewards for ${owner} could not be loaded.`,
-    rewards.message ?? rewards.error ?? "Check the Veiron chain rewards endpoint configuration."
+    rewards.message ?? rewards.error ?? "Check the Vireon chain rewards endpoint configuration."
   ].join("\n");
 }
 
@@ -125,12 +132,23 @@ export function formatAddress(address) {
   const value = String(address ?? "").trim();
   if (!value) return "Unavailable";
   if (value.length <= 24) return `\`${value}\``;
-  return `\`${value.slice(0, 12)}...${value.slice(-10)}\``;
+  return `\`${value.slice(0, 11)}...${value.slice(-10)}\``;
 }
 
 function formatStatusValue(value) {
   if (value == null || value === "") return "Unavailable";
   return String(value).slice(0, 1024);
+}
+
+function formatCacheStatus(result) {
+  if (!result.cached) return "Fresh";
+  const parts = [result.stale ? "Stale" : "Cached"];
+  if (typeof result.cacheAgeMs === "number" && Number.isFinite(result.cacheAgeMs)) {
+    parts.push(`${Math.round(result.cacheAgeMs / 1000)}s old`);
+  }
+  if (result.rateLimited) parts.push("rate-limited");
+  if (result.fallbackStatus) parts.push(`fallback: ${result.fallbackStatus}`);
+  return parts.join(" | ");
 }
 
 function compareWalletLinks(a, b) {

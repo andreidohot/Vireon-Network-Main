@@ -8,7 +8,7 @@ import {
   WALLET_LINKS_COLLECTION
 } from "../src/rewards.js";
 
-describe("Veiron rewards command helpers", () => {
+describe("Vireon rewards command helpers", () => {
   it("finds the latest active wallet link for a Discord user", async () => {
     const store = createMemoryStore([
       {

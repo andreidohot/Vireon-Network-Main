@@ -30,10 +30,10 @@ describe("JsonStore", () => {
     const store = new JsonStore({ dataDir });
 
     await store.setSingleton("settings", { enabled: false });
-    const settings = await store.getSingleton("settings", { enabled: true, name: "Veiron" });
+    const settings = await store.getSingleton("settings", { enabled: true, name: "Vireon" });
     const raw = JSON.parse(await readFile(path.join(dataDir, "settings.json"), "utf8"));
 
-    expect(settings).toMatchObject({ enabled: false, name: "Veiron" });
+    expect(settings).toMatchObject({ enabled: false, name: "Vireon" });
     expect(raw.value.updatedAt).toEqual(expect.any(String));
   });
 
@@ -110,7 +110,7 @@ describe("PrismaStore DAL contract", () => {
 });
 
 async function tempDataDir() {
-  return mkdtemp(path.join(os.tmpdir(), "veiron-store-test-"));
+  return mkdtemp(path.join(os.tmpdir(), "vireon-store-test-"));
 }
 
 function createPrismaMock() {

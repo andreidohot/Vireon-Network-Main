@@ -56,6 +56,12 @@ export function createBlockchainSample({ health = {}, network = {}, now = new Da
     activeNodes: safeNumber(network.activeNodes),
     circulatingSupply: safeNumber(network.circulatingSupply),
     latencyMs: safeNumber(network.latencyMs),
+    cached: Boolean(network.cached),
+    stale: Boolean(network.stale),
+    rateLimited: Boolean(network.rateLimited),
+    cacheStatus: network.cacheStatus ?? null,
+    cacheAgeMs: safeNumber(network.cacheAgeMs),
+    fallbackStatus: network.fallbackStatus ?? null,
     source: network.source ?? null,
     error: network.error ?? health.error ?? network.message ?? null
   };
@@ -87,6 +93,16 @@ export function buildBlockchainMetrics({ sample, samples = [] }) {
 }
 
 export function buildBlockchainAlert({ sample, health = {}, network = {}, samples = [] }) {
+  if (sample.stale) {
+    return {
+      severity: "warning",
+      title: "RPC data served from cache",
+      message: sample.rateLimited
+        ? "Vireon RPC rate limit was reached, so the dashboard is showing the latest cached chain data."
+        : `Live RPC returned ${sample.fallbackStatus ?? "an error"}, so the dashboard is showing the latest cached chain data.`
+    };
+  }
+
   if (sample.ok) return null;
 
   const isDisabled = sample.status === "disabled" || network.status === "disabled" || health.status === "disabled";
@@ -100,7 +116,7 @@ export function buildBlockchainAlert({ sample, health = {}, network = {}, sample
 
   return {
     severity: "critical",
-    title: "Veiron node/RPC is down",
+    title: "Vireon node/RPC is down",
     message: network.message ?? network.error ?? health.error ?? "The configured chain adapter did not return healthy status.",
     downSince: findDownSince(samples)
   };

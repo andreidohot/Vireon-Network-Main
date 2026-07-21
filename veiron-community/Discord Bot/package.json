@@ -1,8 +1,8 @@
 {
-  "name": "veiron-community-bot",
-  "version": "7.19.0",
+  "name": "vbos",
+  "version": "7.35.0",
   "private": true,
-  "description": "All-in-one Discord community bot for Veiron Network.",
+  "description": "VBOS (Vireon Bot Operations Studio): all-in-one Discord operations bot and admin web panel for Vireon.",
   "type": "module",
   "main": "src/index.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "dashboard:preview": "vite preview --config vite.dashboard.config.js --host 127.0.0.1",
     "push:vapid": "web-push generate-vapid-keys --json",
     "test": "vitest run",
-    "check": "node --check vite.dashboard.config.js && node --check src/index.js && node --check src/register-commands.js && node --check src/template.js && node --check src/permission-controller.js && node --check src/embed-factory.js && node --check src/admin-panel.js && node --check src/admin-auth.js && node --check src/storage.js && node --check src/prisma-store.js && node --check src/store-factory.js && node --check src/ledger-prisma.js && node --check src/logger.js && node --check src/health.js && node --check src/chain-client.js && node --check src/push-notifications.js && node --check src/audit-log.js && node --check src/backup.js && node --check src/blockchain-monitor.js && node --check src/moderation.js && node --check src/tickets.js && node --check src/config.js && node --check src/automod.js && node --check src/announcements.js && node --check src/proposals.js && node --check src/anti-spam.js && node --check src/community.js && node --check src/music.js && node --check src/music-playlists.js && node --check src/xp-leveling.js && node --check src/xp-role-rewards.js && node --check src/economy.js && node --check src/tags.js && node --check src/triggers.js && node --check src/rank-card.js && node --check src/rank-commands.js && node --check src/rewards.js && node --check scripts/select-prisma-schema.js && node --check scripts/migrate-json-to-prisma.js && node --check scripts/backup-databases.js && npm run dashboard:build && npm run test"
+    "check": "node --check vite.dashboard.config.js && node --check src/index.js && node --check src/register-commands.js && node --check src/template.js && node --check src/permission-controller.js && node --check src/embed-factory.js && node --check src/admin-panel.js && node --check src/admin-control.js && node --check src/bot-operations.js && node --check src/custom-controls.js && node --check src/automations-studio.js && node --check src/module-center.js && node --check src/command-center.js && node --check src/runtime-config.js && node --check src/admin-auth.js && node --check src/storage.js && node --check src/prisma-store.js && node --check src/store-factory.js && node --check src/ledger-prisma.js && node --check src/logger.js && node --check src/health.js && node --check src/chain-client.js && node --check src/push-notifications.js && node --check src/audit-log.js && node --check src/backup.js && node --check src/blockchain-monitor.js && node --check src/moderation.js && node --check src/tickets.js && node --check src/config.js && node --check src/automod.js && node --check src/announcements.js && node --check src/proposals.js && node --check src/anti-spam.js && node --check src/community.js && node --check src/music.js && node --check src/music-playlists.js && node --check src/xp-leveling.js && node --check src/xp-role-rewards.js && node --check src/economy.js && node --check src/tags.js && node --check src/triggers.js && node --check src/rank-card.js && node --check src/rank-commands.js && node --check src/rewards.js && node --check src/wallet-registration.js && node --check src/payments.js && node --check src/onchain-sync.js && node --check scripts/select-prisma-schema.js && node --check scripts/migrate-json-to-prisma.js && node --check scripts/backup-databases.js && npm run dashboard:build && npm run test"
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.2",

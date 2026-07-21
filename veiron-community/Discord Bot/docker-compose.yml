@@ -1,34 +1,89 @@
 services:
-  veiron-community-bot:
+  vbos:
     build:
       context: .
       args:
-        DATABASE_PROVIDER: ${DATABASE_PROVIDER:-sqlite}
-        DATABASE_URL: ${DATABASE_URL:-file:./data/veiron-community.db}
-        DATABASE_URL_LEDGER: ${DATABASE_URL_LEDGER:-file:./data/veiron-ledger.db}
-    container_name: veiron-community-bot
+        DATABASE_PROVIDER: ${DATABASE_PROVIDER:-postgresql}
+        DATABASE_URL: ${DATABASE_URL:-postgresql://vireon:${POSTGRES_PASSWORD:-vbos_change_me}@postgres:5432/vbos?schema=public}
+        DATABASE_URL_LEDGER: ${DATABASE_URL_LEDGER:-postgresql://vireon:${POSTGRES_LEDGER_PASSWORD:-vbos_ledger_change_me}@postgres-ledger:5432/vbos_ledger?schema=public}
+    container_name: vbos
     restart: unless-stopped
-    env_file:
-      - .env
+    command: sh -c "npm run prisma:push && npm run prisma:push:ledger && npm start"
     environment:
-      DATABASE_PROVIDER: ${DATABASE_PROVIDER:-sqlite}
-      DATABASE_URL: ${DATABASE_URL:-file:./data/veiron-community.db}
-      DATABASE_URL_LEDGER: ${DATABASE_URL_LEDGER:-file:./data/veiron-ledger.db}
+      NODE_ENV: production
+      ADMIN_PANEL_ENABLED: ${ADMIN_PANEL_ENABLED:-true}
+      ADMIN_PANEL_HOST: ${ADMIN_PANEL_HOST:-0.0.0.0}
+      ADMIN_PANEL_PORT: ${ADMIN_PANEL_PORT:-8787}
+      BOT_DATA_DIR: /app/data
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-prisma}
+      DATABASE_PROVIDER: ${DATABASE_PROVIDER:-postgresql}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://vireon:${POSTGRES_PASSWORD:-vbos_change_me}@postgres:5432/vbos?schema=public}
+      DATABASE_URL_LEDGER: ${DATABASE_URL_LEDGER:-postgresql://vireon:${POSTGRES_LEDGER_PASSWORD:-vbos_ledger_change_me}@postgres-ledger:5432/vbos_ledger?schema=public}
+      LEDGER_STORAGE_DRIVER: ${LEDGER_STORAGE_DRIVER:-prisma}
+      LEDGER_DATA_DIR: /app/data/ledger
+      VIREON_CHAIN_MODE: ${VIREON_CHAIN_MODE:-disabled}
+      ONCHAIN_SYNC_ENABLED: ${ONCHAIN_SYNC_ENABLED:-false}
+      MUSIC_ENABLED: ${MUSIC_ENABLED:-false}
       LAVALINK_HOST: lavalink
       LAVALINK_PORT: ${LAVALINK_PORT:-2333}
       LAVALINK_PASSWORD: ${LAVALINK_PASSWORD:-youshallnotpass}
+      LAVALINK_SECURE: ${LAVALINK_SECURE:-false}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://127.0.0.1:8787}
+      SETUP_WIZARD_RESTART_ON_FINISH: ${SETUP_WIZARD_RESTART_ON_FINISH:-true}
     ports:
-      - "8787:8787"
+      - "${ADMIN_PANEL_PORT:-8787}:8787"
     volumes:
       - ./data:/app/data
       - ./backups:/app/backups
     depends_on:
-      - lavalink
+      postgres:
+        condition: service_healthy
+      postgres-ledger:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8787/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: vbos-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vbos
+      POSTGRES_USER: vireon
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vbos_change_me}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vireon -d vbos"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  postgres-ledger:
+    image: postgres:16-alpine
+    container_name: vbos-ledger-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vbos_ledger
+      POSTGRES_USER: vireon
+      POSTGRES_PASSWORD: ${POSTGRES_LEDGER_PASSWORD:-vbos_ledger_change_me}
+    volumes:
+      - postgres-ledger-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vireon -d vbos_ledger"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   lavalink:
     image: ghcr.io/lavalink-devs/lavalink:4
-    container_name: veiron-lavalink
+    container_name: vbos-lavalink
     restart: unless-stopped
+    profiles: ["music"]
     environment:
       SERVER_PORT: 2333
       LAVALINK_SERVER_PASSWORD: ${LAVALINK_PASSWORD:-youshallnotpass}
@@ -37,3 +92,7 @@ services:
       - ./lavalink/application.yml:/opt/Lavalink/application.yml:ro
     expose:
       - "2333"
+
+volumes:
+  postgres-data:
+  postgres-ledger-data:

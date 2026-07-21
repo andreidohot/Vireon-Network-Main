@@ -1,5 +1,5 @@
-const ACCESS_KEY = "veiron_admin_access_token";
-const REFRESH_KEY = "veiron_admin_refresh_token";
+const ACCESS_KEY = "vireon_admin_access_token";
+const REFRESH_KEY = "vireon_admin_refresh_token";
 
 export function readStoredAuth() {
   return {

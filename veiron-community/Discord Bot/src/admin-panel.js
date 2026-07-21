@@ -6,10 +6,69 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { AdminAuthService, createAuthMiddleware, requireRole } from "./admin-auth.js";
 import { searchAuditEvents } from "./audit-log.js";
+import {
+  buildAdminControlOverview,
+  createAdminChannel,
+  createAdminRole,
+  deleteAdminChannel,
+  deleteAdminRole,
+  applyAdminStructurePlan,
+  listAdminControlMembers,
+  moderateMemberFromAdmin,
+  purgeChannelFromAdmin,
+  reorderChannelFromAdmin,
+  sendAdminControlMessage,
+  setChannelPermissionOverwriteFromAdmin,
+  updateAdminChannel,
+  updateAdminGuildSettings,
+  updateAdminRole,
+  updateMemberRoleFromAdmin,
+  updateMemberRolesBulkFromAdmin,
+  updateTicketStatusFromAdmin
+} from "./admin-control.js";
 import { normalizeAutomodSettings } from "./automod.js";
+import {
+  buildAutomationStudioOverview,
+  createOrUpdateAutomationFlow,
+  deleteAutomationFlowFromWeb,
+  previewAutomationFlow,
+  testAutomationFlow
+} from "./automations-studio.js";
+import {
+  buildBotOperationsOverview,
+  deleteMessageTemplate,
+  listMessageApprovals,
+  listMessagePushes,
+  listMessageTemplates,
+  previewMessagePayload,
+  requestMessageApproval,
+  reviewMessageApproval,
+  runBotConsoleCommand,
+  saveMessageTemplate,
+  sendMessagePush,
+  startMessagePushScheduler
+} from "./bot-operations.js";
 import { getBlockchainDashboardStatus } from "./blockchain-monitor.js";
+import { buildCommandCenterOverview } from "./command-center.js";
 import { getSettings, updateSettings } from "./config.js";
-import { createVeironEmbed } from "./embed-factory.js";
+import {
+  buildCustomControlsOverview,
+  createOrUpdateCustomCommand,
+  createOrUpdateCustomInteraction,
+  deleteCustomCommandFromWeb,
+  deleteCustomInteractionFromWeb,
+  listCustomCommands,
+  listCustomControlEvents,
+  listCustomInteractions
+} from "./custom-controls.js";
+import { createVireonEmbed } from "./embed-factory.js";
+import {
+  buildModuleCenterOverview,
+  exportModuleBundle,
+  importModuleBundle,
+  listModuleCenterEvents,
+  setModuleState
+} from "./module-center.js";
 import { normalizeEconomySettings } from "./economy.js";
 import { buildHealthStatus } from "./health.js";
 import { childLogger, serializeError } from "./logger.js";
@@ -22,6 +81,7 @@ import {
   sendPushNotification
 } from "./push-notifications.js";
 import { normalizeXpSettings } from "./xp-leveling.js";
+import { finalizeSetupWizard, getSetupWizardPublicConfig, getSetupWizardStatus } from "./runtime-config.js";
 
 const logger = childLogger({ module: "admin-panel" });
 
@@ -32,6 +92,54 @@ export const ADMIN_ROUTE_ROLES = Object.freeze({
   "POST /auth/totp/disable": "VIEWER",
   "GET /api/dashboard/summary": "VIEWER",
   "GET /api/guild": "VIEWER",
+  "GET /api/control/overview": "VIEWER",
+  "GET /api/control/members": "MODERATOR",
+  "POST /api/control/members/:userId/moderation": "MODERATOR",
+  "POST /api/control/members/:userId/roles": "ADMIN",
+  "POST /api/control/members/:userId/roles/bulk": "ADMIN",
+  "POST /api/control/channels/:channelId/purge": "MODERATOR",
+  "POST /api/control/channels/:channelId/permissions": "ADMIN",
+  "PATCH /api/control/channels/:channelId/position": "ADMIN",
+  "POST /api/control/tickets/:ticketId/status": "MODERATOR",
+  "POST /api/control/roles": "ADMIN",
+  "PATCH /api/control/roles/:roleId": "ADMIN",
+  "POST /api/control/roles/:roleId/delete": "ADMIN",
+  "POST /api/control/channels": "ADMIN",
+  "PATCH /api/control/channels/:channelId": "ADMIN",
+  "POST /api/control/channels/:channelId/delete": "ADMIN",
+  "PATCH /api/control/guild": "ADMIN",
+  "POST /api/control/structure/plan": "ADMIN",
+  "POST /api/control/messages/send": "MODERATOR",
+  "GET /api/operations/overview": "MODERATOR",
+  "POST /api/operations/console": "MODERATOR",
+  "POST /api/operations/messages/preview": "MODERATOR",
+  "POST /api/operations/messages/push": "ADMIN",
+  "GET /api/operations/messages/pushes": "MODERATOR",
+  "GET /api/operations/messages/approvals": "MODERATOR",
+  "POST /api/operations/messages/approvals": "MODERATOR",
+  "POST /api/operations/messages/approvals/:approvalId/review": "ADMIN",
+  "GET /api/operations/templates": "MODERATOR",
+  "POST /api/operations/templates": "MODERATOR",
+  "POST /api/operations/templates/:templateId/delete": "ADMIN",
+  "GET /api/custom/overview": "MODERATOR",
+  "GET /api/custom/commands": "MODERATOR",
+  "POST /api/custom/commands": "ADMIN",
+  "POST /api/custom/commands/:commandId/delete": "ADMIN",
+  "GET /api/custom/interactions": "MODERATOR",
+  "POST /api/custom/interactions": "ADMIN",
+  "POST /api/custom/interactions/:interactionId/delete": "ADMIN",
+  "GET /api/custom/events": "MODERATOR",
+  "GET /api/automations/overview": "MODERATOR",
+  "POST /api/automations/preview": "MODERATOR",
+  "POST /api/automations/test": "ADMIN",
+  "POST /api/automations/flows": "ADMIN",
+  "POST /api/automations/flows/:flowId/delete": "ADMIN",
+  "GET /api/modules/overview": "MODERATOR",
+  "GET /api/modules/events": "MODERATOR",
+  "GET /api/commands/overview": "MODERATOR",
+  "POST /api/modules/:moduleId/state": "ADMIN",
+  "POST /api/modules/export": "ADMIN",
+  "POST /api/modules/import": "ADMIN",
   "GET /api/settings": "VIEWER",
   "GET /api/permissions": "VIEWER",
   "PATCH /api/settings": "ADMIN",
@@ -47,6 +155,7 @@ export const ADMIN_ROUTE_ROLES = Object.freeze({
   "GET /api/proposals": "VIEWER",
   "GET /api/announcements": "VIEWER",
   "GET /api/blockchain/status": "VIEWER",
+  "GET /api/wallets": "VIEWER",
   "GET /api/push/public-key": "VIEWER",
   "POST /api/push/subscriptions": "VIEWER",
   "DELETE /api/push/subscriptions": "VIEWER",
@@ -54,18 +163,24 @@ export const ADMIN_ROUTE_ROLES = Object.freeze({
   "POST /api/embeds/send": "ADMIN"
 });
 
-export async function startAdminPanel({ client, guildId, store, permissions = null, musicManager, chainClient }) {
+export async function startAdminPanel({ client, guildId, store, permissions = null, musicManager, chainClient, walletRegistration = null, setupWizardStatus = null }) {
   if (process.env.ADMIN_PANEL_ENABLED !== "true") {
     return null;
   }
 
+  const setupStatus = setupWizardStatus ?? await getSetupWizardStatus();
+  const setupActive = Boolean(setupStatus.required);
   const authService = new AdminAuthService();
-  await authService.ensureDefaultSuperAdmin();
-  configureWebPush();
+  if (!setupActive) {
+    await authService.ensureDefaultSuperAdmin();
+    configureWebPush();
+  }
+
+  const messagePushScheduler = setupActive ? null : startMessagePushScheduler({ client, guildId, store });
 
   const app = express();
   app.use(helmet());
-  app.use(express.json({ limit: "128kb" }));
+  app.use(express.json({ limit: process.env.ADMIN_JSON_LIMIT ?? "128kb" }));
 
   const dashboardDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "dashboard", "dist");
   const dashboardIndex = path.join(dashboardDir, "index.html");
@@ -77,6 +192,52 @@ export async function startAdminPanel({ client, guildId, store, permissions = nu
   app.get("/", (_request, response) => response.redirect("/admin/"));
   app.get("/admin", (_request, response) => response.redirect("/admin/"));
   app.get("/admin/*", (_request, response) => response.sendFile(dashboardIndex));
+
+  app.get("/setup/status", asyncRoute(async (_request, response) => {
+    const status = await getSetupWizardStatus();
+    response.json({ ok: true, ...status, publicConfig: getSetupWizardPublicConfig() });
+  }));
+
+  app.post("/setup/finalize", asyncRoute(async (request, response) => {
+    const result = await finalizeSetupWizard({ payload: request.body ?? {} });
+    response.status(201).json(result);
+    if (result.restartRequired) {
+      logger.warn("Setup wizard finalized. Restarting process so Docker/systemd can start the normal bot runtime.");
+      setTimeout(() => process.exit(0), 600).unref?.();
+    }
+  }));
+
+  app.get("/pay/:token", asyncRoute(async (request, response) => {
+    response.redirect(302, `/admin/pay/${encodeURIComponent(request.params.token)}`);
+  }));
+
+  app.get("/payment-links/:token.json", asyncRoute(async (request, response) => {
+    if (!walletRegistration) {
+      response.status(503).json({ ok: false, error: "Wallet registration service is not available." });
+      return;
+    }
+    const data = await walletRegistration.getPaymentLinkData(request.params.token);
+    if (!data) {
+      response.status(404).json({ ok: false, error: "Payment link not found." });
+      return;
+    }
+    response.json(data);
+  }));
+
+  app.post("/payment-links/:token/withdrawals", asyncRoute(async (request, response) => {
+    if (!walletRegistration) {
+      response.status(503).json({ ok: false, error: "Wallet registration service is not available." });
+      return;
+    }
+    const result = await walletRegistration.requestWithdrawal({
+      token: request.params.token,
+      toAddress: request.body?.toAddress,
+      amount: request.body?.amount,
+      asset: request.body?.asset
+    });
+    response.status(201).json(result);
+  }));
+
   const auth = createAuthMiddleware(authService);
   const role = (method, route) => requireConfiguredRouteRole(method, route);
 
@@ -86,11 +247,19 @@ export async function startAdminPanel({ client, guildId, store, permissions = nu
   }));
 
   app.post("/auth/login", asyncRoute(async (request, response) => {
+    if (setupActive) {
+      response.status(423).json({ ok: false, error: "Setup wizard must be finalized before admin login is available.", code: "setup_required" });
+      return;
+    }
     const result = await authService.login(request.body ?? {});
     response.json({ ok: true, ...result });
   }));
 
   app.post("/auth/refresh", asyncRoute(async (request, response) => {
+    if (setupActive) {
+      response.status(423).json({ ok: false, error: "Setup wizard must be finalized before token refresh is available.", code: "setup_required" });
+      return;
+    }
     const result = await authService.refresh(request.body?.refreshToken);
     response.json({ ok: true, ...result });
   }));
@@ -184,6 +353,283 @@ export async function startAdminPanel({ client, guildId, store, permissions = nu
           managed: roleItem.managed
         }))
     });
+  }));
+
+  app.get("/api/control/overview", role("GET", "/api/control/overview"), asyncRoute(async (_request, response) => {
+    response.json(await buildAdminControlOverview({ client, guildId }));
+  }));
+
+  app.post("/api/control/roles", role("POST", "/api/control/roles"), asyncRoute(async (request, response) => {
+    const result = await createAdminRole({ client, guildId, payload: request.body, actor: request.adminUser, store });
+    response.status(201).json(result);
+  }));
+
+  app.patch("/api/control/roles/:roleId", role("PATCH", "/api/control/roles/:roleId"), asyncRoute(async (request, response) => {
+    response.json(await updateAdminRole({ client, guildId, roleId: request.params.roleId, payload: request.body, actor: request.adminUser, store }));
+  }));
+
+  app.post("/api/control/roles/:roleId/delete", role("POST", "/api/control/roles/:roleId/delete"), asyncRoute(async (request, response) => {
+    response.json(await deleteAdminRole({ client, guildId, roleId: request.params.roleId, payload: request.body, actor: request.adminUser, store }));
+  }));
+
+  app.post("/api/control/channels", role("POST", "/api/control/channels"), asyncRoute(async (request, response) => {
+    const result = await createAdminChannel({ client, guildId, payload: request.body, actor: request.adminUser, store });
+    response.status(201).json(result);
+  }));
+
+  app.patch("/api/control/channels/:channelId", role("PATCH", "/api/control/channels/:channelId"), asyncRoute(async (request, response) => {
+    response.json(await updateAdminChannel({ client, guildId, channelId: request.params.channelId, payload: request.body, actor: request.adminUser, store }));
+  }));
+
+  app.post("/api/control/channels/:channelId/delete", role("POST", "/api/control/channels/:channelId/delete"), asyncRoute(async (request, response) => {
+    response.json(await deleteAdminChannel({ client, guildId, channelId: request.params.channelId, payload: request.body, actor: request.adminUser, store }));
+  }));
+
+  app.patch("/api/control/guild", role("PATCH", "/api/control/guild"), asyncRoute(async (request, response) => {
+    response.json(await updateAdminGuildSettings({ client, guildId, payload: request.body, actor: request.adminUser, store }));
+  }));
+
+  app.post("/api/control/structure/plan", role("POST", "/api/control/structure/plan"), asyncRoute(async (request, response) => {
+    response.json(await applyAdminStructurePlan({ client, guildId, payload: request.body ?? {}, actor: request.adminUser, store }));
+  }));
+
+  app.post("/api/control/messages/send", role("POST", "/api/control/messages/send"), asyncRoute(async (request, response) => {
+    response.json(await sendAdminControlMessage({ client, guildId, payload: request.body, actor: request.adminUser, store }));
+  }));
+
+  app.get("/api/control/members", role("GET", "/api/control/members"), asyncRoute(async (request, response) => {
+    response.json(await listAdminControlMembers({
+      client,
+      guildId,
+      query: request.query?.q,
+      limit: request.query?.limit
+    }));
+  }));
+
+  app.post("/api/control/members/:userId/moderation", role("POST", "/api/control/members/:userId/moderation"), asyncRoute(async (request, response) => {
+    response.json(await moderateMemberFromAdmin({
+      client,
+      guildId,
+      userId: request.params.userId,
+      payload: request.body,
+      actor: request.adminUser,
+      store
+    }));
+  }));
+
+  app.post("/api/control/members/:userId/roles", role("POST", "/api/control/members/:userId/roles"), asyncRoute(async (request, response) => {
+    response.json(await updateMemberRoleFromAdmin({
+      client,
+      guildId,
+      userId: request.params.userId,
+      payload: request.body,
+      actor: request.adminUser,
+      store
+    }));
+  }));
+
+  app.post("/api/control/members/:userId/roles/bulk", role("POST", "/api/control/members/:userId/roles/bulk"), asyncRoute(async (request, response) => {
+    response.json(await updateMemberRolesBulkFromAdmin({
+      client,
+      guildId,
+      userId: request.params.userId,
+      payload: request.body ?? {},
+      actor: request.adminUser,
+      store
+    }));
+  }));
+
+  app.post("/api/control/channels/:channelId/purge", role("POST", "/api/control/channels/:channelId/purge"), asyncRoute(async (request, response) => {
+    response.json(await purgeChannelFromAdmin({
+      client,
+      guildId,
+      channelId: request.params.channelId,
+      payload: request.body,
+      actor: request.adminUser,
+      store
+    }));
+  }));
+
+  app.post("/api/control/channels/:channelId/permissions", role("POST", "/api/control/channels/:channelId/permissions"), asyncRoute(async (request, response) => {
+    response.json(await setChannelPermissionOverwriteFromAdmin({
+      client,
+      guildId,
+      channelId: request.params.channelId,
+      payload: request.body ?? {},
+      actor: request.adminUser,
+      store
+    }));
+  }));
+
+  app.patch("/api/control/channels/:channelId/position", role("PATCH", "/api/control/channels/:channelId/position"), asyncRoute(async (request, response) => {
+    response.json(await reorderChannelFromAdmin({
+      client,
+      guildId,
+      channelId: request.params.channelId,
+      payload: request.body ?? {},
+      actor: request.adminUser,
+      store
+    }));
+  }));
+
+  app.post("/api/control/tickets/:ticketId/status", role("POST", "/api/control/tickets/:ticketId/status"), asyncRoute(async (request, response) => {
+    response.json(await updateTicketStatusFromAdmin({
+      client,
+      guildId,
+      ticketId: request.params.ticketId,
+      payload: request.body,
+      actor: request.adminUser,
+      store
+    }));
+  }));
+
+
+  app.get("/api/operations/overview", role("GET", "/api/operations/overview"), asyncRoute(async (_request, response) => {
+    response.json(await buildBotOperationsOverview({ client, guildId, store }));
+  }));
+
+  app.post("/api/operations/console", role("POST", "/api/operations/console"), asyncRoute(async (request, response) => {
+    response.json(await runBotConsoleCommand({
+      client,
+      guildId,
+      store,
+      command: request.body?.command,
+      actor: request.adminUser
+    }));
+  }));
+
+  app.post("/api/operations/messages/preview", role("POST", "/api/operations/messages/preview"), asyncRoute(async (request, response) => {
+    response.json(await previewMessagePayload({ payload: request.body ?? {} }));
+  }));
+
+  app.post("/api/operations/messages/push", role("POST", "/api/operations/messages/push"), asyncRoute(async (request, response) => {
+    response.status(201).json(await sendMessagePush({
+      client,
+      guildId,
+      store,
+      payload: request.body ?? {},
+      actor: request.adminUser
+    }));
+  }));
+
+  app.get("/api/operations/messages/pushes", role("GET", "/api/operations/messages/pushes"), asyncRoute(async (request, response) => {
+    response.json(await listMessagePushes({ store, limit: request.query?.limit }));
+  }));
+
+  app.get("/api/operations/messages/approvals", role("GET", "/api/operations/messages/approvals"), asyncRoute(async (request, response) => {
+    response.json(await listMessageApprovals({ store, limit: request.query?.limit, includeClosed: request.query?.includeClosed !== "false" }));
+  }));
+
+  app.post("/api/operations/messages/approvals", role("POST", "/api/operations/messages/approvals"), asyncRoute(async (request, response) => {
+    const result = await requestMessageApproval({ client, guildId, store, payload: request.body ?? {}, actor: request.adminUser });
+    response.status(201).json(result);
+  }));
+
+  app.post("/api/operations/messages/approvals/:approvalId/review", role("POST", "/api/operations/messages/approvals/:approvalId/review"), asyncRoute(async (request, response) => {
+    response.json(await reviewMessageApproval({
+      client,
+      guildId,
+      store,
+      approvalId: request.params.approvalId,
+      payload: request.body ?? {},
+      actor: request.adminUser
+    }));
+  }));
+
+  app.get("/api/operations/templates", role("GET", "/api/operations/templates"), asyncRoute(async (_request, response) => {
+    response.json(await listMessageTemplates({ store }));
+  }));
+
+  app.post("/api/operations/templates", role("POST", "/api/operations/templates"), asyncRoute(async (request, response) => {
+    response.status(201).json(await saveMessageTemplate({ store, payload: request.body ?? {}, actor: request.adminUser }));
+  }));
+
+  app.post("/api/operations/templates/:templateId/delete", role("POST", "/api/operations/templates/:templateId/delete"), asyncRoute(async (request, response) => {
+    response.json(await deleteMessageTemplate({ store, templateId: request.params.templateId, actor: request.adminUser }));
+  }));
+
+
+  app.get("/api/custom/overview", role("GET", "/api/custom/overview"), asyncRoute(async (_request, response) => {
+    response.json(await buildCustomControlsOverview({ store, guildId }));
+  }));
+
+  app.get("/api/custom/commands", role("GET", "/api/custom/commands"), asyncRoute(async (_request, response) => {
+    response.json(await listCustomCommands({ store, guildId }));
+  }));
+
+  app.post("/api/custom/commands", role("POST", "/api/custom/commands"), asyncRoute(async (request, response) => {
+    response.status(201).json(await createOrUpdateCustomCommand({ store, guildId, payload: request.body ?? {}, actor: request.adminUser }));
+  }));
+
+  app.post("/api/custom/commands/:commandId/delete", role("POST", "/api/custom/commands/:commandId/delete"), asyncRoute(async (request, response) => {
+    response.json(await deleteCustomCommandFromWeb({ store, guildId, commandId: request.params.commandId, actor: request.adminUser }));
+  }));
+
+  app.get("/api/custom/interactions", role("GET", "/api/custom/interactions"), asyncRoute(async (_request, response) => {
+    response.json(await listCustomInteractions({ store, guildId }));
+  }));
+
+  app.post("/api/custom/interactions", role("POST", "/api/custom/interactions"), asyncRoute(async (request, response) => {
+    response.status(201).json(await createOrUpdateCustomInteraction({ store, guildId, payload: request.body ?? {}, actor: request.adminUser }));
+  }));
+
+  app.post("/api/custom/interactions/:interactionId/delete", role("POST", "/api/custom/interactions/:interactionId/delete"), asyncRoute(async (request, response) => {
+    response.json(await deleteCustomInteractionFromWeb({ store, guildId, interactionId: request.params.interactionId, actor: request.adminUser }));
+  }));
+
+  app.get("/api/custom/events", role("GET", "/api/custom/events"), asyncRoute(async (request, response) => {
+    response.json(await listCustomControlEvents({ store, guildId, limit: request.query?.limit }));
+  }));
+
+  app.get("/api/automations/overview", role("GET", "/api/automations/overview"), asyncRoute(async (_request, response) => {
+    response.json(await buildAutomationStudioOverview({ store, guildId, client }));
+  }));
+
+  app.post("/api/automations/preview", role("POST", "/api/automations/preview"), asyncRoute(async (request, response) => {
+    response.json(await previewAutomationFlow({ store, guildId, payload: request.body ?? {}, actor: request.adminUser }));
+  }));
+
+  app.post("/api/automations/test", role("POST", "/api/automations/test"), asyncRoute(async (request, response) => {
+    response.json(await testAutomationFlow({ client, store, guildId, payload: request.body ?? {}, actor: request.adminUser }));
+  }));
+
+  app.post("/api/automations/flows", role("POST", "/api/automations/flows"), asyncRoute(async (request, response) => {
+    response.status(201).json(await createOrUpdateAutomationFlow({ store, guildId, payload: request.body ?? {}, actor: request.adminUser }));
+  }));
+
+  app.post("/api/automations/flows/:flowId/delete", role("POST", "/api/automations/flows/:flowId/delete"), asyncRoute(async (request, response) => {
+    response.json(await deleteAutomationFlowFromWeb({ store, guildId, flowId: request.params.flowId, actor: request.adminUser }));
+  }));
+
+  app.get("/api/modules/overview", role("GET", "/api/modules/overview"), asyncRoute(async (_request, response) => {
+    response.json(await buildModuleCenterOverview({ store, guildId, client }));
+  }));
+
+  app.get("/api/modules/events", role("GET", "/api/modules/events"), asyncRoute(async (request, response) => {
+    response.json(await listModuleCenterEvents({ store, guildId, limit: request.query?.limit }));
+  }));
+
+  app.get("/api/commands/overview", role("GET", "/api/commands/overview"), asyncRoute(async (_request, response) => {
+    response.json(await buildCommandCenterOverview({ client, guildId, store }));
+  }));
+
+  app.post("/api/modules/:moduleId/state", role("POST", "/api/modules/:moduleId/state"), asyncRoute(async (request, response) => {
+    response.json(await setModuleState({
+      store,
+      guildId,
+      client,
+      moduleId: request.params.moduleId,
+      payload: request.body ?? {},
+      actor: request.adminUser
+    }));
+  }));
+
+  app.post("/api/modules/export", role("POST", "/api/modules/export"), asyncRoute(async (request, response) => {
+    response.json(await exportModuleBundle({ store, guildId, payload: request.body ?? {}, actor: request.adminUser }));
+  }));
+
+  app.post("/api/modules/import", role("POST", "/api/modules/import"), asyncRoute(async (request, response) => {
+    response.json(await importModuleBundle({ store, guildId, payload: request.body ?? {}, actor: request.adminUser }));
   }));
 
   app.get("/api/moderation/cases", role("GET", "/api/moderation/cases"), asyncRoute(async (_request, response) => {
@@ -305,6 +751,17 @@ export async function startAdminPanel({ client, guildId, store, permissions = nu
     response.json(status);
   }));
 
+  app.get("/api/wallets", role("GET", "/api/wallets"), asyncRoute(async (_request, response) => {
+    if (!walletRegistration) {
+      response.status(503).json({ ok: false, error: "Wallet registration service is not available." });
+      return;
+    }
+    response.json({
+      ok: true,
+      items: await walletRegistration.listWalletSummaries()
+    });
+  }));
+
   app.get("/api/push/public-key", role("GET", "/api/push/public-key"), asyncRoute(async (_request, response) => {
     const config = getPushConfig();
     response.json({
@@ -326,8 +783,8 @@ export async function startAdminPanel({ client, guildId, store, permissions = nu
 
   app.post("/api/push/test", role("POST", "/api/push/test"), asyncRoute(async (_request, response) => {
     const result = await sendPushNotification(store, {
-      title: "Veiron Test Alert",
-      body: "Web push notifications are enabled for the Veiron admin dashboard.",
+      title: "Vireon Test Alert",
+      body: "Web push notifications are enabled for the Vireon admin dashboard.",
       url: "/admin/#overview"
     }, { roles: ["ADMIN", "SUPER_ADMIN"] });
     response.json(result);
@@ -348,7 +805,7 @@ export async function startAdminPanel({ client, guildId, store, permissions = nu
     }
 
     const message = await channel.send({
-      embeds: [createVeironEmbed({ title, description, color })]
+      embeds: [createVireonEmbed({ title, description, color })]
     });
 
     response.json({ ok: true, messageId: message.id });
@@ -360,8 +817,12 @@ export async function startAdminPanel({ client, guildId, store, permissions = nu
   const port = Number.parseInt(process.env.ADMIN_PANEL_PORT ?? "8787", 10);
 
   const server = app.listen(port, host, () => {
-    logger.info({ host, port }, "Veiron admin panel API listening.");
+    logger.info({ host, port }, "Vireon admin panel API listening.");
   });
+
+  if (messagePushScheduler) {
+    server.on("close", () => clearInterval(messagePushScheduler));
+  }
 
   return server;
 }

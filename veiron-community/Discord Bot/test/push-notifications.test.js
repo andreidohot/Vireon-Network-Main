@@ -24,7 +24,7 @@ describe("push notifications", () => {
 
   it("saves, disables and reactivates subscriptions", async () => {
     const store = createStoreMock();
-    const user = { id: "user-1", email: "admin@veiron.local", role: "ADMIN" };
+    const user = { id: "user-1", email: "admin@vireon.local", role: "ADMIN" };
     const subscription = {
       endpoint: "https://push.example/subscription-1",
       keys: {
