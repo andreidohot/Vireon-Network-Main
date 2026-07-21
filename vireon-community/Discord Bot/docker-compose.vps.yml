@@ -1,0 +1,18 @@
+services:
+  vbos:
+    networks:
+      - default
+      - vireon-internal
+
+networks:
+  vireon-internal:
+    external: true
+    name: ${VIREON_DOCKER_NETWORK:-vireon-internal}
+
+volumes:
+  postgres-data:
+    external: true
+    name: ${VBOS_POSTGRES_DATA_VOLUME:-discord-bot_postgres-data}
+  postgres-ledger-data:
+    external: true
+    name: ${VBOS_LEDGER_DATA_VOLUME:-discord-bot_postgres-ledger-data}

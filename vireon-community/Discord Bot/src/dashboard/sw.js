@@ -1,4 +1,4 @@
-const CACHE_VERSION = "vbos-admin-7.36.2";
+const CACHE_VERSION = "vbos-admin-7.36.7";
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const CORE_ASSETS = [
   "/admin/",

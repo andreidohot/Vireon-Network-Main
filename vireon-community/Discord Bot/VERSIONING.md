@@ -9,8 +9,8 @@ MAJOR.MEDIUM.MINOR
 Current version:
 
 ```text
-7.36.5
-- Patch deploy fix: package-lock is pinned to the public npm registry and Docker verifies it before npm ci.
+7.36.7
+- Docker-safe rank-card font rendering and the current Vireon rank-card layout.
 ```
 
 ## Version Meaning

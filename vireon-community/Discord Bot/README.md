@@ -2,7 +2,7 @@
 
 VBOS (Vireon Bot Operations Studio) is the all-in-one Discord operations bot and admin web panel for Vireon Network.
 
-Current version: **7.36.5**.
+Current version: **7.36.7**.
 
 Runtime target: **Node.js 24.x**. Docker uses `node:24-bookworm-slim`; local non-Docker installs should use Node 24 as well.
 Docker Compose also exposes `NODE_IMAGE`, defaulting to `node:24-bookworm-slim`, so advanced builds can pin a full patch image without editing the Dockerfile. Release builds force the public npm registry and `npm run lock:verify` rejects internal registry URLs before Docker runs `npm ci`.

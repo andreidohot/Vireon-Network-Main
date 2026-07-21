@@ -42,7 +42,7 @@ services:
       PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://adminbot.dohotstudio.com}
       SETUP_WIZARD_RESTART_ON_FINISH: ${SETUP_WIZARD_RESTART_ON_FINISH:-true}
     ports:
-      - "${ADMIN_PANEL_PORT:-8787}:8787"
+      - "${ADMIN_PANEL_BIND_IP:-127.0.0.1}:${ADMIN_PANEL_PORT:-8787}:8787"
     volumes:
       - ./data:/app/data
       - ./backups:/app/backups

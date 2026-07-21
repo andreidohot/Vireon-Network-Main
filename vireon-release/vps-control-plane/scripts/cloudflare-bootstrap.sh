@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$root"
+source scripts/lib.sh
+load_dotenv .env
+
 phase="all"
 case "${1:-}" in
   "") ;;
@@ -9,7 +14,7 @@ case "${1:-}" in
   *) echo "Usage: $0 [--prepare|--activate]" >&2; exit 64 ;;
 esac
 
-workspace="${VIREON_WORKSPACE:-/workspace}"
+workspace="${VIREON_WORKSPACE:-$root}"
 secrets_dir="$workspace/state/secrets"
 api_token_file="/run/secrets/cloudflare_api_token"
 [[ -s "$api_token_file" ]] || api_token_file="$secrets_dir/cloudflare_api_token"

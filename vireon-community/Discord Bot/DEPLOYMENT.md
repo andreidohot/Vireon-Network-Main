@@ -1,4 +1,4 @@
-> VBOS 7.36.5 targets **Node.js 24.x**. Docker uses `node:24-bookworm-slim`. Local non-Docker deployments should use Node 24.x before running `npm ci`. Docker Compose uses `NODE_IMAGE=${NODE_IMAGE:-node:24-bookworm-slim}` by default.
+> VBOS 7.36.7 targets **Node.js 24.x**. Docker uses `node:24-bookworm-slim`. Local non-Docker deployments should use Node 24.x before running `npm ci`. Docker Compose uses `NODE_IMAGE=${NODE_IMAGE:-node:24-bookworm-slim}` by default.
 
 # VBOS Deployment
 
@@ -24,6 +24,30 @@ cp .env.example .env
 docker compose up -d --build
 docker compose logs -f
 ```
+
+## Vireon VPS Docker Deployment
+
+The production VPS overlay joins the bot to the control-plane network and
+reuses explicitly named PostgreSQL volumes. Keep `.env` untracked and set the
+chain client to the internal RPC service:
+
+```dotenv
+VIREON_CHAIN_MODE=rpc
+VIREON_CHAIN_RPC_URL=http://vireon-rpc:10787
+VIREON_CHAIN_HEALTH_URL=http://vireon-rpc:10787/health
+VIREON_CHAIN_STATUS_URL=http://vireon-rpc:10787/status
+```
+
+Deploy from the organized `/home/vireon/discord-bot` path:
+
+```bash
+docker compose -p vireon-discord-bot --env-file .env \
+  -f docker-compose.yml -f docker-compose.vps.yml up -d --build
+```
+
+The overlay expects `vireon-internal`, `discord-bot_postgres-data` and
+`discord-bot_postgres-ledger-data` to exist. It does not create replacement
+database volumes during a migration.
 
 Dashboard:
 
@@ -115,7 +139,7 @@ The `/health` endpoint includes configured Lavalink nodes, ready nodes, player s
 
 ## Docker build stuck at npm ci
 
-VBOS 7.36.5 no longer runs a silent `npm ci` inside Docker. The Dockerfile runs `scripts/npm-ci-heartbeat.js`, which prints an install heartbeat every 15 seconds and stops with a useful error after the configured timeout.
+VBOS 7.36.7 does not run a silent `npm ci` inside Docker. The Dockerfile runs `scripts/npm-ci-heartbeat.js`, which prints an install heartbeat every 15 seconds and stops with a useful error after the configured timeout.
 
 Recommended rebuild:
 
@@ -136,7 +160,7 @@ The default image is `node:24-bookworm-slim`. It is intentionally not Alpine, be
 
 ## Docker build timeout on applied-caas / internal registry URLs
 
-If the build log shows package downloads from a URL like `packages.applied-caas...` or any internal Artifactory registry, the lockfile is wrong for a public VPS. VBOS 7.36.5 fixes this by rewriting the affected `resolved` URLs to `https://registry.npmjs.org/` and by adding `npm run lock:verify`.
+If the build log shows package downloads from a URL like `packages.applied-caas...` or any internal Artifactory registry, the lockfile is wrong for a public VPS. VBOS 7.36.7 retains the public-registry lockfile guard through `npm run lock:verify`.
 
 Before rebuilding, clear the old Docker build cache so the previous lockfile layer is not reused:
 
