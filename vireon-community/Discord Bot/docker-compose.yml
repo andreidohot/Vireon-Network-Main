@@ -1,5 +1,7 @@
 services:
   vbos:
+    env_file:
+      - .env
     build:
       context: .
       args:
@@ -12,6 +14,14 @@ services:
     command: sh -c "npm run prisma:push && npm run prisma:push:ledger && npm start"
     environment:
       NODE_ENV: production
+      DISCORD_TOKEN: ${DISCORD_TOKEN:-}
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:-}
+      DISCORD_GUILD_ID: ${DISCORD_GUILD_ID:-}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET:-}
+      ADMIN_DEFAULT_EMAIL: ${ADMIN_DEFAULT_EMAIL:-}
+      ADMIN_DEFAULT_PASSWORD: ${ADMIN_DEFAULT_PASSWORD:-}
+      ADMIN_TRUST_PROXY: ${ADMIN_TRUST_PROXY:-true}
+      ADMIN_FORCE_HTTPS: ${ADMIN_FORCE_HTTPS:-false}
       ADMIN_PANEL_ENABLED: ${ADMIN_PANEL_ENABLED:-true}
       ADMIN_PANEL_HOST: ${ADMIN_PANEL_HOST:-0.0.0.0}
       ADMIN_PANEL_PORT: ${ADMIN_PANEL_PORT:-8787}
@@ -29,7 +39,7 @@ services:
       LAVALINK_PORT: ${LAVALINK_PORT:-2333}
       LAVALINK_PASSWORD: ${LAVALINK_PASSWORD:-youshallnotpass}
       LAVALINK_SECURE: ${LAVALINK_SECURE:-false}
-      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://127.0.0.1:8787}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://adminbot.dohotstudio.com}
       SETUP_WIZARD_RESTART_ON_FINISH: ${SETUP_WIZARD_RESTART_ON_FINISH:-true}
     ports:
       - "${ADMIN_PANEL_PORT:-8787}:8787"

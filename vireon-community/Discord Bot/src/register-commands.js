@@ -22,6 +22,23 @@ const commands = [
         .setName("confirm")
         .setDescription("Must be true to apply the setup.")
         .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName("template")
+        .setDescription("Server template to preview or apply.")
+        .addChoices(
+          { name: "Starter", value: "starter" },
+          { name: "Community", value: "community" },
+          { name: "Developer", value: "developer" },
+          { name: "Gaming", value: "gaming" },
+          { name: "Ultimate", value: "ultimate" }
+        )
+    )
+    .addBooleanOption((option) =>
+      option
+        .setName("include_rank_roles")
+        .setDescription("Also create optional VBOS XP rank roles.")
     ),
   new SlashCommandBuilder()
     .setName("vireon-status")
@@ -111,8 +128,8 @@ const commands = [
     .setDescription("Show your Vireon XP rank card.")
     .addUserOption((option) =>
       option
-        .setName("user")
-        .setDescription("Optional member to inspect.")
+        .setName("member")
+        .setDescription("Select a server member to inspect. Leave empty for yourself.")
         .setRequired(false)
     ),
   new SlashCommandBuilder()

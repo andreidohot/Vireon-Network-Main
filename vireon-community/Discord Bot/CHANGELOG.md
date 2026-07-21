@@ -1,11 +1,27 @@
 # Changelog
 
-## 7.36.4 - Docker npm install reliability
+## 7.36.7
 
-- Changed the default Docker runtime image to `node:24-bookworm-slim` for better native dependency compatibility than Alpine on first VPS builds.
-- Added `scripts/npm-ci-heartbeat.js` so Docker builds show visible npm install progress instead of appearing frozen at `npm ci`.
-- Added a controlled npm install timeout and troubleshooting output for registry/network/RAM issues.
-- Kept Node.js 24 as the required runtime for this VBOS build.
+- Fixed the Discord `/rank` card text rendering inside Docker by loading/registering system fonts and installing font packages in the Node image.
+- Rebuilt the rank card layout with clearer typography, responsive rank badge sizing, better progress bar handling and stronger Vireon visual identity.
+- Changed `/rank` option label from `user` to `member` for clearer Discord member selection, while keeping backward compatibility in the handler.
+
+## 7.36.6 — Setup Template Hotfix
+
+- Fixed `/setup-vireon` permission overwrite crash: `Cannot read properties of undefined (reading 'push')`.
+- Added official `template` choices to `/setup-vireon`: starter, community, developer, gaming, ultimate.
+- Added optional `include_rank_roles` setup flag.
+- Docker Compose now passes `.env` values into the VBOS container by default.
+- Dockerfile installs OpenSSL/CA certificates for Prisma runtime stability.
+
+
+## 7.36.5 - Public npm registry lockfile fix
+
+- Fixed `package-lock.json` entries that were accidentally resolved through an internal build registry, causing VPS Docker builds to hang or timeout at `npm ci`.
+- Forced release Docker builds to use `https://registry.npmjs.org/` through `.npmrc`, Docker `NPM_CONFIG_REGISTRY` and the npm heartbeat installer.
+- Added `scripts/verify-public-npm-lock.js` and `npm run lock:verify` to fail builds early if internal/non-public registry URLs ever return in the lockfile.
+- Docker now runs lockfile verification before `npm ci`, so registry leaks are caught before package downloads begin.
+- Kept Node.js 24 and `node:24-bookworm-slim` as the runtime target.
 
 
 ## 7.36.3 - Node.js 24 runtime target

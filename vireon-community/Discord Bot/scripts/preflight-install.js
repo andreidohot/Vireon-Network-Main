@@ -3,10 +3,15 @@ import https from 'node:https';
 import process from 'node:process';
 
 const registry = process.env.NPM_CONFIG_REGISTRY || process.env.npm_config_registry || 'https://registry.npmjs.org/';
+const publicRegistry = 'https://registry.npmjs.org/';
 const nodeMajor = Number.parseInt(process.versions.node.split('.')[0], 10);
 
 console.log(`[VBOS preflight] Node.js ${process.version}`);
 console.log(`[VBOS preflight] npm registry: ${registry}`);
+if (!String(registry).startsWith(publicRegistry)) {
+  console.error(`[VBOS preflight] Refusing non-public npm registry: ${registry}. VBOS release Docker builds must use ${publicRegistry}.`);
+  process.exit(1);
+}
 
 if (nodeMajor !== 24) {
   console.error(`[VBOS preflight] Node.js 24.x is required for this VBOS build. Current runtime: ${process.version}. Use Docker or install Node 24 LTS/current on the host.`);

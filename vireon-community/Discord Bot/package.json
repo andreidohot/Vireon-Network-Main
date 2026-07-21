@@ -1,6 +1,6 @@
 {
   "name": "vbos",
-  "version": "7.36.4",
+  "version": "7.36.7",
   "private": true,
   "description": "VBOS (Vireon Bot Operations Studio): all-in-one Discord operations bot and admin web panel for Vireon.",
   "type": "module",
@@ -26,6 +26,7 @@
     "docker:build:debug": "bash scripts/docker-build-debug.sh",
     "docker:build:debug:win": "powershell -ExecutionPolicy Bypass -File scripts/docker-build-debug.ps1",
     "preflight:install": "node scripts/preflight-install.js",
+    "lock:verify": "node scripts/verify-public-npm-lock.js",
     "npm:ci:heartbeat": "node scripts/npm-ci-heartbeat.js"
   },
   "dependencies": {

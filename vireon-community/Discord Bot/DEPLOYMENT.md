@@ -1,4 +1,4 @@
-> VBOS 7.36.4 targets **Node.js 24.x**. Docker uses `node:24-bookworm-slim`. Local non-Docker deployments should use Node 24.x before running `npm ci`. Docker Compose uses `NODE_IMAGE=${NODE_IMAGE:-node:24-bookworm-slim}` by default.
+> VBOS 7.36.5 targets **Node.js 24.x**. Docker uses `node:24-bookworm-slim`. Local non-Docker deployments should use Node 24.x before running `npm ci`. Docker Compose uses `NODE_IMAGE=${NODE_IMAGE:-node:24-bookworm-slim}` by default.
 
 # VBOS Deployment
 
@@ -115,7 +115,7 @@ The `/health` endpoint includes configured Lavalink nodes, ready nodes, player s
 
 ## Docker build stuck at npm ci
 
-VBOS 7.36.4 no longer runs a silent `npm ci` inside Docker. The Dockerfile runs `scripts/npm-ci-heartbeat.js`, which prints an install heartbeat every 15 seconds and stops with a useful error after the configured timeout.
+VBOS 7.36.5 no longer runs a silent `npm ci` inside Docker. The Dockerfile runs `scripts/npm-ci-heartbeat.js`, which prints an install heartbeat every 15 seconds and stops with a useful error after the configured timeout.
 
 Recommended rebuild:
 
@@ -133,3 +133,25 @@ VBOS_NPM_CI_TIMEOUT_MS=2400000 docker compose build --no-cache --progress=plain 
 ```
 
 The default image is `node:24-bookworm-slim`. It is intentionally not Alpine, because Debian/glibc is more predictable for native dependencies such as Prisma engines and canvas packages.
+
+## Docker build timeout on applied-caas / internal registry URLs
+
+If the build log shows package downloads from a URL like `packages.applied-caas...` or any internal Artifactory registry, the lockfile is wrong for a public VPS. VBOS 7.36.5 fixes this by rewriting the affected `resolved` URLs to `https://registry.npmjs.org/` and by adding `npm run lock:verify`.
+
+Before rebuilding, clear the old Docker build cache so the previous lockfile layer is not reused:
+
+```bash
+docker compose down
+docker builder prune -f
+docker compose build --no-cache --progress=plain vbos
+docker compose up -d
+```
+
+Expected pre-install output:
+
+```text
+[VBOS lock] OK. package-lock.json uses the public npm registry only.
+https://registry.npmjs.org/
+```
+
+If `npm ci` still times out after that, the problem is no longer the lockfile; check VPS DNS/firewall, npm registry reachability, or available RAM.

@@ -2,10 +2,10 @@
 
 VBOS (Vireon Bot Operations Studio) is the all-in-one Discord operations bot and admin web panel for Vireon Network.
 
-Current version: **7.36.4**.
+Current version: **7.36.5**.
 
 Runtime target: **Node.js 24.x**. Docker uses `node:24-bookworm-slim`; local non-Docker installs should use Node 24 as well.
-Docker Compose also exposes `NODE_IMAGE`, defaulting to `node:24-bookworm-slim`, so advanced builds can pin a full patch image without editing the Dockerfile.
+Docker Compose also exposes `NODE_IMAGE`, defaulting to `node:24-bookworm-slim`, so advanced builds can pin a full patch image without editing the Dockerfile. Release builds force the public npm registry and `npm run lock:verify` rejects internal registry URLs before Docker runs `npm ci`.
 
 The goal is one strong operations system, not many disconnected bots. This release includes server setup, onboarding roles, permission control with visual admin UI, VBOS-styled embeds, moderation, tickets, live-config automod, anti-raid alerts, anti-spam, persistent audit logging, automated database backups, announcements, scheduled announcements, proposals/voting, welcome/goodbye events, XP/level tracking, server-only Shards social currency, custom tags, custom triggers, Lavalink music commands, saved playlists, audio filters, interactive now-playing controls, live Vireon chain status and reward queries via the configured adapter, Docker deployment and an installable React SPA admin dashboard.
 

@@ -40,11 +40,14 @@ import { createWalletRegistrationService, registerWalletRegistrationHandlers } f
 import { registerXpLeveling } from "./xp-leveling.js";
 import { applyXpRoleRewards } from "./xp-role-rewards.js";
 import {
-  CHANNEL_TEMPLATE,
   ROLE_BUTTONS,
   ROLE_NAMES,
   ROLE_TEMPLATE,
-  SEED_MESSAGES,
+  getSetupChannelTemplate,
+  getSetupRoleTemplate,
+  getSetupSeedMessages,
+  describeSetupPlan,
+  normalizeSetupTemplateId,
   permissionBits
 } from "./template.js";
 
@@ -187,10 +190,20 @@ client.on("interactionCreate", async (interaction) => {
   if (interaction.commandName !== "setup-vireon") return;
 
   const confirmed = interaction.options.getBoolean("confirm", true);
+  const templateId = normalizeSetupTemplateId(interaction.options.getString("template") ?? "ultimate");
+  const includeRankRoles = interaction.options.getBoolean("include_rank_roles") ?? false;
+  const setupPlan = describeSetupPlan({ templateId, includeRankRoles });
+
   if (!confirmed) {
     await interaction.reply({
       ephemeral: true,
-      content: "Setup was not applied. Run `/setup-vireon confirm:true` when ready."
+      content: [
+        `Setup preview only. Template: ${setupPlan.name} (${setupPlan.id}).`,
+        setupPlan.description,
+        `Will prepare: ${setupPlan.roles} roles (${setupPlan.rankRoles} rank roles), ${setupPlan.categories} categories, ${setupPlan.textChannels} text channels and ${setupPlan.voiceChannels} voice channels.`,
+        "Nothing was changed.",
+        `Run /setup-vireon confirm:true template:${setupPlan.id} include_rank_roles:${includeRankRoles} when ready.`
+      ].join("\n")
     });
     return;
   }
@@ -210,12 +223,16 @@ client.on("interactionCreate", async (interaction) => {
     await guild.roles.fetch();
     await guild.channels.fetch();
 
-    const context = await ensureRoles(guild);
-    const channelStats = await ensureChannels(guild, context);
-    const messageStats = await seedMessages(guild);
+    const channelTemplate = getSetupChannelTemplate(templateId);
+    const roleTemplate = getSetupRoleTemplate({ includeRankRoles });
+    const seedMessagesTemplate = getSetupSeedMessages(channelTemplate);
+
+    const context = await ensureRoles(guild, roleTemplate);
+    const channelStats = await ensureChannels(guild, context, channelTemplate);
+    const messageStats = await seedMessages(guild, seedMessagesTemplate);
 
     await interaction.editReply([
-      "Vireon Discord setup complete.",
+      `Vireon Discord setup complete. Template: ${setupPlan.name} (${setupPlan.id}).`,
       `Roles created: ${context.createdRoles}. Roles reused: ${context.reusedRoles}.`,
       `Categories created: ${channelStats.createdCategories}. Channels created: ${channelStats.createdChannels}.`,
       `Categories reused: ${channelStats.reusedCategories}. Channels reused: ${channelStats.reusedChannels}.`,
@@ -465,12 +482,12 @@ async function handleRoleButton(interaction) {
   await interaction.reply({ ephemeral: true, content: `Added the ${targetRole.name} role.` });
 }
 
-async function ensureRoles(guild) {
+async function ensureRoles(guild, roleTemplates) {
   const roleMap = new Map();
   let createdRoles = 0;
   let reusedRoles = 0;
 
-  for (const roleTemplate of ROLE_TEMPLATE) {
+  for (const roleTemplate of roleTemplates) {
     let role = guild.roles.cache.find((item) => item.name === roleTemplate.name);
 
     if (!role) {
@@ -499,13 +516,13 @@ async function ensureRoles(guild) {
   return { roleMap, createdRoles, reusedRoles };
 }
 
-async function ensureChannels(guild, context) {
+async function ensureChannels(guild, context, channelTemplates) {
   let createdCategories = 0;
   let reusedCategories = 0;
   let createdChannels = 0;
   let reusedChannels = 0;
 
-  for (const categoryTemplate of CHANNEL_TEMPLATE) {
+  for (const categoryTemplate of channelTemplates) {
     let category = guild.channels.cache.find(
       (channel) =>
         channel.type === ChannelType.GuildCategory &&
@@ -570,7 +587,8 @@ function overwritesFor(guild, context, item, parentItem = null) {
   const overwrites = [
     {
       id: everyone.id,
-      allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory]
+      allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory],
+      deny: []
     },
     {
       id: role("muted").id,
@@ -679,11 +697,11 @@ function dedupeOverwrites(overwrites) {
   }));
 }
 
-async function seedMessages(guild) {
+async function seedMessages(guild, seedMessagesTemplate) {
   let posted = 0;
   let skipped = 0;
 
-  for (const [channelName, messages] of Object.entries(SEED_MESSAGES)) {
+  for (const [channelName, messages] of Object.entries(seedMessagesTemplate)) {
     const channel = guild.channels.cache.find(
       (item) => item.type === ChannelType.GuildText && item.name === channelName
     );

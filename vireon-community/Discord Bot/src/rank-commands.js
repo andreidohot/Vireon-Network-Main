@@ -23,7 +23,7 @@ export function registerRankHandlers({ store }) {
 }
 
 export async function handleRank(interaction, store) {
-  const target = interaction.options.getUser("user", false) ?? interaction.user;
+  const target = interaction.options.getUser("member", false) ?? interaction.options.getUser("user", false) ?? interaction.user;
   await interaction.deferReply();
 
   const settings = await getSettings(store);

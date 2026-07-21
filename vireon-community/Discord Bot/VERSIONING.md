@@ -9,8 +9,8 @@ MAJOR.MEDIUM.MINOR
 Current version:
 
 ```text
-7.36.4
-- Patch runtime release: Docker and npm preflight now target Node.js 24.x.
+7.36.5
+- Patch deploy fix: package-lock is pinned to the public npm registry and Docker verifies it before npm ci.
 ```
 
 ## Version Meaning

@@ -5,6 +5,7 @@ const heartbeatMs = Number.parseInt(process.env.VBOS_NPM_HEARTBEAT_MS || '15000'
 const hardTimeoutMs = Number.parseInt(process.env.VBOS_NPM_CI_TIMEOUT_MS || `${20 * 60 * 1000}`, 10);
 const npmArgs = [
   'ci',
+  '--registry=https://registry.npmjs.org/',
   '--no-audit',
   '--no-fund',
   '--progress=false',
@@ -32,6 +33,8 @@ const child = spawn('npm', npmArgs, {
   stdio: ['ignore', 'pipe', 'pipe'],
   env: {
     ...process.env,
+    NPM_CONFIG_REGISTRY: 'https://registry.npmjs.org/',
+    npm_config_registry: 'https://registry.npmjs.org/',
     npm_config_audit: 'false',
     npm_config_fund: 'false',
     npm_config_progress: 'false',

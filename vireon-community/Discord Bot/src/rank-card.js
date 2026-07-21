@@ -1,20 +1,39 @@
-import { createCanvas, loadImage } from "@napi-rs/canvas";
+import { GlobalFonts, createCanvas, loadImage } from "@napi-rs/canvas";
 
-const WIDTH = 960;
-const HEIGHT = 320;
+const WIDTH = 1100;
+const HEIGHT = 360;
+const AVATAR_SIZE = 154;
+const FONT_FAMILY = "VBOS Sans";
+const FONT_FALLBACK = `"${FONT_FAMILY}", "DejaVu Sans", "Noto Sans", "Liberation Sans", sans-serif`;
+const FONT_PATHS = [
+  ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", FONT_FAMILY],
+  ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", FONT_FAMILY],
+  ["/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf", FONT_FAMILY],
+  ["/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf", FONT_FAMILY],
+  ["/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf", FONT_FAMILY],
+  ["/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf", FONT_FAMILY]
+];
 const COLORS = {
-  charcoal: "#08090d",
-  panel: "#10131a",
-  panelSoft: "#171b24",
-  blood: "#7a1016",
-  bloodBright: "#b01822",
-  gold: "#d4af37",
-  mineralGold: "#b8942f",
-  text: "#f2f4f8",
-  muted: "#9aa3b2"
+  bg0: "#070a12",
+  bg1: "#0d1220",
+  panel: "rgba(18, 24, 38, 0.92)",
+  panelSoft: "#171f30",
+  gold: "#f3c95b",
+  goldSoft: "#b8942f",
+  aqua: "#18d8ff",
+  blood: "#981824",
+  bloodBright: "#d11e31",
+  text: "#f7f9ff",
+  muted: "#aab4c7",
+  mutedDark: "#6f7b91",
+  line: "#2a3348"
 };
 
+let fontsReady = false;
+
 export async function renderRankCard({ user, profile, rank, progress }) {
+  ensureRankCardFonts();
+
   const canvas = createCanvas(WIDTH, HEIGHT);
   const ctx = canvas.getContext("2d");
 
@@ -28,42 +47,83 @@ export async function renderRankCard({ user, profile, rank, progress }) {
   return canvas.toBuffer("image/png");
 }
 
+export function ensureRankCardFonts() {
+  if (fontsReady) return;
+  fontsReady = true;
+
+  try {
+    GlobalFonts.loadSystemFonts();
+  } catch {
+    // Rendering continues with canvas fallback fonts.
+  }
+
+  for (const [fontPath, family] of FONT_PATHS) {
+    try {
+      GlobalFonts.registerFromPath(fontPath, family);
+    } catch {
+      // Optional font path, depends on host/container image.
+    }
+  }
+}
+
 function drawBackground(ctx) {
   const gradient = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
-  gradient.addColorStop(0, COLORS.charcoal);
-  gradient.addColorStop(0.56, COLORS.panel);
-  gradient.addColorStop(1, "#050608");
+  gradient.addColorStop(0, COLORS.bg0);
+  gradient.addColorStop(0.55, COLORS.bg1);
+  gradient.addColorStop(1, "#04050a");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-  ctx.fillStyle = COLORS.blood;
-  ctx.globalAlpha = 0.82;
+  const red = ctx.createLinearGradient(0, 0, 360, HEIGHT);
+  red.addColorStop(0, COLORS.blood);
+  red.addColorStop(1, "#5a0b13");
+  ctx.fillStyle = red;
   ctx.beginPath();
   ctx.moveTo(0, 0);
-  ctx.lineTo(320, 0);
-  ctx.lineTo(250, HEIGHT);
+  ctx.lineTo(355, 0);
+  ctx.lineTo(292, HEIGHT);
   ctx.lineTo(0, HEIGHT);
   ctx.closePath();
   ctx.fill();
+
+  ctx.globalAlpha = 0.5;
+  ctx.strokeStyle = COLORS.aqua;
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < 8; i += 1) {
+    ctx.beginPath();
+    ctx.arc(150, 180, 80 + i * 23, Math.PI * 1.18, Math.PI * 1.82);
+    ctx.stroke();
+  }
   ctx.globalAlpha = 1;
 
-  ctx.strokeStyle = COLORS.gold;
+  const border = ctx.createLinearGradient(24, 24, WIDTH - 24, HEIGHT - 24);
+  border.addColorStop(0, COLORS.gold);
+  border.addColorStop(0.5, COLORS.aqua);
+  border.addColorStop(1, COLORS.gold);
+  ctx.strokeStyle = border;
   ctx.lineWidth = 2;
-  ctx.strokeRect(18, 18, WIDTH - 36, HEIGHT - 36);
+  roundRect(ctx, 24, 24, WIDTH - 48, HEIGHT - 48, 18);
+  ctx.stroke();
 
-  ctx.fillStyle = COLORS.panelSoft;
-  roundRect(ctx, 280, 44, 632, 232, 18);
+  ctx.fillStyle = COLORS.panel;
+  roundRect(ctx, 330, 48, 720, 250, 24);
   ctx.fill();
+
+  ctx.strokeStyle = "rgba(255,255,255,0.06)";
+  ctx.lineWidth = 1;
+  roundRect(ctx, 330, 48, 720, 250, 24);
+  ctx.stroke();
 }
 
 async function drawAvatar(ctx, user) {
-  const x = 72;
+  const x = 78;
   const y = 70;
-  const size = 168;
+  const size = AVATAR_SIZE;
+  const center = x + size / 2;
 
   ctx.save();
   ctx.beginPath();
-  ctx.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
+  ctx.arc(center, y + size / 2, size / 2, 0, Math.PI * 2);
   ctx.clip();
 
   let drewAvatar = false;
@@ -80,101 +140,138 @@ async function drawAvatar(ctx, user) {
   if (!drewAvatar) {
     const gradient = ctx.createLinearGradient(x, y, x + size, y + size);
     gradient.addColorStop(0, COLORS.bloodBright);
-    gradient.addColorStop(1, COLORS.mineralGold);
+    gradient.addColorStop(0.5, COLORS.aqua);
+    gradient.addColorStop(1, COLORS.goldSoft);
     ctx.fillStyle = gradient;
     ctx.fillRect(x, y, size, size);
     ctx.fillStyle = COLORS.text;
-    ctx.font = "700 64px Georgia, serif";
+    ctx.font = rankFont(700, 58);
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(getInitials(user.displayName), x + size / 2, y + size / 2 + 2);
+    ctx.fillText(getInitials(user.displayName), center, y + size / 2 + 2);
   }
 
   ctx.restore();
+
   ctx.strokeStyle = COLORS.gold;
   ctx.lineWidth = 5;
   ctx.beginPath();
-  ctx.arc(x + size / 2, y + size / 2, size / 2 + 3, 0, Math.PI * 2);
+  ctx.arc(center, y + size / 2, size / 2 + 4, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.strokeStyle = COLORS.aqua;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(center, y + size / 2, size / 2 + 12, Math.PI * 0.12, Math.PI * 1.68);
   ctx.stroke();
 }
 
 function drawIdentity(ctx, user, rank) {
-  ctx.fillStyle = COLORS.gold;
-  ctx.font = "700 34px Georgia, serif";
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
-  ctx.fillText("Vireon Rank Card", 310, 88);
+
+  ctx.fillStyle = COLORS.aqua;
+  ctx.font = rankFont(800, 15);
+  ctx.letterSpacing = "2px";
+  ctx.fillText("VIREON XP ENGINE", 365, 88);
+  ctx.letterSpacing = "0px";
 
   ctx.fillStyle = COLORS.text;
-  ctx.font = "700 42px Georgia, serif";
-  ctx.fillText(truncateText(ctx, user.displayName, 410), 310, 142);
+  ctx.font = rankFont(800, 44);
+  ctx.fillText(truncateText(ctx, user.displayName, 470), 365, 145);
 
   ctx.fillStyle = COLORS.muted;
-  ctx.font = "500 20px Arial, sans-serif";
-  ctx.fillText(user.tag ?? user.id, 312, 176);
+  ctx.font = rankFont(500, 20);
+  ctx.fillText(truncateText(ctx, user.tag ?? user.id, 430), 367, 180);
 
-  ctx.fillStyle = COLORS.bloodBright;
-  roundRect(ctx, 740, 70, 132, 58, 14);
+  const rankLabel = `#${Number(rank || 0).toLocaleString()}`;
+  const badgeWidth = Math.max(138, ctx.measureText(rankLabel).width + 54);
+  const badgeX = 880 - badgeWidth / 2;
+  const badgeGradient = ctx.createLinearGradient(badgeX, 70, badgeX + badgeWidth, 132);
+  badgeGradient.addColorStop(0, COLORS.bloodBright);
+  badgeGradient.addColorStop(1, "#b71425");
+  ctx.fillStyle = badgeGradient;
+  roundRect(ctx, badgeX, 70, badgeWidth, 62, 16);
   ctx.fill();
+
   ctx.fillStyle = COLORS.text;
-  ctx.font = "800 28px Arial, sans-serif";
+  ctx.font = rankFont(900, 30);
   ctx.textAlign = "center";
-  ctx.fillText(`#${rank}`, 806, 108);
+  ctx.fillText(rankLabel, badgeX + badgeWidth / 2, 110);
+
+  ctx.fillStyle = COLORS.muted;
+  ctx.font = rankFont(700, 12);
+  ctx.fillText("SERVER RANK", badgeX + badgeWidth / 2, 152);
 }
 
 function drawStats(ctx, profile, progress) {
   const stats = [
-    ["LEVEL", String(profile.level ?? progress.level)],
-    ["XP", Number(profile.xp ?? 0).toLocaleString()],
-    ["NEXT", progress.nextLevelXp === null ? "MAX" : progress.xpNeededForNextLevel.toLocaleString()]
+    ["LEVEL", String(profile.level ?? progress.level ?? 0)],
+    ["TOTAL XP", Number(profile.xp ?? 0).toLocaleString()],
+    ["NEXT", progress.nextLevelXp === null ? "MAX" : Number(progress.xpNeededForNextLevel ?? 0).toLocaleString()]
   ];
 
   stats.forEach(([label, value], index) => {
-    const x = 310 + index * 185;
-    ctx.fillStyle = COLORS.charcoal;
-    roundRect(ctx, x, 198, 150, 54, 12);
+    const x = 365 + index * 205;
+    ctx.fillStyle = "rgba(5, 7, 12, 0.82)";
+    roundRect(ctx, x, 204, 172, 64, 14);
     ctx.fill();
+    ctx.strokeStyle = COLORS.line;
+    ctx.lineWidth = 1;
+    roundRect(ctx, x, 204, 172, 64, 14);
+    ctx.stroke();
+
     ctx.fillStyle = COLORS.muted;
-    ctx.font = "700 12px Arial, sans-serif";
+    ctx.font = rankFont(800, 12);
     ctx.textAlign = "left";
-    ctx.fillText(label, x + 14, 218);
+    ctx.fillText(label, x + 16, 228);
+
     ctx.fillStyle = COLORS.gold;
-    ctx.font = "800 22px Arial, sans-serif";
-    ctx.fillText(value, x + 14, 244);
+    ctx.font = rankFont(900, 25);
+    ctx.fillText(truncateText(ctx, value, 136), x + 16, 256);
   });
 }
 
 function drawProgress(ctx, progress) {
-  const x = 310;
-  const y = 270;
-  const width = 562;
-  const height = 16;
-  const filled = Math.round(width * (progress.percentToNextLevel / 100));
+  const x = 365;
+  const y = 292;
+  const width = 642;
+  const height = 18;
+  const percent = clamp(Number(progress.percentToNextLevel ?? 0), 0, 100);
+  const filled = Math.round(width * (percent / 100));
 
-  ctx.fillStyle = COLORS.charcoal;
-  roundRect(ctx, x, y, width, height, 8);
+  ctx.fillStyle = "rgba(5, 7, 12, 0.92)";
+  roundRect(ctx, x, y, width, height, 9);
   ctx.fill();
-  const gradient = ctx.createLinearGradient(x, y, x + width, y);
-  gradient.addColorStop(0, COLORS.bloodBright);
-  gradient.addColorStop(1, COLORS.gold);
-  ctx.fillStyle = gradient;
-  roundRect(ctx, x, y, filled, height, 8);
-  ctx.fill();
+
+  if (filled > 0) {
+    const gradient = ctx.createLinearGradient(x, y, x + width, y);
+    gradient.addColorStop(0, COLORS.bloodBright);
+    gradient.addColorStop(0.58, COLORS.gold);
+    gradient.addColorStop(1, COLORS.aqua);
+    ctx.fillStyle = gradient;
+    roundRect(ctx, x, y, filled, height, 9);
+    ctx.fill();
+  }
 
   ctx.fillStyle = COLORS.muted;
-  ctx.font = "600 13px Arial, sans-serif";
+  ctx.font = rankFont(700, 14);
   ctx.textAlign = "right";
-  ctx.fillText(`${progress.percentToNextLevel}% to next level`, x + width, y - 8);
+  ctx.fillText(`${percent}% to next level`, x + width, y - 10);
 }
 
 function drawFooter(ctx) {
-  ctx.fillStyle = COLORS.gold;
-  ctx.font = "700 18px Georgia, serif";
   ctx.textAlign = "left";
-  ctx.fillText("VIREON NETWORK", 72, 274);
+  ctx.fillStyle = COLORS.text;
+  ctx.font = rankFont(900, 19);
+  ctx.fillText("VIREON NETWORK", 78, 268);
   ctx.fillStyle = COLORS.muted;
-  ctx.font = "500 13px Arial, sans-serif";
-  ctx.fillText("Blood Red / Charcoal / Mineral Gold", 72, 296);
+  ctx.font = rankFont(500, 13);
+  ctx.fillText("Rank • XP • Shards • Community", 78, 292);
+}
+
+function rankFont(weight, size) {
+  return `${weight} ${size}px ${FONT_FALLBACK}`;
 }
 
 function getInitials(value = "V") {
@@ -195,6 +292,11 @@ function truncateText(ctx, value, maxWidth) {
     next = next.slice(0, -1);
   }
   return `${next}...`;
+}
+
+function clamp(value, min, max) {
+  if (!Number.isFinite(value)) return min;
+  return Math.max(min, Math.min(max, Math.round(value)));
 }
 
 function roundRect(ctx, x, y, width, height, radius) {

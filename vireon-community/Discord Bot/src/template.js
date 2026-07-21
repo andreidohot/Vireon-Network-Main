@@ -241,6 +241,104 @@ export const CHANNEL_TEMPLATE = [
   }
 ];
 
+
+
+export const SETUP_TEMPLATE_PRESETS = [
+  {
+    id: "starter",
+    name: "Starter",
+    description: "Minimal safe community setup: start here, community, support, admin and voice.",
+    categories: ["START HERE", "COMMUNITY", "SUPPORT AND SAFETY", "ADMIN", "VOICE"]
+  },
+  {
+    id: "community",
+    name: "Community",
+    description: "Balanced public community setup with governance and support areas.",
+    categories: ["START HERE", "COMMUNITY", "GOVERNANCE", "SUPPORT AND SAFETY", "ADMIN", "VOICE"]
+  },
+  {
+    id: "developer",
+    name: "Developer",
+    description: "Community plus protocol/developer workspaces.",
+    categories: ["START HERE", "COMMUNITY", "VIREON DEVELOPMENT", "GOVERNANCE", "SUPPORT AND SAFETY", "ADMIN", "VOICE"]
+  },
+  {
+    id: "gaming",
+    name: "Gaming",
+    description: "Community server setup for games/apps with ecosystem, support, staff and voice.",
+    categories: ["START HERE", "COMMUNITY", "ECOSYSTEM", "SUPPORT AND SAFETY", "ADMIN", "VOICE"]
+  },
+  {
+    id: "ultimate",
+    name: "Ultimate",
+    description: "Full VBOS/Vireon structure with all standard categories.",
+    categories: null
+  }
+];
+
+export const RANK_ROLE_TEMPLATE = [
+  1, 2, 3, 4, 5, 10, 15, 20, 25, 30,
+  40, 50, 60, 75, 100, 125, 150, 175, 200,
+  250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000
+].map((level) => ({
+  key: `rankLevel${level}`,
+  name: `Level ${level}`,
+  color: level >= 500 ? 0xd4af37 : level >= 100 ? 0x14d4ff : 0x828282,
+  hoist: false,
+  permissions: [],
+  reason: `Optional VBOS XP rank reward role for level ${level}.`,
+  rankLevel: level
+}));
+
+export function normalizeSetupTemplateId(templateId) {
+  const normalized = String(templateId ?? "ultimate").trim().toLowerCase();
+  return SETUP_TEMPLATE_PRESETS.some((preset) => preset.id === normalized) ? normalized : "ultimate";
+}
+
+export function getSetupTemplatePreset(templateId = "ultimate") {
+  const id = normalizeSetupTemplateId(templateId);
+  return SETUP_TEMPLATE_PRESETS.find((preset) => preset.id === id) ?? SETUP_TEMPLATE_PRESETS.at(-1);
+}
+
+export function getSetupChannelTemplate(templateId = "ultimate") {
+  const preset = getSetupTemplatePreset(templateId);
+  if (!preset.categories) return CHANNEL_TEMPLATE;
+  const allowed = new Set(preset.categories);
+  return CHANNEL_TEMPLATE.filter((category) => allowed.has(category.name));
+}
+
+export function getSetupRoleTemplate({ includeRankRoles = false } = {}) {
+  return includeRankRoles ? [...ROLE_TEMPLATE, ...RANK_ROLE_TEMPLATE] : ROLE_TEMPLATE;
+}
+
+export function getSetupSeedMessages(channelTemplates = CHANNEL_TEMPLATE) {
+  const channelNames = new Set();
+  for (const category of channelTemplates) {
+    for (const child of category.children ?? []) channelNames.add(child.name);
+  }
+
+  return Object.fromEntries(
+    Object.entries(SEED_MESSAGES).filter(([channelName]) => channelNames.has(channelName))
+  );
+}
+
+export function describeSetupPlan({ templateId = "ultimate", includeRankRoles = false } = {}) {
+  const preset = getSetupTemplatePreset(templateId);
+  const channels = getSetupChannelTemplate(preset.id);
+  const textChannels = channels.reduce((count, category) => count + (category.children ?? []).filter((child) => (child.type ?? ChannelType.GuildText) === ChannelType.GuildText).length, 0);
+  const voiceChannels = channels.reduce((count, category) => count + (category.children ?? []).filter((child) => child.type === ChannelType.GuildVoice).length, 0);
+  return {
+    id: preset.id,
+    name: preset.name,
+    description: preset.description,
+    categories: channels.length,
+    textChannels,
+    voiceChannels,
+    roles: ROLE_TEMPLATE.length + (includeRankRoles ? RANK_ROLE_TEMPLATE.length : 0),
+    rankRoles: includeRankRoles ? RANK_ROLE_TEMPLATE.length : 0
+  };
+}
+
 export const SEED_MESSAGES = {
   welcome: [
     {
